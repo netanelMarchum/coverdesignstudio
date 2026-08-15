@@ -447,7 +447,11 @@ window.pageTransition = (function () {
       var v = btn.parentElement.querySelector('.reel-video');
       if (!v) return;
       v.muted = !v.muted;
-      btn.textContent = v.muted ? '🔇' : '🔊';
+      // Both icons are in the markup; CSS shows one. The script only states
+      // which, so the button's accessible name and its drawing cannot drift
+      // apart the way they did when the glyph was rewritten here.
+      btn.setAttribute('data-muted', String(v.muted));
+      btn.setAttribute('aria-label', v.muted ? 'הפעלת סאונד' : 'השתקה');
       if (!v.muted) v.play().catch(function () {});
     });
   });

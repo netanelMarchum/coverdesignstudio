@@ -1,0 +1,148 @@
+/* ==========================================================================
+   Google Sans — the site's type, declared once and shared by every stylesheet.
+
+   Generated from the source TTFs in /font, not written by hand: the family
+   names, weights and styles below are read out of each file's name and OS/2
+   tables, so nothing here is a guess about what the files contain.
+
+   WHAT IS ACTUALLY IN THE FAMILY
+   Two optical sizes, four weights each, every one with a true italic:
+
+     Google Sans        x-height 510/1000   — the DISPLAY cut
+     Google Sans 17pt   x-height 526/1000   — the TEXT cut
+
+   Same cap height in both, so the larger x-height in the 17pt cut is a real
+   optical-size design for small sizes, not a different family. Display goes on
+   headlines, text goes on everything you actually read.
+
+     400 Regular · 500 Medium · 600 SemiBold · 700 Bold  (+ italic of each)
+
+   There is NO Light (300), NO ExtraBold (800) and NO Black (900) in these
+   files, so no rule in this project may ask for one — the browser would
+   silently round it to the nearest real weight and the hierarchy would be a
+   fiction. Where this site previously set 300, it now sets 400.
+
+   The sources are ~2 MB apiece. Subset to Hebrew + Latin + punctuation and
+   compressed to woff2 by scripts/build-fonts.mjs, each face is about 25 KB.
+   ========================================================================== */
+
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-Regular.woff2') format('woff2');
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-Italic.woff2') format('woff2');
+  font-weight:400;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-Medium.woff2') format('woff2');
+  font-weight:500;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-MediumItalic.woff2') format('woff2');
+  font-weight:500;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-SemiBold.woff2') format('woff2');
+  font-weight:600;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-SemiBoldItalic.woff2') format('woff2');
+  font-weight:600;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-Bold.woff2') format('woff2');
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans';
+  src:url('../fonts/GoogleSans-BoldItalic.woff2') format('woff2');
+  font-weight:700;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-Regular.woff2') format('woff2');
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-Italic.woff2') format('woff2');
+  font-weight:400;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-Medium.woff2') format('woff2');
+  font-weight:500;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-MediumItalic.woff2') format('woff2');
+  font-weight:500;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-SemiBold.woff2') format('woff2');
+  font-weight:600;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-SemiBoldItalic.woff2') format('woff2');
+  font-weight:600;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-Bold.woff2') format('woff2');
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Google Sans 17pt';
+  src:url('../fonts/GoogleSans_17pt-BoldItalic.woff2') format('woff2');
+  font-weight:700;
+  font-style:italic;
+  font-display:swap;
+}
+
+/* The wordmark keeps its own face. Karantina is the studio's logotype — it is
+   not part of the Google Sans system and is not used for anything else. */
+@font-face{
+  font-family:'Karantina';
+  src:url('../fonts/Karantina-Bold.woff2') format('woff2');
+  font-weight:700; font-style:normal; font-display:swap;
+}

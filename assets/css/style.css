@@ -1,0 +1,1530 @@
+/* Studio Cover Design — site styles (fonts, colors, layout) */
+
+/* Every @font-face now lives in assets/css/fonts.css, loaded ahead of this
+   sheet by each page, so the two designs in this project declare the family
+   once between them instead of once each. */
+
+/* ==========================================================================
+   Design tokens — the single source of truth for colour, space, type,
+   radius, elevation and motion. Components below only ever reference these.
+   ========================================================================== */
+:root{
+  /* ---- Brand palette ----------------------------------------------------
+     Two brand anchors: #F38218 and #0A0A0A. Nothing else is a colour —
+     every value below is a shade or tint of one of those two, which is why
+     there are no cool casts anywhere in this file. Where the raw brand
+     orange cannot legally carry text, a darker shade of the SAME hue does
+     the job: a derived variant, not a second colour.
+     Every pairing is contrast-checked — ratios noted inline. */
+  --accent:#F38218;      /* brand orange. 7.56:1 on --dark — a DARK-surface colour */
+  --dark:#0A0A0A;        /* 20.2:1 with white — the primary base */
+  --white:#FFFFFF;
+
+  /* Dark ramp: deepest → base → elevated (cards sitting on --dark). */
+  --dark-3:#050505;
+  --dark-2:#161616;      /* white 18.1:1 — cards sitting on --dark */
+
+  /* Accent variants.
+     The brand orange is only 2.62:1 on white — it fails AA for text AND the 3:1 bar for
+     UI components, so on light surfaces it may only be a decorative fill.
+     --accent-deep is the same hue taken one step down for LARGE text on light
+     (4.87:1 on white, 4.54:1 on the --off sections); it backs every accent
+     label and every button carrying white text.
+     --accent-3 is the brand orange itself: on the black it already measures
+     7.56:1, so no separate light variant is needed. */
+  /* Orange is a SURFACE, not an ink. Any orange dark enough to carry small
+     text on white sits at L*37% — which is brown, not orange, and that is
+     physics rather than taste. So the strong brand orange fills shapes and
+     black rides on top of it (7.56:1), instead of orange text on white
+     (2.62:1 — fails). --accent-deep is the one concession: L*45%, still
+     visibly orange, for LARGE text only, where the bar is 3:1 (3.33:1 on
+     white, 3.14:1 on --off). Small text on light is never orange. */
+  --accent-deep:#D4740F;
+  --accent-2:#D4740F;    /* gradient partner, 5.5:1 on --dark */
+  --accent-3:#F38218;
+  --brand-grad:linear-gradient(135deg,#F38218 0%,#D4740F 100%);
+
+  /* Atmosphere. Deliberately near-invisible on their own: these are stacked
+     under every section, so anything strong enough to read as "a colour" would
+     read as tinted boxes. The warm one is the brand accent, the cool one is the
+     brand ink — no new hues enter the palette. */
+  --atmo-warm:rgba(243,130,24,.055);
+  --atmo-cool:rgba(10,10,10,.035);
+  /* Card faces carry the faintest top-down fall so they read as surfaces
+     catching light rather than flat cut-outs. 2% of tone, no hue shift. */
+  --surface-card:linear-gradient(180deg,#FFFFFF 0%,#FAFAFA 100%);
+
+  /* Heading gradient. Both ends clear on their own — see the block that uses
+     them. 'to left' starts the ink at the right edge, where an RTL heading
+     starts reading. */
+  --grad-heading:linear-gradient(to left,#0A0A0A 0%,#D4740F 92%);
+  --grad-heading-on-dark:linear-gradient(to left,#FFFFFF 0%,#F38218 92%);
+  --glow-heading:rgba(243,130,24,.20);
+
+  --off:#F8F8F8;
+  --text:#0A0A0A;
+  --text-dim:#4B4B4B;    /* 8.2:1 on white */
+  --text-soft:#6A6A6A;   /* 5.7:1 on white, 5.5:1 on --off */
+  --border:rgba(10,10,10,.1);
+  --border-dark:rgba(255,255,255,.12);
+  /* Marquee gradient: the darkest stop leads so the lightest tone reached is
+     #E27916, keeping the 20px bold ticker text at/above the 3:1 large-text
+     bar (3.01:1 on white — the raw brand orange drops it to 2.62). */
+  --ticker-grad:linear-gradient(90deg,#C86D0E 0%,#D4740F 50%,#C86D0E 100%);
+
+  /* Layout space — 4px base. Governs page rhythm: section padding, grid gaps,
+     the distance between blocks. */
+  --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px;
+  --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px; --s-10:128px;
+
+  /* Component space — the supplied 8-step scale, for distances INSIDE a
+     control: pill padding, icon gaps, indicator sizes, hairlines.
+     Kept separate from the layout scale on purpose: it tops out at 20px, which
+     is smaller than a single section's padding, so it cannot express page
+     rhythm. Mixing the two would collapse the white space the layout depends on.
+     --c-2 is fractional; reserve it for transforms/insets rather than borders
+     or gaps, where sub-pixel values round differently per DPR. */
+  --c-1:1px;   --c-2:2.8px; --c-3:5px;
+  --c-5:8px;   --c-6:10px;
+
+  /* Type weight — FOUR, and four is exactly what the family ships. Verified
+     against the OS/2 usWeightClass of every file in /font: 400, 500, 600, 700,
+     each with a true italic. There is no Light, no ExtraBold and no Black, so
+     nothing here may ask for 300, 800 or 900 — the browser would round it to a
+     real weight and the hierarchy would only look like it had more steps.
+
+     What each one is for. The rule is that a weight change has to mean
+     something: a jump from 400 to 700 says "this is a different kind of thing",
+     and 500 and 600 are how a label or a subheading sits above body copy
+     without shouting. The old sheet had two weights doing all of this, which is
+     why almost everything on the page was bold. */
+  --fw-regular:400;    /* body copy, long-form, captions, secondary text     */
+  --fw-medium:500;     /* subheadings, navigation, data lines, controls      */
+  --fw-semibold:600;   /* labels, eyebrows, buttons, small titles            */
+  --fw-bold:700;       /* headlines and display only                        */
+
+  /* Line height. --lh-flat is for controls and wordmarks that must not carry
+     leading at all (icon buttons, the logo); everything else reads. */
+  --lh-flat:1; --lh-tight:1.25; --lh-normal:1.6; --lh-relaxed:1.7;
+
+  /* Letter spacing. Display type tightens, micro-labels track out. */
+  --ls-display:-.015em; --ls-label:.02em; --ls-tracked:.18em;
+
+  /* Copy measures. --maxw is the page shell; these are how wide text may run
+     before the line becomes hard to track back. */
+  --maxw-read:720px; --maxw-narrow:620px;
+
+  /* type scale */
+  --t-xs:.82rem; --t-sm:.92rem; --t-base:1rem; --t-md:1.08rem;
+  --t-lg:1.25rem;
+  --t-2xl:clamp(1.7rem,3.2vw,2.5rem);
+  /* The display tier lives on .intro-word, which sets its own clamp: it is the
+     only element on the site that large, so a token for it had no second user. */
+
+  /* Radius — four steps. LG is a full pill, so cards use MD, not LG.
+     (--r-xl and --r-pill are gone: XL had no users, and pill IS --r-lg now.) */
+  --r-xs:5px; --r-sm:8px; --r-md:20px; --r-lg:9999px;
+
+  /* elevation */
+  --sh-1:0 2px 8px rgba(10,10,10,.05);
+  --sh-2:0 12px 30px -12px rgba(10,10,10,.14);
+  --sh-3:0 24px 60px -18px rgba(10,10,10,.22);
+  --sh-accent:0 14px 34px -10px rgba(243,130,24,.5);
+  --sh-glow:0 20px 48px -14px rgba(226,103,12,.26);   /* accent-2 hover lift */
+  --sh-overlay:0 24px 60px -12px rgba(0,0,0,.28);    /* floating chrome */
+
+  /* motion — one easing + duration language across the whole site */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-out:cubic-bezier(.22,.61,.36,1);
+  /* For travel that is the point of the animation rather than a settle — the
+     preloader reveal. Both curves above are front-loaded and finish the travel
+     before the eye has followed it. */
+  --ease-wipe:cubic-bezier(.62,.04,.36,1);
+  /* Timing scale. Every value here is a named beat from the motion spec, so a
+     component picks the beat that matches what it IS rather than inventing a
+     number. --ease is already easeOutExpo — cubic-bezier(.16,1,.3,1) is that
+     curve exactly — so the spec's easing requirement needed no new token. */
+  --d-press:.10s;        /* button + card press                       */
+  --d-fast:.18s;         /* button + micro hover, focus, tooltip      */
+  --d-card:.24s;         /* card hover lift, menu close               */
+  --d-dropdown:.26s;     /* dropdown / panel open                     */
+  --d-mid:.32s;          /* menu open                                 */
+  --d-loader-out:.35s;   /* loader fade                               */
+  --d-card-reveal:.36s;  /* a card arriving                           */
+  --d-reveal:.45s;       /* section reveal / scroll-trigger           */
+  --d-image:.50s;        /* image fade-in                             */
+  --d-page:.52s;         /* full-page entrance                        */
+  --d-slow:.60s;         /* long-travel transitions                   */
+
+  /* Interaction gestures. Cards lifted by -5px in four places and -6px in five;
+     media zoomed to 1.03, 1.05, 1.1 and 1.12. One distance, one zoom — a card
+     that lifts differently from the card beside it reads as a bug, not a
+     flourish. --lift-float is only for the round floating controls, which are
+     small enough that the card distance would be imperceptible on them. */
+  /* --zoom-media was 1.05. Media hover is a uniform scale and nothing else —
+     never a skew, a rotation or a per-axis scale, which is what makes an image
+     look broken rather than presented. --lift-bright rides with it so the
+     hovered piece comes forward on light as well as size. */
+  --lift-card:-6px; --lift-btn:-2px; --lift-float:1.1;
+  --zoom-media:1.03; --lift-bright:1.06;
+  --rise-block:28px;   /* how far a section rises into place */
+  --rise-item:22px;    /* how far one card in a staggered grid rises */
+  --stagger:.05s;       /* gap between siblings in a staggered grid  */
+  --stagger-hero:.12s;  /* gap between the hero's own elements       */
+
+  /* Borders — the site is a 1px-hairline system; 2px is reserved for controls
+     that must read as pressable (buttons) and 1.5px was a one-off. */
+  --bd-hair:1px; --bd-control:2px;
+
+  /* Blur. One step, because there is one translucent surface on the site: the
+     header. `veil` and `bloom` described a second and third layer of glass that
+     the material pass removed. */
+  --blur-chrome:12px;
+
+  /* Opacity. The grain value looks high for an overlay because the tiles are built with
+     their mean at the blend-neutral end (see the film texture block): they move
+     flat white or flat black only ~2-4 levels out of 255. That shift is the
+     number that matters, not the opacity.
+     Dark and light carry DIFFERENT opacities on purpose. The tiles are cut to
+     the same standard deviation, but the eye does not read them that way: 3
+     levels of variation on near-black is a ~15% luminance change and shouts,
+     while 3 levels on white is ~1% and whispers. Weighting the dark layer down
+     and the light layer up is what makes one texture read as the same texture
+     across a site that is mostly white with black sections. */
+  --o-grain:.035;       /* the single noise layer */
+
+  /* Icon sizes — was 17/18/26/30px with no relationship. */
+  --icon-sm:18px; --icon-md:24px; --icon-lg:30px;
+
+  /* Focus ring. A focus indicator is a non-text UI boundary, so it owes 3:1
+     against the surface behind it (WCAG 2.2 SC 1.4.11). --accent is 2.8:1 on
+     white and cannot be it; --accent-deep clears both surfaces (3.33:1 on
+     white, 3.89:1 on --dark). Dark sections override back to --accent below,
+     where it measures 7.7:1 and looks like the brand rather than rust. */
+  --color-focus:var(--accent-deep);
+
+  /* Status. Error was once rendered in the accent, i.e. indistinguishable from a
+     brand label; success was #1a9c5c, 3.4:1 on white and short of AA for the
+     14px bold it is used at. Both re-cut to clear 4.5:1 (5.4:1 and 5.9:1). */
+  --status-success:#0F7A44;
+  --status-error:#C0261B;
+
+  /* Z-index — one ladder. Everything that stacks names its layer here instead
+     of inventing a number, which is how 90/100/200/201/900/999/1000/1001 all
+     ended up in the sheet with no stated relationship.
+     #cx keeps its own 0–20 scale: `perspective` makes it a stacking context,
+     so those values are scoped to that scene and cannot collide with these. */
+  --z-grain:50;      /* global film grain: over surfaces, under all chrome */
+  --z-nav:90;        /* mobile nav drawer */
+  --z-header:100;
+  --z-float:200;     /* WhatsApp + accessibility launchers */
+  --z-panel:300;     /* accessibility dialog */
+  --z-consent:400;   /* cookie banner */
+  --z-veil:900;      /* page / language transition */
+  --z-loader:1000;   /* preloader curtain */
+
+  --maxw:1240px;
+  --radius:var(--r-md);
+  /* Two optical sizes of one family, and they are not interchangeable.
+     Measured from the files: both cut to a 716/1000 cap height, but the 17pt
+     text cut carries a 526 x-height against the display cut's 510. A larger
+     x-height at the same cap is what a text face is FOR — it keeps small sizes
+     open. Using the display cut for body copy would set the whole site slightly
+     too closed, and using the text cut for a 40px headline would leave it
+     looking soft. So: display above ~24px, text everywhere else. */
+  --font-display:'Google Sans','Segoe UI',Arial,sans-serif;
+  --font:'Google Sans 17pt','Google Sans','Segoe UI',Arial,sans-serif;
+}
+
+/* ==========================================================================
+   Noise overlay
+   --------------------------------------------------------------------------
+   One fixed layer for the whole site, so the texture is identical on every
+   page and does not scroll with the content (texture that scrolls reads as a
+   pattern; texture locked to the viewport reads as film).
+
+   On z-index: it sits at --z-grain — above all page surfaces, below every
+   piece of chrome (header, floats, dialogs, transition veil). pointer-events
+   :none keeps it out of hit-testing entirely, so it cannot touch clicks, text
+   selection or keyboard focus.
+
+   The tile is monochrome noise centred on mid-grey, composited with PLAIN
+   ALPHA and deliberately no mix-blend-mode. That is not the obvious choice,
+   so: this site is white sections and #0A0A0A sections — the two extremes,
+   and every blend mode collapses at one end or both. Measured on this tile
+   at 3.5%, screen no-ops on white, multiply no-ops on black, and overlay
+   compresses at BOTH — 0.00 levels of variation on #FFFFFF and 0.12 on
+   #0A0A0A. An invisible layer.
+
+   Plain alpha is the only compositing that lands identically everywhere:
+   2.11 levels of swing on every surface, white and near-black alike. The
+   cost is a uniform mean shift — white settles 4.4 levels down, the base
+   4.2 up — but it applies to the whole viewport at once, so there is no seam
+   anywhere; the page just sits very slightly softer.
+
+   This replaced a three-layer system (screen grain + multiply grain + dust).
+   One consistent layer was the requirement.
+
+   256px tile painted at 128px so it is pixel-exact on 2x displays.
+   ========================================================================== */
+.grain{
+  position:fixed; inset:0;
+  z-index:var(--z-grain);
+  pointer-events:none;
+  opacity:var(--o-grain);
+  background:url(../img/texture/noise.webp) 0 0/128px 128px repeat;
+  /* Promoted once instead of being re-rasterised on every scroll frame. */
+  will-change:transform;
+  transform:translateZ(0);
+  contain:strict;
+}
+/* Phones: a touch less of it. */
+@media (max-width:768px){
+  :root{--o-grain:.028}
+}
+/* The texture is decoration. Anyone who has asked for reduced transparency or
+   is running the high-contrast / grayscale a11y modes gets a clean surface. */
+@media (prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  .grain{display:none}
+}
+html.a11y-contrast .grain,html.a11y-grayscale .grain{display:none}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; overflow-x:clip}
+body{
+  margin:0; background:var(--white); color:var(--text);
+  font-family:var(--font); font-weight:var(--fw-regular); line-height:var(--lh-relaxed);
+  overflow-x:clip;
+}
+img{max-width:100%; display:block}
+a{color:inherit; text-decoration:none}
+ul{list-style:none; margin:0; padding:0}
+/* h1 and h2 are the display tier: big enough for the display cut's tighter
+   fitting and smaller x-height to be the right choice. */
+h1,h2{
+  margin:0 0 .5em; font-family:var(--font-display);
+  font-weight:var(--fw-bold); line-height:var(--lh-tight);
+  letter-spacing:var(--ls-display);
+}
+/* h3–h5 are subheadings inside components — 17 to 20px, which is text-cut
+   territory. SemiBold, not Bold: at this size the weight only has to lift the
+   line off the paragraph under it, and 700 here is what made every card on the
+   site read as a headline. */
+h3,h4,h5{
+  margin:0 0 .5em; font-weight:var(--fw-semibold); line-height:var(--lh-tight);
+}
+p{margin:0 0 1em; color:var(--text-dim)}
+.container{max-width:var(--maxw); margin:0 auto; padding:0 var(--s-5)}
+
+.eyebrow{
+  display:inline-block; font-size:var(--t-sm); font-weight:var(--fw-semibold);
+  color:var(--text); margin-bottom:.6em; letter-spacing:var(--ls-label);
+}
+.section-dark .eyebrow{color:var(--accent-3)}
+/* The eyebrow used to carry the orange gradient. It is 16.3px bold — under the
+   18.66px where the large-text 3:1 bar starts — so it owes 4.5:1, and no
+   orange reaches that on white without turning brown. It reads as ink here;
+   the orange does its work in the fills and the display headings. On the dark
+   sections it goes back to full brand orange, where it measures 7.56:1. */
+.brand-mark{color:var(--text); font-weight:var(--fw-semibold)}
+.section-dark .brand-mark{color:#fff}
+/* --accent-deep is tuned for light surfaces; on the dark footer it drops to
+   3.4:1, so use the light accent there instead. */
+.site-footer .brand-mark{color:var(--accent-3)}
+/* ==========================================================================
+   Section atmosphere.
+   Every section carries the same field so the page reads as one art-directed
+   surface rather than a stack of white boxes: a pair of very low alpha radial
+   washes for depth. Pure gradients — no filter:blur(), which at section size is
+   the expensive way to get the same softness. The micro-dot grid that used to
+   sit here went with the rest of the decorative textures; the single noise
+   layer is the only texture on the site now.
+
+   isolation:isolate is load-bearing. Without a stacking context here, a
+   z-index:-1 child paints BELOW its own parent's background, so the whole
+   atmosphere would sit behind the white and be invisible.
+
+   The pseudo-elements are position:absolute, so they stay out of flow. */
+.section{
+  padding:clamp(64px,9vw,var(--s-9)) 0;
+  position:relative; isolation:isolate;
+  background:var(--white);
+}
+.section::before{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(58% 40% at 50% 0%, var(--atmo-warm), transparent 70%),
+    radial-gradient(46% 38% at 6% 100%, var(--atmo-cool), transparent 72%);
+}
+
+/* The off-white band feathers into the white above and below it instead of
+   meeting it on a hard line — that seam was the most template-looking edge on
+   the page. */
+.section-alt{
+  background:linear-gradient(180deg,
+    var(--white) 0%, var(--off) 7%, var(--off) 93%, var(--white) 100%);
+}
+.section-dark{background:var(--dark); color:#fff}
+
+/* Background showreel.
+   The scrim is not decoration — it is what guarantees the copy stays legible
+   over footage nobody can predict. At 74% over the base, even a frame that is
+   pure white composites to #4A4A4A, so white text still measures ~8:1. Without
+   it the contrast of this section would depend on whatever frame is on screen. */
+.section-video{position:absolute; inset:0; z-index:-1; overflow:hidden; pointer-events:none}
+.section-video video{width:100%; height:100%; object-fit:cover; display:block}
+.section-video::after{content:""; position:absolute; inset:0; background:rgba(10,10,10,.74)}
+/* The section paints its own flat background over the video otherwise. */
+.section-dark.has-video{background:var(--dark)}
+.section-dark.has-video::before{opacity:.6}
+/* On the dark surface the same system inverts: the warm wash carries more
+   weight because it has further to lift off near-black, and the dots go light. */
+.section-dark::before{
+  background:
+    radial-gradient(62% 44% at 50% 0%, rgba(243,130,24,.13), transparent 72%),
+    radial-gradient(52% 40% at 88% 100%, rgba(243,130,24,.07), transparent 74%);
+}
+.section-dark p{color:rgba(255,255,255,.72)}
+.section-dark h2,.section-dark h3,.section-dark h4{color:#fff}
+.section-title{font-size:var(--t-2xl); color:var(--text)}
+.section-dark .section-title{color:#fff}
+
+/* ==========================================================================
+   Heading gradient — one treatment, every level, every page.
+
+   Applied through :where() so it carries zero specificity: any component that
+   needs its own heading treatment (.intro-word runs a scroll-driven fill of
+   its own) overrides this without an !important, and nothing here has to know
+   those components exist.
+
+   -webkit-text-fill-color is what actually paints the glyphs, so it wins over
+   the plain color declarations already scattered through the components
+   below — those stay as the fallback when background-clip:text is missing,
+   which is the whole reason this sits inside @supports.
+
+   Contrast: every stop of each gradient is a colour some glyph is genuinely
+   painted in, so both ends have to clear on their own. On light, #0A0A0A
+   is 19.8:1 and #AD5C11 is 4.87:1 (4.54:1 on --off). On the black,
+   #FFFFFF is 19.8:1 and the brand orange is 7.56:1. The raw brand orange is
+   deliberately absent from the LIGHT ramp — at 2.62:1 on white it fails even
+   the 3:1 large-text bar, so it can fill shapes there but never letterforms.
+   ========================================================================== */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  :where(h1,h2,h3,h4,h5,h6){
+    background-image:var(--grad-heading);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  /* Anywhere the surface goes dark, the ramp inverts. */
+  :where(.section-dark,.site-footer,.strategy-card,#cx) :where(h1,h2,h3,h4,h5,h6){
+    background-image:var(--grad-heading-on-dark);
+  }
+  /* A whisper of the accent behind the display headings only — drop-shadow
+     reads the painted glyphs, so the halo follows the letterforms. Static:
+     an animated filter here repainted five headings every frame, on-screen
+     or not. */
+  .section-title,.legal-h{filter:drop-shadow(0 1px 14px var(--glow-heading))}
+}
+/* High-contrast mode strips it: a transparent fill would otherwise swallow
+   that mode's own color:#fff and leave every heading blank. */
+html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){
+  background-image:none!important; -webkit-text-fill-color:#fff!important;
+  color:#fff!important; filter:none!important;
+}
+
+/* ==========================================================================
+   Text alignment — centred site-wide.
+   Set once at the section level and inherited, rather than repeated on every
+   component: that way a new card or paragraph is centred by default and there
+   is no rule to forget. The two exceptions below are function, not taste. */
+.section,.site-footer,.intro{text-align:center}
+/* A caret that starts mid-field and drifts as you type is disorienting, and
+   the label no longer lines up with what it labels. Inputs stay start-aligned. */
+.contact-form input,.contact-form textarea{text-align:start}
+/* The marquee is a single inline-block track that scrolls; centring its line
+   box would fight the translateX animation. */
+.ticker,.svc-ticker,.logo-ticker-wrap{text-align:start}
+
+.section-head{text-align:center; margin-bottom:var(--s-7); max-width:var(--maxw-read); margin-inline:auto}
+.section-lead{margin:var(--s-3) auto 0; color:var(--text-dim); font-size:var(--t-md)}
+.section-dark .section-lead{color:rgba(255,255,255,.72)}
+
+/* One button component. No idle animation — the pulse read as a banner ad;
+   weight now comes from the shadow and a crisp hover, like the rest of the UI. */
+.btn{
+  position:relative; isolation:isolate;
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
+  padding:14px 34px; border-radius:var(--r-lg);
+  /* Deep burnt orange, not the logo orange itself: white on the logo orange is 2.4:1 and
+     fails AA at this size. The vivid accent still carries the glow. */
+  background:var(--accent); color:var(--dark); font-family:var(--font);
+  font-weight:var(--fw-semibold); font-size:var(--t-base); line-height:1.2;
+  border:2px solid var(--accent); cursor:pointer;
+  box-shadow:var(--sh-accent);
+  /* Button hover is its own beat (180ms) — quicker than a card lifting. */
+  transition:transform var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease),
+             background var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease), color var(--d-fast) var(--ease);
+}
+.btn:hover{
+  transform:translateY(var(--lift-btn)) scale(1.02);
+  background:var(--dark); border-color:var(--dark); color:#fff;
+  box-shadow:var(--sh-3);
+}
+/* Press has to come AFTER hover — the pointer is always hovering while it is
+   pressed, so an earlier rule would simply lose. It is also the fastest beat on
+   the site: a press that eases feels disconnected from the finger. */
+.btn:active{transform:scale(.98); transition-duration:var(--d-press)}
+.section-dark .btn{background:var(--accent); border-color:var(--accent); color:var(--dark)}
+.section-dark .btn:hover{background:#fff; border-color:#fff; color:var(--dark)}
+
+/* Outline variant used on CTA rows */
+.btn.outline{
+  background:transparent; color:var(--text); border:2px solid var(--border);
+  box-shadow:none;
+}
+.btn.outline:hover{background:var(--accent); border-color:var(--accent); color:var(--dark); box-shadow:var(--sh-accent)}
+.section-dark .btn.outline{color:#fff; border-color:rgba(255,255,255,.4)}
+.section-dark .btn.outline:hover{background:#fff; border-color:#fff; color:var(--dark)}
+
+/* ==========================================================================
+   Preloader — dark curtain that splits behind a single logo mark. Nothing
+   else: no wordmark, no progress bar, no percentage counter.
+   ========================================================================== */
+#loader-wrapper{
+  position:fixed; inset:0; z-index:var(--z-loader);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+}
+#loader{
+  position:relative; z-index:calc(var(--z-loader) + 1); width:min(340px,70vw);
+  display:flex; flex-direction:column; align-items:center; gap:var(--s-5);
+}
+/* The mark rises into itself: it is uncovered from its own baseline upward
+   while lifting and settling to full size. Strictly vertical — the previous
+   version swept a diagonal across the horizontal axis.
+   Neither property here participates in layout: clip-path only masks, and
+   transform only paints, so the mark's box never changes width and nothing
+   around it can be displaced however the animation is tuned.
+   Two animations, because they want opposite curves: --ease is a hard ease-out
+   that puts 75% of its travel in the first fifth of the run, which is right for
+   something settling into place and wrong for a reveal you are meant to watch.
+   The uncover gets --ease-wipe; the lift and fade keep the house curve. */
+.loader-mark{
+  width:min(148px,32vw); height:auto;
+  animation:loaderReveal .85s var(--ease-wipe) both,
+            loaderSettle 1.15s var(--ease) both;
+}
+@keyframes loaderReveal{
+  from{clip-path:inset(100% 0 0 0)}
+  to  {clip-path:inset(0 0 0 0)}
+}
+@keyframes loaderSettle{
+  from{opacity:0; transform:translateY(14px) scale(.94)}
+  35% {opacity:1}
+  to  {opacity:1; transform:translateY(0) scale(1)}
+}
+/* The curtain used to split from the centre to left and right. It is now one
+   flat field that simply fades, so the only movement on screen at that moment
+   is the page itself rising. */
+#loader-wrapper .loader-section{
+  background:var(--dark-3);
+  position:fixed; inset:0; width:100%; height:100%; z-index:var(--z-loader);
+}
+.loaded #loader-wrapper .loader-section{opacity:0; transition:opacity var(--d-loader-out) var(--ease)}
+.loaded #loader{opacity:0; transition:opacity var(--d-loader-out) var(--ease)}
+.loaded #loader-wrapper{
+  visibility:hidden; pointer-events:none;
+  transition:visibility 0s var(--d-loader-out);
+}
+
+/* ==========================================================================
+   Page entrance — the whole page rises 32px and fades up over 700ms.
+
+   Applied to the top-level content blocks, NOT to <body>. That is the load
+   bearing detail: a transform on an ancestor makes it the containing block for
+   every position:fixed descendant, which would break the grain layer, the
+   floating controls and — the expensive one — the GSAP pin, exactly as
+   cover-experience.js warns. Targeting the content children leaves the fixed
+   chrome alone.
+
+   .cx-intro is excluded for the same reason: it hosts the pinned scene, and it
+   is far below the fold at load, so nobody ever sees it not rise. */
+body > header,
+body > section:not(.cx-intro),
+body > .ticker,
+body > footer{opacity:0; transform:translateY(32px)}
+
+body.loaded > header,
+body.loaded > section:not(.cx-intro),
+body.loaded > .ticker,
+body.loaded > footer{
+  opacity:1; transform:none;
+  transition:opacity var(--d-page) var(--ease), transform var(--d-page) var(--ease);
+}
+/* No JS, no observers: if the stylesheet loads the page is visible. */
+@media (prefers-reduced-motion:reduce){
+  body > header,
+  body > section:not(.cx-intro),
+  body > .ticker,
+  body > footer{opacity:1; transform:none}
+}
+
+/* Header
+   Menu + language switch only — the wordmark lives one band down, in .intro,
+   so it is not repeated here. Every page opens on that light BG-1 band, so the
+   header rides it transparent (`.hdr-over`, set by script.js) and resolves to
+   the solid bar once you scroll past. Unlike the old dark-hero version nothing
+   inverts to white: the glass pill and the light switch already read as ink on
+   the pastel plate. */
+/* The bar is the material and the pill is a control sitting ON it — a
+   translucent plate over another translucent plate has no hierarchy and the
+   legibility of both collapses. So the blur lives here, at 72% rather than the
+   old 96% (at 96% the backdrop-filter cost a composite pass and showed nothing),
+   and content genuinely passes underneath. */
+.site-header{
+  position:sticky; top:0; z-index:var(--z-header);
+  background:rgba(255,255,255,.72);
+  -webkit-backdrop-filter:blur(var(--blur-chrome)) saturate(1.6); backdrop-filter:blur(var(--blur-chrome)) saturate(1.6);
+  box-shadow:0 1px 0 rgba(10,10,10,.03), 0 12px 28px -18px rgba(10,10,10,.18);
+  /* Fixed layout direction: the nav reads ראשי→גרפיקה→וידאו→הפצה right-to-left
+     on BOTH the Hebrew and the English version of every page — nothing mirrors
+     when you hit the language switch. */
+  direction:rtl;
+}
+.header-inner{
+  max-width:var(--maxw); margin:0 auto; padding:var(--s-3) var(--s-5);
+  display:flex; align-items:center; justify-content:flex-end; min-height:42px;
+  position:relative;
+}
+/* glossy centered pill nav */
+.main-nav{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  /* No backdrop-filter: it would be blurring the header's own blur. A near-solid
+     plate instead, which is what keeps the links legible while the bar behind
+     them changes with whatever scrolls under it. */
+  background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:var(--sh-2), inset 0 1px 0 rgba(255,255,255,.95);
+  border-radius:var(--r-lg); padding:6px 8px;
+}
+.main-nav ul{display:flex; align-items:center; gap:4px}
+.main-nav a{
+  display:inline-block; font-size:.98rem; font-weight:var(--fw-medium); color:var(--text);
+  padding:var(--c-5) 18px; border-radius:var(--r-lg);
+  transition:background var(--d-fast), color var(--d-fast), box-shadow var(--d-fast);
+}
+.main-nav a:hover{background:rgba(255,255,255,.95); color:var(--text)}
+.main-nav a.active{
+  background:var(--accent); color:var(--dark);
+  box-shadow:var(--sh-accent);
+}
+.header-right{display:flex; align-items:center; gap:var(--s-4)}
+.lang-switch{
+  display:flex; align-items:center; gap:2px; font-size:.82rem; font-weight:var(--fw-medium);
+  background:var(--off); border:1px solid var(--border); border-radius:var(--r-lg); padding:3px;
+}
+.lang-switch a{
+  opacity:.55; padding:5px 12px; border-radius:var(--r-lg); color:var(--text);
+  transition:opacity var(--d-fast), background var(--d-fast), color var(--d-fast), box-shadow var(--d-fast);
+}
+.lang-switch a:hover{opacity:1}
+.lang-switch a.active{
+  opacity:1; background:var(--dark); color:#fff;
+  box-shadow:var(--sh-2);
+}
+.burger{
+  display:none; background:none; border:none; color:var(--text);
+  font-size:1.6rem; cursor:pointer; line-height:var(--lh-flat); padding:4px;
+}
+
+/* --- transparent-over-intro state --- */
+/* Where floating chrome meets content, a soft edge rather than a rule: the
+   hairline was the one hard line on a page built out of feathered seams. */
+.site-header::after{
+  content:""; position:absolute; inset-inline:0; top:100%; height:20px;
+  pointer-events:none; opacity:1;
+  background:linear-gradient(180deg, rgba(10,10,10,.055), transparent);
+  transition:opacity var(--d-mid) var(--ease);
+}
+.hdr-over .site-header{
+  background:transparent; box-shadow:none;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+.hdr-over .site-header::after{opacity:0}
+.hdr-over .lang-switch{background:rgba(255,255,255,.65); border-color:rgba(255,255,255,.8)}
+.site-header,.main-nav,.main-nav a,.lang-switch,.lang-switch a,.burger{
+  transition:background var(--d-mid) var(--ease), color var(--d-mid) var(--ease),
+             border-color var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
+}
+@media (max-width:920px){
+  .burger{display:block}
+  /* The bar carries no backdrop-filter at this width, and that is structural
+     rather than cosmetic: backdrop-filter makes an element the containing block
+     for every position:fixed descendant, and the drawer below is a fixed child
+     of this header. Its `inset:var(--header-h) 0 0 0` would then be measured
+     against a 66px-tall bar instead of the viewport — top and bottom edges land
+     on the same line and the panel collapses to zero height, so the menu opens
+     onto nothing everywhere except over the intro band, where .hdr-over happens
+     to switch the filter off. A solid bar is also what a full-screen drawer
+     wants underneath it. */
+  .site-header{
+    background:rgba(255,255,255,.94);
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+  }
+  /* the mobile drawer is always the solid light panel */
+  .hdr-over .main-nav{background:#fff}
+  .main-nav{
+    /* Pinned to the measured header, not a hard-coded 63px: the bar lost its
+       logo, so its height is no longer the number that was baked in here. */
+    position:fixed; inset:var(--header-h,66px) 0 0 0; left:auto; transform:translateY(-120%);
+    /* Closing is quicker than opening — a menu that lingers on the way out
+       feels like lag, the same gesture on the way in feels considered. */
+    /* visibility, not just the transform: an off-screen panel that is still
+       "visible" keeps its four links in the tab order, so a keyboard user walks
+       through a menu nobody can see. It flips at the END of the close so the
+       slide still plays, and instantly on open. */
+    visibility:hidden;
+    transition:transform var(--d-card) var(--ease), visibility 0s linear var(--d-card);
+    background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none;
+    border:none; border-top:1px solid var(--border);
+    box-shadow:none; border-radius:0;
+    padding:var(--s-6) var(--s-5); z-index:var(--z-nav); overflow-y:auto;
+  }
+  .main-nav.open{
+    transform:translateY(0); visibility:visible;
+    transition:transform var(--d-mid) var(--ease), visibility 0s;
+  }
+  .main-nav ul{flex-direction:column; align-items:flex-start; gap:var(--s-5)}
+  .main-nav a{font-size:1.5rem; padding:6px 0; border-radius:0; background:none}
+  .main-nav a:hover{background:none}
+  .main-nav a.active{background:none; color:var(--text); box-shadow:none}
+}
+
+/* ==========================================================================
+   Intro — the entrance band every page opens on: the BG-1 plate, the wordmark
+   set in Karantina, and the scroll cue. The header floats over it.
+   ========================================================================== */
+.intro{
+  position:relative; isolation:isolate;
+  min-height:clamp(360px,68vh,680px);
+  display:grid; align-content:center; justify-items:center; gap:clamp(24px,4vh,44px);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.3)),
+    url('../img/bg1-1.jpg') center/cover no-repeat;
+  /* Slide up under the sticky header so the plate is full-bleed; the padding
+     puts the wordmark back below it. --header-h is measured in script.js. */
+  margin-top:calc(var(--header-h, 66px) * -1);
+  padding:calc(var(--header-h, 66px) + clamp(24px,5vh,56px)) 24px clamp(24px,5vh,56px);
+  text-align:center;
+}
+/* Home page only: there the band carries the wordmark, as the <h1>. */
+.intro-logo{display:inline-flex; max-width:100%; margin:0}
+/* Every other page: the band carries that page's own title, lead and actions —
+   the old .page-hero, moved onto the BG-1 plate. Its own tighter rhythm, so the
+   title and its lead do not sit a full .intro gap apart. */
+.intro-copy{
+  display:grid; justify-items:center; gap:var(--s-4);
+  max-width:var(--maxw-read);
+}
+/* Full ink, not --text-dim: this copy sits on a photographic plate whose
+   luminance varies across the band, and --text-dim cannot be relied on to
+   clear 4.5:1 over the darker lobes the way the base ink can. */
+.intro-lead{
+  margin:0; max-width:var(--maxw-narrow);
+  font-size:var(--t-md); line-height:var(--lh-normal); color:var(--text);
+}
+.intro-copy .cta-row{margin-top:var(--s-2)}
+/* Whatever the scroll cue lands on has to clear the sticky header. */
+.intro + *{scroll-margin-top:var(--header-h,66px)}
+/* The scroll fill. The gradient is twice the element's width, half orange and
+   half ink; sliding it under the clipped text is what sweeps the colour in.
+   Which way it sweeps has to follow the reading direction, so the gradient
+   order AND the travel are both mirrored for RTL. They have to be mirrored
+   explicitly: background-position percentages are physical — always measured
+   from the left edge — so the dir attribute on its own changes nothing here.
+     LTR: orange on the left half,  100% -> 0%   = fill enters from the left.
+     RTL: orange on the right half, 0%   -> 100% = fill enters from the right.
+   --accent-deep rather than --accent: this is a LIGHT surface, and the brand
+   orange only clears 2.62:1 on it. */
+.intro-word{
+  display:inline-block; white-space:nowrap; margin:0;
+  font-family:'Karantina',var(--font);
+  /* The floor is the 320px case: the wordmark never wraps, so it has to fit
+     320 − 48px of gutter on one line (2.6rem measures 237px there). */
+  /* Tracking is size-specific: letters read further apart as they grow, so the
+     display tier tightens where body copy would not. It was +.01em here, at up
+     to 144px — the one place on the site where positive tracking is certainly
+     wrong. Leading tightens with it, for the same reason. */
+  font-weight:var(--fw-bold); font-size:clamp(2.6rem,12vw,9rem);
+  line-height:1.05; letter-spacing:var(--ls-display);
+  background-image:linear-gradient(90deg,var(--accent-deep) 0 50%,var(--dark) 50% 100%);
+  background-size:200% 100%; background-position:100% 0; background-repeat:no-repeat;
+  -webkit-background-clip:text; background-clip:text;
+  color:transparent; -webkit-text-fill-color:transparent;
+}
+[dir="rtl"] .intro-word{
+  background-image:linear-gradient(90deg,var(--dark) 0 50%,var(--accent-deep) 50% 100%);
+  background-position:0 0;
+}
+@supports (animation-timeline:scroll()){
+  .intro-word{
+    animation:intro-fill linear both;
+    animation-timeline:scroll(root block);
+    /* The wordmark sits mid-band and passes behind the header at ~30vh of
+       scroll, so the sweep has to finish inside that or it is never seen. */
+    animation-range:0 30vh;
+  }
+  /* Identical timing, easing and range — only the travel is mirrored. */
+  [dir="rtl"] .intro-word{animation-name:intro-fill-rtl}
+}
+@keyframes intro-fill{to{background-position:0 0}}
+@keyframes intro-fill-rtl{to{background-position:100% 0}}
+
+/* Scroll cue — the mouse outline holds still, the wheel inside falls. */
+.intro-scroll{
+  display:inline-flex; flex-direction:column; align-items:center; gap:10px;
+  background:none; border:none; cursor:pointer; padding:8px 14px;
+  font-family:var(--font); font-size:.78rem; font-weight:var(--fw-medium);
+  /* Not --ls-tracked: that is tuned for Latin micro-caps, and Hebrew has no
+     caps — at .18em "גללו למטה" falls apart into separate letters. This reads
+     in both scripts, since i18n swaps the same span to "SCROLL DOWN". */
+  letter-spacing:.06em; color:var(--dark); opacity:.72;
+  transition:opacity var(--d-fast), transform var(--d-fast) var(--ease);
+}
+.intro-scroll:hover{opacity:1; transform:translateY(3px)}
+.intro-mouse{
+  width:26px; height:42px; border:2px solid currentColor; border-radius:var(--r-lg);
+  display:flex; justify-content:center; padding-top:7px;
+}
+.intro-mouse::before{
+  content:""; width:3px; height:8px; border-radius:var(--r-lg); background:currentColor;
+  animation:intro-wheel 1.7s var(--ease-out) infinite;
+}
+@keyframes intro-wheel{
+  0%{transform:translateY(0); opacity:0}
+  22%{opacity:1}
+  70%{transform:translateY(13px); opacity:0}
+  100%{transform:translateY(13px); opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .intro-word{animation:none; background-position:0 0}
+  .intro-mouse::before{animation:none; opacity:1}
+  .intro-scroll:hover{transform:none}
+}
+
+/* #work then opens out of that darkness rather than starting on flat white */
+
+/*  Instagram feed grid  */
+.insta-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-3);
+}
+@media (max-width:900px){.insta-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:600px){.insta-grid{grid-template-columns:repeat(2,1fr)}}
+
+.insta-item{
+  position:relative; display:block; aspect-ratio:1/1; overflow:hidden;
+  border-radius:var(--r-sm); background:var(--dark-2);
+}
+/* The cover lifts a touch, brightens, and casts a soft shadow. Uniform scale
+   only — the artwork keeps its exact proportions, and object-fit:cover inside
+   an overflow:hidden square means the frame never changes shape either. */
+.insta-item img{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform var(--d-image) var(--ease), filter var(--d-image) var(--ease);
+}
+/* No blur-in on arrival: filter is not a compositor-only property, so sharpening
+   eight 800x800 covers at once re-rasterised the whole grid every frame while it
+   was also translating. The rise and the fade carry the entrance on their own. */
+.insta-item:hover img{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
+.insta-item{transition:box-shadow var(--d-mid) var(--ease)}
+.insta-item:hover{box-shadow:var(--sh-3)}
+.insta-item .cap{
+  position:absolute; inset:0; z-index:2;
+  display:flex; align-items:flex-end;
+  padding:var(--s-4); font-size:var(--t-xs); line-height:1.45; color:#fff; font-weight:var(--fw-regular);
+  background:linear-gradient(0deg,rgba(10,10,10,.92) 0%,rgba(10,10,10,.55) 55%,transparent 100%);
+  opacity:0; transition:opacity var(--d-mid) var(--ease);
+}
+.insta-item:hover .cap,.insta-item:focus-visible .cap{opacity:1}
+
+
+/*  Gradient ticker (live "ditty" marquee)
+    Runs edge to edge: the markup sits as a direct child of .section, outside
+    .container, so it is not capped at --maxw. The hairline rules top and bottom
+    are what stop a full-bleed band from reading as text that escaped its
+    column. */
+.ticker{
+  overflow:hidden; white-space:nowrap; padding:16px 0;
+  direction:ltr; /* keeps marquee motion consistent */
+  background:var(--off);
+  border-top:var(--bd-hair) solid var(--border);
+  border-bottom:var(--bd-hair) solid var(--border);
+  margin-block:var(--s-5);
+}
+.ticker-track{display:inline-block; animation:tickerMove 30s linear infinite}
+.ticker span{
+  display:inline-block; padding:0 34px; position:relative;
+  background-image:var(--ticker-grad);
+  background-clip:text; -webkit-background-clip:text; color:transparent;
+  /* rem, not px: the accessibility toolbar scales the root font size, and a px
+     value opts this line out of that entirely. */
+  font-size:var(--t-lg); font-weight:var(--fw-semibold);
+}
+/* The bead between items. -webkit-text-fill-color has to be set too: the spans
+   paint their text through background-clip, so a plain `color` on the
+   pseudo-element would be overridden by the inherited transparent fill and the
+   dot would never show. */
+.ticker span::after,.svc-ticker span::after{
+  content:"•"; position:absolute; inset-inline-end:-4px;
+  color:var(--text); -webkit-text-fill-color:var(--text);
+  background:none; animation:none;
+}
+.ticker span:last-child::after{content:none}
+@keyframes tickerMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------------- Services ticker (static 2-color gradient, no color-shift) ---------------- */
+.svc-ticker{
+  overflow:hidden; white-space:nowrap; direction:ltr;
+  background:var(--off); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:18px 0;
+}
+.svc-ticker-track{display:inline-block; animation:tickerMove 34s linear infinite}
+.svc-ticker span{
+  display:inline-block; padding:0 30px; position:relative;
+  background-image:var(--ticker-grad);
+  background-clip:text; -webkit-background-clip:text; color:transparent;
+  font-size:var(--t-lg); font-weight:var(--fw-semibold);
+}
+
+/* ---------------- Service cards (the three departments) ---------------- */
+.svc-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-5)}
+@media (max-width:900px){.svc-grid{grid-template-columns:1fr}}
+.svc-card{
+  position:relative; isolation:isolate; overflow:hidden;
+  display:flex; flex-direction:column; align-items:flex-start;
+  padding:var(--s-6) var(--s-5) var(--s-5);
+  background:var(--surface-card); border:1px solid var(--border); border-radius:var(--r-md);
+  box-shadow:var(--sh-1);
+  transition:transform var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease), border-color var(--d-mid) var(--ease);
+}
+.svc-card::before{
+  content:""; position:absolute; inset-inline:0; top:0; height:3px; z-index:1;
+  background:var(--brand-grad); transform:scaleX(0); transform-origin:inline-start;
+  transition:transform var(--d-slow) var(--ease);
+}
+.svc-card{transition-duration:var(--d-card)}
+.svc-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:transparent; box-shadow:var(--sh-3)}
+.svc-card:hover::before{transform:scaleX(1)}
+.svc-num{
+  font-family:var(--font-display); font-size:var(--t-xs); font-weight:var(--fw-bold);
+  letter-spacing:var(--ls-tracked); color:var(--text); margin-bottom:var(--s-4);
+  font-feature-settings:"tnum";
+}
+.svc-card h3{font-size:var(--t-lg); margin-bottom:var(--s-3); letter-spacing:-.01em}
+.svc-card p{font-size:var(--t-sm); margin:0 0 var(--s-5); color:var(--text-dim)}
+.svc-go{
+  margin-top:auto; display:inline-flex; align-items:center; gap:var(--s-2);
+  font-size:var(--t-sm); font-weight:var(--fw-semibold); color:var(--text);
+}
+.svc-go i{
+  width:18px; height:2px; background:currentColor; border-radius:var(--c-2); position:relative;
+  transform-origin:inline-start;
+  /* scaleX, not width: width is a layout property, so animating it reflowed
+     the row on every frame. Same 18px -> 28px travel, on the compositor. */
+  transition:transform var(--d-fast) var(--ease);
+}
+.svc-go i::after{
+  content:""; position:absolute; inset-inline-start:0; top:-3px;
+  width:var(--c-5); height:var(--c-5); border:var(--c-2) solid currentColor; border-width:2px 0 0 2px;
+  transform:rotate(-45deg);
+}
+.svc-card:hover .svc-go i{transform:scaleX(1.556)}
+
+/*  Video grid  */
+.video-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:var(--s-4);
+}
+.video-card{border-radius:var(--r-sm); overflow:hidden; background:var(--surface-card); border:1px solid var(--border); display:block}
+.section-dark .video-card{background:var(--dark-2); border-color:var(--border-dark)}
+.video-card .thumb{position:relative; aspect-ratio:16/9; overflow:hidden}
+.video-card .thumb img,.video-card .thumb video{width:100%; height:100%; object-fit:cover; transition:transform var(--d-mid)}
+.video-card:hover .thumb img{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
+.video-card .thumb::after{
+  content:""; position:absolute; inset:0; z-index:2;
+  background:rgba(10,10,10,.25);
+  transition:background var(--d-mid) var(--ease);
+}
+/* Drawn, not typeset: a border triangle is the same shape at every DPR and on
+   every platform, and it can be optically centred once. It always points right,
+   in both directions of the site — a transport control is a physical metaphor,
+   not text, so it does not mirror with the script. */
+.video-card .thumb::before{
+  content:""; position:absolute; z-index:3; top:50%; left:50%;
+  width:0; height:0; border-style:solid;
+  border-width:11px 0 11px 19px;
+  border-color:transparent transparent transparent #fff;
+  transform:translate(-50%,-50%) translateX(2px);
+  transition:transform var(--d-mid) var(--ease);
+}
+.video-card:hover .thumb::after{background:rgba(243,130,24,.35)}
+.video-card:hover .thumb::before{transform:translate(-50%,-50%) translateX(2px) scale(1.12)}
+.video-card .thumb.playing::before{display:none}
+.video-card .cap{padding:var(--s-4); font-size:.92rem; color:var(--text-dim)}
+.section-dark .video-card .cap{color:rgba(255,255,255,.75)}
+
+/*  Strategy cards — dark cards on a light section, so they carry their own
+    on-dark text colours (inheriting --text-dim here gave 2.4:1).  */
+.strategy-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-4)}
+@media (max-width:1000px){.strategy-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.strategy-grid{grid-template-columns:1fr}}
+.strategy-card{
+  background:var(--dark); border:1px solid var(--border-dark);
+  border-radius:var(--r-md); padding:var(--s-6) var(--s-5);
+  transition:transform var(--d-mid) var(--ease), border-color var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
+}
+.strategy-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-3)}
+.strategy-card h3{color:#fff; font-size:var(--t-md); margin-bottom:var(--s-2)}
+.strategy-card p{font-size:var(--t-sm); margin:0; color:rgba(255,255,255,.75)}
+
+/*  Contact  */
+.contact-wrap{display:grid; grid-template-columns:.8fr 1.2fr; gap:var(--s-7); align-items:start}
+@media (max-width:860px){.contact-wrap{grid-template-columns:1fr}}
+/* Contact details are data, not headings — styled with heading weight but
+   marked up as text so the outline stays h1 > h2 > h3. */
+/* A phone number and an address are data, not headings — Medium lifts them off
+   the paragraph without borrowing the weight the headings use. Tabular figures
+   so the two lines align on their digits. */
+.contact-line{
+  font-size:var(--t-lg); font-weight:var(--fw-medium); color:var(--text);
+  margin:0 0 var(--s-2); font-feature-settings:"tnum";
+}
+.contact-info a:hover{color:var(--text)}
+.contact-form{
+  display:grid; gap:var(--s-4); background:#fff;
+  border:1px solid var(--border); border-radius:var(--radius); padding:var(--s-6);
+  box-shadow:var(--sh-2);
+}
+.contact-form input,.contact-form textarea{
+  width:100%; padding:13px 16px; border-radius:var(--r-sm);
+  border:1px solid var(--border); background:var(--off);
+  font-family:var(--font); font-size:1rem; color:var(--text);
+}
+.contact-form textarea{min-height:130px; resize:vertical}
+.contact-form input:focus,.contact-form textarea:focus{outline:2px solid var(--color-focus)!important; border-color:transparent}
+.hp-field{position:absolute; left:-9999px; width:var(--c-1); height:var(--c-1); opacity:0; pointer-events:none}
+.form-msg{min-height:1.2em; font-size:.9rem; font-weight:var(--fw-semibold); margin:0}
+.form-msg.ok{color:var(--status-success)}
+.form-msg.err{color:var(--status-error)}
+
+/*  Footer  */
+/* The footer is the largest single dark field on the site and was flat black;
+   it gets the same warm lift the dark sections do so the page does not end on
+   an unlit rectangle. */
+.site-footer{
+  background:
+    radial-gradient(58% 60% at 50% 0%, rgba(243,130,24,.10), transparent 72%),
+    var(--dark);
+  color:rgba(255,255,255,.7); padding:var(--s-8) 0 var(--s-5);
+}
+.footer-grid{
+  display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:var(--s-6);
+  padding-bottom:var(--s-6); border-bottom:1px solid var(--border-dark);
+}
+@media (max-width:760px){.footer-grid{grid-template-columns:1fr 1fr}}
+/* The markup sets these as h2 so the document outline stays sequential, and the
+   selector has to match that or they fall back to the browser default — 24px,
+   with the site-wide heading gradient painted through them. They are small
+   labels, not display type, so the gradient is switched off here as well. */
+.footer-grid h2,.footer-grid h3{
+  font-size:var(--t-base); color:#fff; margin-bottom:var(--s-4);
+  background-image:none; -webkit-text-fill-color:#fff;
+}
+.footer-grid li{margin-bottom:var(--s-2)}
+.footer-grid a{font-size:.95rem; transition:color var(--d-fast)}
+.footer-grid a:hover{color:var(--accent)}
+.footer-grid p{color:rgba(255,255,255,.6); font-size:.95rem}
+.footer-logo img{height:40px; margin-bottom:var(--s-4)}
+.social-row{display:flex; gap:var(--s-3); margin-top:var(--s-4)}
+.social-row a{
+  width:38px; height:38px; border-radius:50%;
+  border:1px solid var(--border-dark);
+  display:flex; align-items:center; justify-content:center;
+  transition:var(--d-fast);
+}
+.social-row a svg{width:var(--icon-sm); height:var(--icon-sm); fill:#fff; transition:fill var(--d-fast)}
+.social-row a:hover{border-color:var(--accent); background:var(--accent)}
+.footer-bottom{padding-top:var(--s-5); text-align:center; font-size:.85rem}
+/* The studio name sits inline in the copyright line, and .brand-mark makes it
+   bold (700) against the 300 of the text around it — at this size the weight
+   jump reads as a size jump. In this one line it keeps the accent colour and
+   nothing else, so the whole line is one size and one weight. */
+.footer-bottom .brand-mark{font-weight:inherit; font-size:inherit}
+
+/*  WhatsApp float  */
+.wa-float{
+  /* Fixed to the physical bottom-right corner on every page, in both
+     languages — the highest-visibility, thumb-reachable spot, and it
+     never swaps sides when the language switches. */
+  position:fixed; bottom:24px; right:24px; z-index:var(--z-float);
+  width:58px; height:58px; border-radius:50%;
+  background:#25D366; display:flex; align-items:center; justify-content:center;
+  /* The glow is static. It used to pulse on a 2.2s loop, which is the same
+     idle-animation-as-advertising the main button had its own pulse removed
+     for — a permanently moving object in the corner of every page is something
+     the eye has to keep dismissing. Weight comes from the shadow alone now. */
+  transition:transform var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease);
+  box-shadow:0 0 14px 3px rgba(37,211,102,.55), 0 10px 26px rgba(0,0,0,.3);
+}
+.wa-float:hover{
+  transform:scale(var(--lift-float));
+  box-shadow:0 0 20px 6px rgba(37,211,102,.75), 0 12px 30px rgba(0,0,0,.32);
+}
+.wa-float svg{width:var(--icon-lg); height:var(--icon-lg); fill:#fff}
+
+/*  Accessibility toolbar (IS 5568)  */
+.a11y-fab{
+  position:fixed; bottom:24px; left:24px; z-index:var(--z-float);
+  width:52px; height:52px; border-radius:50%; border:none; cursor:pointer;
+  background:var(--dark); color:#fff; display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh-overlay); transition:transform var(--d-fast), background var(--d-fast);
+}
+.a11y-fab:hover{transform:scale(var(--lift-float)); background:var(--accent); color:var(--dark)}
+.a11y-fab svg{width:var(--icon-md); height:var(--icon-md); fill:#fff}
+.a11y-panel{
+  position:fixed; bottom:86px; left:24px; z-index:var(--z-panel);
+  width:280px; max-width:calc(100vw - 48px);
+  background:var(--surface-card); border-radius:var(--radius); border:1px solid var(--border);
+  box-shadow:var(--sh-overlay);
+  padding:var(--s-4);
+  font-family:var(--font);
+  /* It grows out of the launcher that opened it rather than cutting in from
+     display:none — the spatial link between the button and the panel is most of
+     what makes the panel legible as belonging to it. visibility keeps it out of
+     the tab order while it is closed. */
+  transform-origin:bottom left; transform:translateY(8px) scale(.96);
+  opacity:0; visibility:hidden;
+  transition:opacity var(--d-fast) var(--ease),
+             transform var(--d-dropdown) var(--ease),
+             visibility 0s linear var(--d-dropdown);
+}
+.a11y-panel.open{
+  opacity:1; visibility:visible; transform:none;
+  transition:opacity var(--d-fast) var(--ease),
+             transform var(--d-dropdown) var(--ease),
+             visibility 0s;
+}
+.a11y-panel h2{margin:0 0 var(--s-3); font-family:var(--font); font-size:1rem; font-weight:var(--fw-semibold); color:var(--text); display:flex; align-items:center; justify-content:space-between; letter-spacing:0}
+.a11y-panel .a11y-close{background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-soft); line-height:var(--lh-flat); padding:2px}
+.a11y-row{display:flex; align-items:center; justify-content:space-between; gap:var(--c-6); padding:9px 0; border-top:1px solid var(--border)}
+.a11y-row:first-of-type{border-top:none}
+.a11y-row span{font-size:.9rem; color:var(--text-dim)}
+.a11y-row .a11y-btns{display:flex; gap:var(--c-5)}
+.a11y-panel button.a11y-toggle,
+.a11y-panel button.a11y-step{
+  font-family:var(--font); font-size:.85rem; font-weight:var(--fw-medium); cursor:pointer;
+  border:1px solid var(--border); background:var(--off); color:var(--text);
+  border-radius:var(--r-sm); padding:var(--c-3) var(--c-6); transition:var(--d-fast);
+}
+.a11y-panel button.a11y-toggle.active{background:var(--accent); border-color:var(--accent); color:var(--dark)}
+.a11y-panel button.a11y-step:hover{border-color:var(--accent); color:var(--text)}
+.a11y-reset{width:100%; margin-top:var(--s-4); padding:9px; border-radius:var(--r-sm); border:1px solid var(--border); background:var(--off); color:var(--text-dim); font-family:var(--font); font-weight:var(--fw-medium); font-size:.85rem; cursor:pointer}
+.a11y-reset:hover{border-color:var(--accent); color:var(--text)}
+.a11y-stmt-link{display:block; text-align:center; margin-top:var(--s-3); font-size:.82rem; color:var(--text); font-weight:var(--fw-medium)}
+
+/* Applied states (persisted via localStorage, toggled on <html>) */
+html.a11y-contrast body{background:#000!important; color:#fff!important}
+html.a11y-contrast .section-alt,html.a11y-contrast .section{background:#000!important}
+html.a11y-contrast p,html.a11y-contrast .section-title,html.a11y-contrast h1,html.a11y-contrast h2,html.a11y-contrast h3,html.a11y-contrast h4{color:#fff!important}
+html.a11y-contrast a:not(.btn){color:#FFD400!important}
+html.a11y-contrast .site-header{background:#000!important}
+html.a11y-grayscale body{filter:grayscale(1)}
+html.a11y-underline a{text-decoration:underline!important}
+html.a11y-noanim *,html.a11y-noanim *::before,html.a11y-noanim *::after{animation:none!important; transition:none!important}
+html.a11y-readable body,html.a11y-readable p,html.a11y-readable span,html.a11y-readable li{font-family:Arial,Helvetica,sans-serif!important; line-height:1.9!important; letter-spacing:.01em}
+/* On the ROOT, not on body. Every type size in this sheet is in rem, and rem
+   resolves against the root element — so scaling body did nothing to any of
+   them, and the text-size control moved only the handful of sizes that inherit.
+   Moved up one element, the whole scale responds. Spacing stays in px on
+   purpose, so the layout holds its shape while the type grows inside it. */
+html[data-a11y-size="1"]{font-size:106%}
+html[data-a11y-size="2"]{font-size:112%}
+html[data-a11y-size="3"]{font-size:118%}
+
+/* CTA row — was scoped to the retired .page-hero. */
+.cta-row{display:flex; gap:var(--s-4); justify-content:center; flex-wrap:wrap}
+.load-more{text-align:center; margin-top:var(--s-7)}
+
+/* Legal pages: numbered sections (h2, so the outline stays sequential) */
+.legal-h{font-size:var(--t-lg); margin:var(--s-7) 0 var(--s-3)}
+.legal-h:first-of-type{margin-top:0}
+
+/*  Category tabs (video department)  */
+.vid-tabs{display:flex; gap:var(--c-5); justify-content:center; flex-wrap:wrap; margin-bottom:40px}
+.vid-tab{
+  font-family:var(--font); font-weight:var(--fw-semibold); font-size:.95rem; color:var(--text-dim);
+  background:var(--off); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:var(--c-6) 22px; cursor:pointer; transition:var(--d-fast);
+}
+.vid-tab:hover{color:var(--text); border-color:var(--accent)}
+.vid-tab.active{background:var(--accent); border-color:var(--accent); color:var(--dark); box-shadow:var(--sh-accent)}
+.vid-panel{display:none}
+.vid-panel.active{display:block}
+.vid-empty{
+  text-align:center; padding:var(--s-8) var(--s-5); border:var(--bd-control) dashed var(--border);
+  border-radius:var(--radius); color:var(--text-soft);
+}
+.vid-empty p{color:var(--text-soft); margin-bottom:var(--s-4)}
+
+/*  Logo ticker (distribution platforms)  */
+.logo-ticker-wrap{
+  overflow:hidden; background:var(--dark-2); border-top:1px solid var(--border-dark);
+  border-bottom:1px solid var(--border-dark); padding:var(--s-5) 0; direction:ltr;
+}
+.logo-ticker-track{display:inline-flex; width:max-content; animation:tickerMove 46s linear infinite}
+.logo-ticker-wrap:hover .logo-ticker-track{animation-play-state:paused}
+
+.plat-chip{
+  display:inline-flex; align-items:center; gap:11px; padding:0 26px; white-space:nowrap;
+}
+.plat-badge{
+  width:36px; height:36px; border-radius:50%; flex:none;
+  background:#5A6270; color:#fff; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:var(--fw-bold); font-size:.85rem; letter-spacing:-.02em;
+  transition:background var(--d-mid) ease, box-shadow var(--d-mid) ease, transform var(--d-mid) ease;
+}
+.plat-logo{
+  width:30px; height:30px; flex:none; object-fit:contain;
+  filter:grayscale(1) brightness(0) invert(1); opacity:.42;
+  transition:filter var(--d-mid) ease, opacity var(--d-mid) ease, transform var(--d-mid) ease;
+}
+.plat-name{
+  font-family:var(--font); font-weight:var(--fw-medium); font-size:1rem;
+  color:rgba(255,255,255,.45); transition:color var(--d-mid) ease;
+}
+.plat-chip:hover .plat-badge{background:var(--pc,var(--accent)); box-shadow:0 0 18px var(--pc,var(--accent)); transform:scale(1.08)}
+.plat-chip:hover .plat-logo{filter:none; opacity:1; transform:scale(1.12)}
+.plat-chip:hover .plat-name{color:#fff}
+.plat-chip.more .plat-badge{background:transparent; border:2px dashed rgba(255,255,255,.35); color:rgba(255,255,255,.6)}
+.plat-chip.more:hover .plat-badge{background:transparent; box-shadow:none; border-color:var(--accent); color:var(--accent)}
+
+/*  Flow steps (how it works)  */
+.flow-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-5); counter-reset:flow}
+@media (max-width:900px){.flow-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.flow-grid{grid-template-columns:1fr}}
+.flow-step{
+  position:relative; background:var(--off); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--s-6) var(--s-5) var(--s-5);
+  transition:transform var(--d-mid), border-color var(--d-mid), box-shadow var(--d-mid);
+}
+.flow-step:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-2)}
+.flow-step .num{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--dark);
+  font-family:var(--font-display); font-weight:var(--fw-bold); font-size:1.05rem;
+  margin-bottom:var(--s-4); font-feature-settings:"tnum";
+  box-shadow:var(--sh-accent);
+}
+.flow-step h3{font-size:var(--t-md); margin-bottom:var(--s-2)}
+.flow-step p{font-size:.92rem; margin:0}
+@media (min-width:901px){
+  .flow-step:not(:last-child)::after{
+    content:"←"; position:absolute; top:50%; inset-inline-start:-24px; transform:translateY(-50%);
+    color:var(--border); font-size:1.3rem;
+  }
+}
+
+/*  Requirement / delivery cards  */
+.req-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5)}
+@media (max-width:860px){.req-grid{grid-template-columns:1fr}}
+.req-card{
+  background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:var(--s-6) var(--s-5); box-shadow:var(--sh-2);
+  transition:transform var(--d-mid), box-shadow var(--d-mid);
+}
+.req-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
+.req-card h3{font-size:1.2rem; margin-bottom:var(--s-4); display:flex; align-items:center; gap:10px}
+.req-card h3 .dot{width:var(--c-6); height:var(--c-6); border-radius:50%; background:var(--accent); flex:none}
+.req-card ul{display:grid; gap:var(--s-3)}
+.req-card li{
+  display:flex; align-items:flex-start; gap:var(--c-6); font-size:.96rem; color:var(--text-dim);
+  padding-inline-start:0;
+}
+.req-card li::before{content:"✓"; color:var(--accent); font-weight:var(--fw-semibold); flex:none}
+.req-card.alt{background:var(--dark); border-color:var(--border-dark)}
+.req-card.alt h3{color:#fff}
+.req-card.alt li{color:rgba(255,255,255,.78)}
+.req-card .send-to{
+  margin-top:var(--s-5); padding-top:var(--s-4); border-top:1px solid var(--border);
+  font-size:.92rem; color:var(--text-soft);
+}
+.req-card.alt .send-to{border-color:var(--border-dark); color:rgba(255,255,255,.6)}
+.req-card .send-to a{color:var(--text); font-weight:var(--fw-semibold)}
+
+/*  Explainer gallery  */
+.explain-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-4)}
+@media (max-width:900px){.explain-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.explain-grid{grid-template-columns:1fr}}
+.explain-card{
+  border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); background:#fff;
+  transition:transform var(--d-mid), border-color var(--d-mid), box-shadow var(--d-mid);
+}
+.explain-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-2)}
+.explain-card .shot{
+  aspect-ratio:4/5; width:100%; display:block;
+  background:var(--off); border-bottom:1px solid var(--border);
+  object-fit:cover; object-position:center center;
+  transition:transform var(--d-mid) ease;
+}
+.explain-card:hover .shot{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
+.explain-card .cap{padding:var(--s-4)}
+.explain-card .cap h5{font-size:.98rem; margin-bottom:6px}
+.explain-card .cap p{font-size:.85rem; margin:0; color:var(--text-soft)}
+
+/* ---------------- Distribution page: real-world flow stages ---------------- */
+.dist-stage{margin-top:var(--s-7)}
+.dist-stage-head{max-width:640px; margin:0 auto var(--s-5); text-align:center}
+.dist-stage-head .eyebrow{margin-bottom:.5em}
+.dist-stage-head h3{font-size:1.3rem; margin:.2em 0 .45em}
+.dist-stage-head p{font-size:.96rem; margin:0}
+.dist-stage .explain-grid{align-items:start; gap:var(--s-5)}
+.dist-stage .explain-card{background:var(--off); padding:var(--c-6)}
+.dist-stage .explain-card:hover{transform:none; box-shadow:none}
+.dist-stage .shot{
+  aspect-ratio:auto; width:100%; height:auto; max-height:420px;
+  border-radius:var(--r-sm); border-bottom:none; object-fit:contain;
+  background:#fff;
+}
+.dist-stage .explain-card.single{max-width:340px; margin:0 auto}
+
+/* ==========================================================================
+   Scroll reveal — the site's one entrance animation.
+   Transform + opacity only, one easing, one duration. Grid/flex children of a
+   revealed block cascade so a row of cards lands in sequence rather than
+   as a single slab.
+   ========================================================================== */
+.reveal{
+  opacity:0; transform:translate3d(0,var(--rise-block),0);
+  transition:opacity var(--d-reveal) var(--ease), transform var(--d-reveal) var(--ease);
+}
+.reveal.in{opacity:1; transform:none}
+
+/* Staggered grids opt in explicitly. This used to be keyed to four grid names
+   (svc/insta/strategy/video), so every other grid on the site — the portfolio,
+   the process flow, the requirement cards, the reels — arrived as one flat
+   block, and the nth-child delays below were applied to ALL .reveal children
+   whether or not they had anything to animate. One opt-in class instead. */
+/* A card arriving is its own beat, shorter than the section that carries it. */
+.reveal-stagger>*{
+  opacity:0; transform:translate3d(0,var(--rise-item),0);
+  transition:opacity var(--d-card-reveal) var(--ease), transform var(--d-card-reveal) var(--ease);
+}
+.reveal-stagger.in>*{opacity:1; transform:none}
+/* Twelve steps: the portfolio and reel grids run longer than the old eight. */
+.reveal-stagger.in>:nth-child(1){transition-delay:calc(var(--stagger)*0)}
+.reveal-stagger.in>:nth-child(2){transition-delay:calc(var(--stagger)*1)}
+.reveal-stagger.in>:nth-child(3){transition-delay:calc(var(--stagger)*2)}
+.reveal-stagger.in>:nth-child(4){transition-delay:calc(var(--stagger)*3)}
+.reveal-stagger.in>:nth-child(5){transition-delay:calc(var(--stagger)*4)}
+.reveal-stagger.in>:nth-child(6){transition-delay:calc(var(--stagger)*5)}
+.reveal-stagger.in>:nth-child(7){transition-delay:calc(var(--stagger)*6)}
+.reveal-stagger.in>:nth-child(8){transition-delay:calc(var(--stagger)*7)}
+.reveal-stagger.in>:nth-child(9){transition-delay:calc(var(--stagger)*8)}
+.reveal-stagger.in>:nth-child(10){transition-delay:calc(var(--stagger)*9)}
+.reveal-stagger.in>:nth-child(11){transition-delay:calc(var(--stagger)*10)}
+.reveal-stagger.in>:nth-child(12){transition-delay:calc(var(--stagger)*11)}
+/* Past twelve the delay would out-run the scroll; everything else lands together. */
+.reveal-stagger.in>:nth-child(n+13){transition-delay:calc(var(--stagger)*12)}
+
+/* Opening beat — the intro band assembles rather than appearing. Gated on
+   .loaded so it plays after the preloader curtain instead of behind it, and
+   deliberately NOT applied to .intro-word: that element already owns an
+   `animation` for the scroll fill, and a second shorthand would replace it. */
+@keyframes introRise{
+  from{opacity:0; transform:translate3d(0,var(--rise-block),0)}
+  to  {opacity:1; transform:none}
+}
+/* Nothing in the hero moves until the page itself has finished arriving, so
+   every delay is measured from the end of the page entrance, not from load. */
+.loaded .intro-copy,.loaded .intro-scroll{
+  animation:introRise var(--d-reveal) var(--ease) both;
+}
+.loaded .intro-logo   {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 1))}
+.loaded .intro-copy   {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 1))}
+.loaded .intro-lead   {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 2))}
+.loaded .intro-scroll {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 4))}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important; transition:none!important}
+  .reveal,.reveal>*,.reveal-stagger>*{opacity:1; transform:none}
+  html{scroll-behavior:auto}
+}
+
+/* ==========================================================================
+   Page + language transitions
+   --------------------------------------------------------------------------
+   One veil, one colour, used for both navigation and the HE/EN swap.
+
+   Why a single dark colour rather than matching each page's own background:
+   the outgoing veil is painted by the OLD document and the incoming one by the
+   NEW document. If the two differ the visitor sees a colour jump between them —
+   which is the flash we're removing. --dark-3 also matches the preloader
+   curtain, so the whole entry sequence reads as one system.
+
+   Why the element lives in the markup instead of being created by JS: it has to
+   be opaque in the very first painted frame. A JS-injected node can only appear
+   after first paint, which is the flicker the old .page-fade had. Sitting in the
+   HTML it renders covered, then animates itself away — and because that entry is
+   pure CSS it still works with JS disabled (the veil can never trap the page).
+
+   Deliberately NOT an ancestor of anything: opacity < 1 creates a containing
+   block for position:fixed descendants, which would silently break the GSAP
+   ScrollTrigger pin on #cx the same way will-change did.
+   ========================================================================== */
+.page-veil{
+  position:fixed; inset:0; z-index:var(--z-veil);
+  background:var(--dark-3);
+  opacity:0; pointer-events:none;
+  /* entry (first paint only) is an animation; every later move is a
+     transition, so nothing depends on re-triggering a keyframe animation */
+  animation:veilOut var(--d-veil-in) var(--ease-out) both;
+  transition:opacity var(--d-veil-in) var(--ease-out);
+}
+@keyframes veilOut{from{opacity:1}to{opacity:0}}
+
+/* Entry finished (or force-settled by the failsafe in script.js). Retiring the
+   animation is what lets the transitions above take over cleanly — and means a
+   throttled or interrupted animation can never leave the page covered. */
+.page-veil.is-idle{animation:none}
+
+/* Covered. Declared last so it wins whenever both classes are present. */
+.page-veil.is-leaving{
+  animation:none;
+  opacity:1;
+  pointer-events:auto;              /* swallows double-clicks mid-transition */
+  transition-duration:var(--d-veil-out);
+  will-change:opacity;
+}
+
+:root{--d-veil-in:.22s; --d-veil-out:.14s}
+
+/* Text replaced by the async translation pass arrives after the veil is gone;
+   fade those few nodes in place instead of letting them pop. */
+.i18n-late{animation:i18nFade var(--d-veil-in) var(--ease-out) both}
+@keyframes i18nFade{from{opacity:0}to{opacity:1}}
+
+@media (prefers-reduced-motion:reduce){
+  .page-veil{animation:none; transition:none}
+  .page-veil.is-leaving{transition:none}
+  .i18n-late{animation:none}
+}
+
+/* ===== Clips page: Reels + Playlist collections ===== */
+.reels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--s-5);max-width:820px;margin:0 auto}
+.reel-card{position:relative;border-radius:var(--r-md);overflow:hidden;background:#000;aspect-ratio:9/16;box-shadow:var(--sh-2);transform:translateZ(0);transition:transform var(--d-mid) var(--ease),box-shadow var(--d-mid) var(--ease)}
+.reel-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card));box-shadow:var(--sh-glow)}
+.reel-video{width:100%;height:100%;object-fit:cover;display:block;transition:transform var(--d-image) var(--ease)}
+.reel-card:hover .reel-video{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
+.reel-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%);pointer-events:none;transition:opacity var(--d-mid)}
+.reel-card:hover::after{opacity:.7}
+.reel-cap{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:#fff;font-weight:var(--fw-medium);font-size:.95rem;text-shadow:0 1px 6px rgba(0,0,0,.5);pointer-events:none}
+.reel-sound{position:absolute;top:12px;inset-inline-end:12px;z-index:3;width:34px;height:34px;border-radius:var(--r-lg);border:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);color:#fff;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--d-mid)}
+.reel-sound:hover{background:var(--accent-2)}
+
+/* Text wordmark (replaces the old, wrong-brand logo image). Inherits its
+   colour from context — dark on light surfaces, white on dark ones. */
+.brand-word{font-family:'Karantina',var(--font-display);font-weight:var(--fw-bold);letter-spacing:.005em;color:var(--text);white-space:nowrap;line-height:var(--lh-flat);display:inline-block}
+.footer-word{font-size:1.3rem;color:#fff}
+
+/* ===== Skip link (WCAG 2.4.1) — first tab stop on every page ===== */
+.skip-link{
+  position:absolute; inset-inline-start:var(--s-4); top:-100px; z-index:var(--z-loader);
+  padding:12px 22px; border-radius:0 0 var(--r-sm) var(--r-sm);
+  background:var(--dark); color:#fff; font-weight:var(--fw-semibold); font-size:var(--t-sm);
+  /* translateY, not top: top is a layout property. */
+  transition:transform var(--d-fast) var(--ease);
+}
+.skip-link:focus-visible{transform:translateY(100px); outline:2px solid var(--color-focus); outline-offset:2px}
+
+/* ===== Accessibility polish (keyboard focus + reduced motion) ===== */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
+.vid-tab:focus-visible,.reel-sound:focus-visible,.video-card:focus-visible,
+.insta-item:focus-visible,.lang-switch a:focus-visible{
+  outline:2px solid var(--color-focus)!important;
+  outline-offset:3px!important;
+  border-radius:var(--r-xs);
+}
+/* On the dark surfaces the ring goes back to the bright accent: 7.7:1 there
+   against --accent-deep's 3.33:1, and it reads as the brand at full strength. */
+.section-dark,.site-footer{--color-focus:var(--accent)}
+.video-card:focus-visible .thumb,.insta-item:focus-visible{outline-offset:0}
+
+/* ==========================================================================
+   Press feedback.
+   Every card on the site lifted on hover and did nothing at all on press, so on
+   a touch screen — where there is no hover — a tap produced no response
+   whatsoever until the next page painted. Feedback belongs on pointer-DOWN;
+   waiting for the navigation to answer is what makes an interface feel dead.
+   One distance, one beat, the same as the button's own press.
+   ========================================================================== */
+.svc-card:active,.insta-item:active,.video-card:active,.explain-card:active,
+.reel-card:active,.vid-tab:active,.a11y-fab:active,.wa-float:active,
+.social-row a:active,.main-nav a:active,.lang-switch a:active,
+.a11y-panel button:active,.intro-scroll:active{
+  transform:scale(.985);
+  transition-duration:var(--d-press);
+}
+/* The floats are small enough that .985 would be invisible on them. */
+.a11y-fab:active,.wa-float:active{transform:scale(.94)}
+
+/* ==========================================================================
+   Touch pointers.
+   A finger cannot un-hover. Without this, one tap leaves the card lifted, the
+   artwork zoomed and the caption up until something else is tapped — the
+   interface holds a state the user has already left. The press state above is
+   what carries the feedback here instead.
+   ========================================================================== */
+@media (hover:none){
+  .svc-card:hover,.strategy-card:hover,.flow-step:hover,.req-card:hover,
+  .explain-card:hover,.reel-card:hover,.video-card:hover,.insta-item:hover,
+  .a11y-fab:hover,.wa-float:hover{transform:none}
+  .insta-item:hover{box-shadow:none}
+  .insta-item:hover img,.video-card:hover .thumb img,.explain-card:hover .shot,
+  .reel-card:hover .reel-video{transform:none; filter:none}
+  .svc-card:hover .svc-go i{transform:none}
+  /* The captions were reachable only by hovering, i.e. never, on the devices
+     most of this traffic arrives on. They are the only label the covers have. */
+  .insta-item .cap{
+    opacity:1;
+    background:linear-gradient(0deg,rgba(10,10,10,.9) 0%,rgba(10,10,10,.45) 45%,transparent 85%);
+  }
+}
+
+/* ==========================================================================
+   Reduced transparency.
+   Only the grain honoured this before; every translucent surface on the site
+   has to go frosty, or the setting does nothing where it actually matters.
+   ========================================================================== */
+@media (prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  .site-header{
+    background:var(--white);
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+  }
+  .main-nav{background:var(--white)}
+  .hdr-over .site-header{background:var(--white)}
+  .hdr-over .lang-switch{background:var(--off); border-color:var(--border)}
+  .reel-sound{background:rgba(10,10,10,.85); backdrop-filter:none}
+  .a11y-panel{background:var(--white)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ticker-track,.svc-ticker-track{animation:none!important}
+  .brand-word{animation:none!important}
+  .reel-card,.reel-video,.video-card .thumb img,.insta-item img,
+  .vid-tab{transition:none!important}
+  *,*::before,*::after{scroll-behavior:auto!important}
+}
+
+/* ===== Inline clip player (plays inside the card thumbnail) ===== */
+.video-card .thumb iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3}
+.video-card .thumb.playing::after{display:none}
+.video-card .thumb.playing img{opacity:0}
+

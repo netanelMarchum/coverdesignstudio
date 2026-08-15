@@ -1,0 +1,25 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+
+# Local env — never commit real values (see .env.example)
+.env
+.env.local
+.env.*.local
+
+# Build/tool caches
+.vercel/
+.cache/
+dist/
+
+# Unreferenced files quarantined during cleanup; delete once verified.
+_archive/
+
+# Raw film texture source packs (~370 MB). Their licence allows modifying them
+# and embedding the result, but not redistributing the originals, so only the
+# baked assets in assets/img/texture/ are committed.
+# Rebuild those with: npm run build:textures
+Film-Grain-Textures-FREE-Pack-8K/
+Film-Dust-Textures/

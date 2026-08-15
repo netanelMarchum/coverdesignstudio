@@ -1,0 +1,421 @@
+/* ==========================================================================
+   Studio Cover Design — alternative homepage direction.
+   Self-contained: shares nothing with style.css, so this page can be judged,
+   kept or thrown away without touching the live site.
+
+   THE ARGUMENT
+   A cover is not judged on a portfolio wall. It is judged at 64 pixels, in a
+   playlist row, between forty other songs — and then, if it survives that, at
+   3000 on someone's screen. That double life is the studio's actual craft and
+   it is the one thing this page is built around.
+
+   Which sets everything else:
+   · The page is dark, because that is where cover art is consumed. Every
+     streaming client on earth is near-black, and artwork is designed against it.
+   · The page carries no colour of its own. The only colour on screen comes out
+     of the studio's own covers — the work is the palette. The brand orange is
+     an indicator, not a fill: live states, the current item, focus. Nowhere else.
+   · Nothing is centred. The live site centres every block, which is the single
+     most template-shaped decision on it. This one sits on a hard right edge
+     (the start edge, in Hebrew) with hairlines doing the structural work.
+   ========================================================================== */
+
+/* Faces come from assets/css/fonts.css, which every page loads first. */
+
+:root{
+  /* ---- Colour: five values, and four of them are neutral ---------------- */
+  --ink:#0B0B0C;        /* the page. Not pure black — artwork edges need somewhere to land */
+  --ink-lift:#141416;   /* raised surface: the spec panel, form fields */
+  --hair:#26262A;       /* every rule and grid line on the page */
+  --text:#F2F1EE;       /* 18.4:1 on --ink */
+  --text-dim:#9A9AA1;   /* 7.2:1 on --ink — for prose, not for labels under 12px */
+  --live:#F38218;       /* the brand orange. 7.5:1 on --ink. An INDICATOR: the live
+                           dot, the selected cover, focus rings, one button. If it
+                           is filling a shape that is not one of those, it is wrong. */
+
+  /* ---- Type -------------------------------------------------------------
+     One family, two optical cuts, four real weights — the same system the rest
+     of the site now runs on, so this page is a different design and not a
+     different typeface.
+
+     Google Sans        x-height 510 — the display cut, for anything over ~24px
+     Google Sans 17pt   x-height 526 — the text cut, for everything read
+
+     Karantina stays on exactly one element: the wordmark in the bar. It is the
+     studio's logotype, not a display face to be spent on headlines.
+
+     The specification labels used to be set in a monospace. They are Google
+     Sans 17pt now, at Medium with tabular figures switched on — which is what
+     was actually wanted there: numerals that line up in a column. A second
+     family was doing a job one OpenType feature does. */
+  --logotype:'Karantina',sans-serif;
+  --display:'Google Sans','Segoe UI',Arial,sans-serif;
+  --body:'Google Sans 17pt','Google Sans','Segoe UI',Arial,sans-serif;
+
+  --fw-regular:400;
+  --fw-medium:500;
+  --fw-semibold:600;
+  --fw-bold:700;
+
+  --t-hero:clamp(2.75rem,8.5vw,7rem);
+  --t-head:clamp(2rem,4.6vw,3.5rem);
+  --t-row:clamp(1.5rem,2.6vw,2.15rem);
+  --t-body:1.0625rem;
+  --t-spec:.75rem;      /* mono: dimensions, formats, day offsets */
+  --t-micro:.75rem;
+
+  /* ---- Space: one scale, 8px base -------------------------------------- */
+  --s1:8px; --s2:16px; --s3:24px; --s4:40px; --s5:64px; --s6:96px; --s7:144px;
+
+  --edge:clamp(20px,5vw,72px);   /* the page's hard side margin */
+  --maxw:1440px;
+
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+*{box-sizing:border-box}
+
+html{background:var(--ink)}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--body);
+  font-size:var(--t-body);
+  font-weight:var(--fw-regular);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block; max-width:100%}
+a{color:inherit; text-decoration:none}
+ul{margin:0; padding:0; list-style:none}
+/* Display cut, Bold, tight. These are the only three sizes on the page big
+   enough to earn it. */
+h1,h2{margin:0; font-family:var(--display); font-weight:var(--fw-bold); line-height:.92}
+/* A row title sits at ~24-34px in the text cut and only needs to lift off the
+   paragraph beneath it — SemiBold, not another Bold. */
+h3{margin:0; font-weight:var(--fw-semibold); line-height:1.1}
+
+/* The focus ring is the one place the brand orange is allowed to be loud. */
+:focus-visible{
+  outline:2px solid var(--live);
+  outline-offset:3px;
+}
+
+.shell{max-width:var(--maxw); margin-inline:auto; padding-inline:var(--edge)}
+
+/* Skip link — first tab stop. */
+.skip{
+  position:absolute; inset-block-start:-100px; inset-inline-start:var(--edge);
+  z-index:99; padding:12px 20px; background:var(--text); color:var(--ink);
+  font-size:var(--t-spec); font-weight:var(--fw-semibold);
+  transition:transform .18s var(--ease);
+}
+.skip:focus-visible{transform:translateY(140px)}
+
+/* ==========================================================================
+   Specification type.
+   Everything in this family is real data about a real file. Latin numerals in
+   a right-to-left page have to be marked dir="ltr" in the markup or the
+   dimensions read backwards.
+   ========================================================================== */
+.spec{
+  font-size:var(--t-spec); font-weight:var(--fw-medium);
+  letter-spacing:.06em; color:var(--text-dim);
+  font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.spec-lg{font-size:.8125rem}
+
+/* Micro-labels: the text cut at SemiBold, tracked out. Small, tracked and
+   heavier is how a label reads as a label without changing family. */
+.micro{
+  font-size:var(--t-micro); font-weight:var(--fw-semibold);
+  letter-spacing:.09em; color:var(--text-dim);
+}
+.spec strong{color:var(--text); font-weight:500}
+
+/* ==========================================================================
+   Top bar
+   ========================================================================== */
+.bar{
+  position:sticky; top:0; z-index:40;
+  background:rgba(11,11,12,.88);
+  background:color-mix(in srgb, var(--ink) 88%, transparent);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-block-end:1px solid var(--hair);
+}
+.bar-in{
+  max-width:var(--maxw); margin-inline:auto; padding:14px var(--edge);
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s3);
+}
+.wordmark{
+  font-family:var(--logotype); font-weight:var(--fw-bold);
+  font-size:1.6rem; line-height:1;
+  letter-spacing:.005em; white-space:nowrap;
+}
+.bar-nav{display:flex; align-items:center; gap:var(--s3)}
+.bar-nav a{transition:color .18s var(--ease)}
+.bar-nav a:hover{color:var(--text)}
+
+/* The live dot is the studio's status, not an ornament: it says somebody is at
+   the desk. It is also the only thing on the page that moves on its own. */
+.live{display:inline-flex; align-items:center; gap:8px; white-space:nowrap}
+.live::before{
+  content:""; width:6px; height:6px; border-radius:50%;
+  background:var(--live); flex:none;
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ==========================================================================
+   HERO — the scale test.
+
+   The two halves are not decorative columns: the right half makes the claim in
+   words and the left half proves it with an actual cover rendered at the sizes
+   a listener actually meets it at. 300, 64 and 24 below are TRUE CSS pixels,
+   which is the entire point — the drop-off has to be felt, not described.
+   ========================================================================== */
+.hero{
+  display:grid; gap:var(--s5) var(--s4);
+  grid-template-columns:minmax(0,1fr) minmax(0,.92fr);
+  align-items:start;
+  padding-block:clamp(var(--s5),9vw,var(--s7)) var(--s6);
+}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr; padding-block:var(--s5) var(--s5)}
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:var(--t-hero);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.025em;   /* the display cut is set tighter as it grows */
+  max-width:15ch;
+  text-wrap:balance;
+}
+/* The number is the headline's subject, so it is set in the face that owns
+   every other number on the page. */
+/* The number in the headline is the headline's subject, so it stays in the
+   display cut and only steps down in size — a second family here would read as
+   a different voice mid-sentence. */
+.px{font-size:.82em; letter-spacing:-.02em; font-feature-settings:"tnum" 1}
+.hero-lead{
+  margin:var(--s3) 0 0; max-width:34ch;
+  color:var(--text-dim);
+}
+.hero-actions{display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s4)}
+
+.btn{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:14px 26px; border:1px solid var(--live);
+  background:var(--live); color:var(--ink);
+  font-family:var(--body); font-size:1rem; font-weight:var(--fw-semibold);
+  cursor:pointer;
+  transition:background .18s var(--ease), color .18s var(--ease);
+}
+.btn:hover{background:transparent; color:var(--live)}
+.btn:active{transform:translateY(1px)}
+.btn-quiet{
+  background:transparent; border-color:var(--hair); color:var(--text);
+}
+.btn-quiet:hover{background:transparent; border-color:var(--text); color:var(--text)}
+
+/* ---- the ladder ---------------------------------------------------------- */
+.ladder{display:grid; gap:var(--s4); justify-items:start}
+.rung{display:grid; gap:10px; justify-items:start; align-content:start}
+.rung img{background:var(--ink-lift); object-fit:cover}
+
+.rung-master{width:100%}
+.master{
+  position:relative;
+  width:100%; max-width:440px; aspect-ratio:1/1;
+  background:var(--ink-lift);
+}
+.master img{width:100%; height:100%; object-fit:cover}
+
+.rungs{display:flex; align-items:start; flex-wrap:wrap; gap:var(--s3)}
+/* One row height for all three, artwork pinned to its bottom. */
+.rungs .rung{grid-template-rows:var(--rung-h,300px) auto; align-items:end}
+.rung-300 img{width:var(--rung-h,300px); height:var(--rung-h,300px)}
+.rung-64  img{width:64px;  height:64px}
+.rung-24  img{width:24px;  height:24px}
+@media (max-width:420px){
+  .rungs{--rung-h:220px}
+}
+.rung-label{display:grid; gap:2px}
+.rung-label b{
+  font-size:var(--t-spec); font-weight:var(--fw-semibold);
+  color:var(--text); letter-spacing:.04em;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.rung-label span{
+  font-size:.75rem; color:var(--text-dim); line-height:1.3;
+}
+
+/* ---- the picker: thirty real covers, one row, horizontally scrollable ----- */
+.picker{
+  margin-top:var(--s2);
+  display:flex; gap:6px;
+  overflow-x:auto; scrollbar-width:thin;
+  padding-block-end:var(--s1);
+  max-width:100%;
+}
+.picker button{
+  flex:none; padding:0; border:0; background:none; cursor:pointer;
+  line-height:0;
+  opacity:.4;
+  transition:opacity .18s var(--ease);
+}
+.picker button:hover{opacity:.8}
+.picker button[aria-pressed="true"]{opacity:1; box-shadow:0 0 0 2px var(--live)}
+.picker img{width:40px; height:40px; object-fit:cover}
+
+.now-showing{
+  margin:var(--s2) 0 0; max-width:44ch;
+  font-size:.9375rem; color:var(--text-dim);
+}
+.now-showing b{color:var(--text); font-weight:var(--fw-semibold)}
+
+/* ==========================================================================
+   Section furniture — a hairline and a mono caption. No cards anywhere on this
+   page: a card is a box drawn around content that did not need a box.
+   ========================================================================== */
+.band{padding-block:var(--s6); border-block-start:1px solid var(--hair)}
+.band-head{
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:var(--s3); flex-wrap:wrap;
+  margin-block-end:var(--s4);
+}
+.band-head h2{font-size:var(--t-head); letter-spacing:-.018em}
+.band-head p{margin:6px 0 0; color:var(--text-dim); max-width:46ch}
+
+/* ==========================================================================
+   THE WALL
+   Gapless to a hairline, because this is how the work is met in the wild: a
+   library screen, forty covers deep, no captions, no breathing room. The label
+   arrives only on hover or focus, and it is the only place on the page where
+   an overlay is allowed.
+   ========================================================================== */
+.wall{
+  display:grid; grid-template-columns:repeat(8,1fr);
+  gap:1px; background:var(--hair);
+  border:1px solid var(--hair);
+}
+@media (max-width:1100px){.wall{grid-template-columns:repeat(6,1fr)}}
+@media (max-width:700px){.wall{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:420px){.wall{grid-template-columns:repeat(3,1fr)}}
+
+.tile{position:relative; display:block; aspect-ratio:1/1; background:var(--ink); overflow:hidden}
+.tile img{width:100%; height:100%; object-fit:cover; transition:opacity .25s var(--ease)}
+.tile-cap{
+  position:absolute; inset:auto 0 0 0; z-index:2;
+  padding:34px 10px 10px;
+  background:linear-gradient(0deg,rgba(11,11,12,.94) 20%,transparent);
+  opacity:0; transition:opacity .2s var(--ease);
+}
+.tile-cap b{display:block; font-weight:var(--fw-semibold); font-size:1rem; line-height:1.15}
+.tile-cap span{display:block; font-size:.6875rem; color:var(--text-dim); margin-top:2px}
+.tile:hover .tile-cap,.tile:focus-visible .tile-cap{opacity:1}
+.tile:hover img{opacity:.55}
+
+/* ==========================================================================
+   THE RELEASE
+   Not "01 / 02 / 03". A release is a countdown, and the industry counts in days
+   before the drop — so the structural device is the day offset, which is real
+   information an artist can plan against. Rows, not cards: the sequence is the
+   point and rows put it in one continuous column.
+   ========================================================================== */
+.stage{
+  display:grid; grid-template-columns:6.5rem minmax(0,1fr) auto;
+  gap:var(--s3);
+  align-items:start;
+  padding-block:var(--s3);
+  border-block-start:1px solid var(--hair);
+  transition:background .2s var(--ease);
+}
+.stage:first-of-type{border-block-start:0}
+a.stage:hover{background:var(--ink-lift)}
+/* The day offsets are a column of numbers that has to line up, which is the
+   one place tabular figures are not a nicety. */
+.stage-day{
+  font-family:var(--display); font-size:1.5rem; font-weight:var(--fw-medium);
+  color:var(--text-dim); line-height:1.2; letter-spacing:-.02em;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.stage-drop .stage-day{color:var(--live)}
+.stage h3{font-size:var(--t-row); letter-spacing:-.012em}
+.stage p{margin:8px 0 0; color:var(--text-dim); max-width:52ch; font-size:.9375rem}
+.stage-go{white-space:nowrap; padding-top:6px}
+a.stage:hover .stage-go{color:var(--live)}
+@media (max-width:700px){
+  .stage{grid-template-columns:4.5rem minmax(0,1fr); gap:var(--s2)}
+  .stage-go{grid-column:2; padding-top:0}
+}
+
+/* ==========================================================================
+   THE BRIEF
+   The form has no server. It never had one — it validates and then hands the
+   whole thing to WhatsApp. So the page says that, in the button, before anyone
+   fills anything in.
+   ========================================================================== */
+.brief{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.85fr);
+  gap:var(--s5) var(--s4); align-items:start;
+}
+@media (max-width:900px){.brief{grid-template-columns:1fr}}
+.brief h2{font-size:var(--t-head); letter-spacing:-.018em; max-width:14ch}
+.brief-lead{margin:var(--s3) 0 0; color:var(--text-dim); max-width:40ch}
+.brief-direct{margin-top:var(--s4); display:grid; gap:10px}
+.brief-direct a{
+  font-size:.9375rem; font-weight:var(--fw-medium); color:var(--text);
+  letter-spacing:.01em; font-feature-settings:"tnum" 1;
+  transition:color .18s var(--ease);
+}
+.brief-direct a:hover{color:var(--live)}
+
+.form{display:grid; gap:var(--s2)}
+.field{display:grid; gap:6px}
+
+.field input,.field textarea{
+  width:100%; padding:13px 14px;
+  background:var(--ink-lift); border:1px solid var(--hair);
+  color:var(--text); font-family:var(--body); font-size:1rem; font-weight:var(--fw-regular);
+  transition:border-color .18s var(--ease);
+}
+.field input:focus,.field textarea:focus{border-color:var(--text); outline-offset:1px}
+.field textarea{resize:vertical; min-height:104px}
+.hp{position:absolute; inset-inline-start:-9999px; width:1px; height:1px; opacity:0}
+.form-msg{margin:0; min-height:1.4em}
+.form-msg[data-state="ok"]{color:var(--live)}
+.form-msg[data-state="err"]{color:#FF6B5E}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.foot{
+  border-block-start:1px solid var(--hair);
+  padding-block:var(--s3) var(--s4);
+  display:flex; flex-wrap:wrap; gap:var(--s2) var(--s3);
+  align-items:center; justify-content:space-between;
+}
+.foot-links{display:flex; flex-wrap:wrap; gap:var(--s3)}
+.foot a:hover{color:var(--text)}
+.foot a{color:var(--text-dim); transition:color .18s var(--ease)}
+
+/* ==========================================================================
+   The one orchestrated moment.
+   On load the master cover comes up from the footprint of the 64px rung and
+   settles at full size while the label counts 64 → 300 → 640 → 3000. It states
+   the page's argument before the headline has been read, and then it is over:
+   nothing else on this page animates on its own except the live dot.
+   ========================================================================== */
+.master{
+  /* 100% 0 is the top-RIGHT corner, which in Hebrew is where the eye starts —
+     the cover grows out of the corner it would be filed under. */
+  transform-origin:100% 0;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .live::before{animation:none}
+  *,*::before,*::after{transition-duration:.01ms!important}
+}

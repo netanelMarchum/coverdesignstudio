@@ -1,0 +1,33 @@
+{
+  "name": "studiocoverdesign",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static marketing site for Studio Cover Design (studiocoverdesign.com).",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:textures": "node scripts/build-textures.mjs",
+    "dev": "node scripts/dev.mjs",
+    "fetch:instagram": "node scripts/fetch-instagram.mjs",
+    "fetch:thumbs": "node scripts/fetch-video-thumbs.mjs",
+    "lint": "html-validate \"*.html\"",
+    "optimize:img": "node scripts/optimize-images.mjs",
+    "start": "node scripts/dev.mjs",
+    "type-check": "tsc --noEmit",
+    "verify": "npm run lint && npm run type-check && npm run check:design && npm run build",
+    "check:design": "node scripts/check-design-system.mjs",
+    "build:fonts": "node scripts/build-fonts.mjs",
+    "build:v2": "node scripts/build-v2-page.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "esbuild": "^0.25.0",
+    "html-validate": "^9.0.0",
+    "sharp": "^0.34.0",
+    "typescript": "^5.7.0"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "sharp@0.34.5": true
+  }
+}

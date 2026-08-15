@@ -1,0 +1,51 @@
+name: Refresh Instagram feed
+
+# Keeps assets/data/instagram.json up to date via the Composio connection only.
+# No Instagram token — the sole credential is a Composio API key stored in repo Secrets.
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours
+  workflow_dispatch:         # manual "Run workflow" button
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-feed
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-save @composio/core sharp
+
+      - name: Fetch latest posts via Composio
+        env:
+          COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
+          # Optional overrides if you have more than one Instagram connection:
+          # COMPOSIO_USER_ID: ${{ vars.COMPOSIO_USER_ID }}
+          # COMPOSIO_ACCOUNT_ID: ${{ vars.COMPOSIO_ACCOUNT_ID }}
+        run: node scripts/fetch-instagram.mjs
+
+      - name: Commit if the feed changed
+        run: |
+          git config user.name "instagram-bot"
+          git config user.email "actions@users.noreply.github.com"
+          # The images are downloaded and committed alongside the JSON: the feed
+          # references local copies, because Instagram's CDN URLs are signed and
+          # expire within days.
+          if [ -n "$(git status --porcelain assets/data/instagram.json assets/img/insta)" ]; then
+            git add assets/data/instagram.json assets/img/insta
+            git commit -m "chore: refresh Instagram feed via Composio"
+            git push
+          else
+            echo "No feed changes."
+          fi

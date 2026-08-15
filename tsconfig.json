@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    // The browser scripts are untyped vanilla JS that leans on DOM narrowing and
+    // CDN globals (gsap/ScrollTrigger). checkJs reports ~70 findings there, all
+    // type-inference noise rather than defects, and silencing them would mean
+    // annotating working code. Kept off so this stays a syntax/module gate.
+    "checkJs": false,
+    "noEmit": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["assets/js/**/*.js", "scripts/**/*.mjs"],
+  "exclude": ["node_modules", "_archive", "**/*.min.js"]
+}

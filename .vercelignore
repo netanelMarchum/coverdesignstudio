@@ -1,0 +1,32 @@
+node_modules/
+
+# Unreferenced files pulled out of the live site. Kept on disk for recovery,
+# never uploaded. Delete the folder once you're satisfied nothing is missing.
+_archive/
+
+# Working notes and build tooling, not served.
+*.md
+scripts/
+.github/
+
+# Toolchain config — no meaning at runtime, only advertises the stack.
+tsconfig.json
+package.json
+package-lock.json
+.htmlvalidate.json
+
+# Unminified sources. Every page loads the .min build (see
+# scripts/lib/build-targets.mjs); shipping the originals just duplicates them.
+# Listed one by one rather than with a glob + negation, because a mistake here
+# would silently drop the .min files the whole site depends on.
+assets/css/style.css
+assets/css/cover-experience.css
+assets/js/a11y.js
+assets/js/cookie-consent.js
+assets/js/cover-experience.js
+assets/js/i18n.js
+assets/js/ig-config.js
+assets/js/instagram.js
+assets/js/lightbox.js
+assets/js/motion.js
+assets/js/script.js

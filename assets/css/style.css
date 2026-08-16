@@ -84,6 +84,12 @@
      and clear 6.6:1 on the footer's lavender card. */
   --color-lavender-ink:color-mix(in srgb, var(--color-lavender) 42%, var(--color-text));
   --color-accent-deep:color-mix(in srgb, var(--color-accent) 75%, var(--color-text));
+  /* The brand yellow taken far enough into the ink to carry small type. Raw
+     lime is 1.15:1 on white and the 75% mix is 1.97:1 — both fine as a bullet
+     or a chip, neither legible as a sentence. 45% lands at 4.75:1 and clears
+     AA while still reading unmistakably as the brand yellow rather than as a
+     brown. This is the only mix in the set allowed under running text. */
+  --color-accent-ink:color-mix(in srgb, var(--color-accent) 45%, var(--color-text));
   --ticker-ink:var(--color-lavender-deep);
 
   /* The atmosphere. Two soft lavender masses, well under the strength that
@@ -1412,31 +1418,91 @@ body.loaded > footer{
   }
   /* the mobile drawer is always the solid light panel */
   .hdr-over .main-nav{background:var(--bg)}
+  /* ── the drawer ──────────────────────────────────────────────────────
+     A full-height panel on the edge the burger sits on, not a shade pulled
+     down from the header. Anchored with inset-inline-end so it mirrors with
+     the language: the panel always arrives from the control that opened it,
+     which is the one spatial rule a drawer has to keep. --drawer-out flips the
+     slide direction to match, because "off-screen" is +100% on one side and
+     -100% on the other. */
   .main-nav{
-    /* Pinned to the measured header, not a hard-coded 63px: the bar lost its
-       logo, so its height is no longer the number that was baked in here. */
-    position:fixed; inset:var(--header-h,66px) 0 0 0; left:auto; transform:translateY(-120%);
-    /* Closing is quicker than opening — a menu that lingers on the way out
-       feels like lag, the same gesture on the way in feels considered. */
+    --drawer-out:100%;
+    position:fixed; inset-block:0; inset-inline-end:0; inset-inline-start:auto;
+    width:min(86vw,380px); max-width:100%;
+    transform:translateX(var(--drawer-out));
     /* visibility, not just the transform: an off-screen panel that is still
-       "visible" keeps its four links in the tab order, so a keyboard user walks
+       "visible" keeps its links in the tab order, so a keyboard user walks
        through a menu nobody can see. It flips at the END of the close so the
        slide still plays, and instantly on open. */
     visibility:hidden;
+    /* Closing is quicker than opening — a menu that lingers on the way out
+       feels like lag, the same gesture on the way in feels considered. */
     transition:transform var(--d-card) var(--ease), visibility 0s linear var(--d-card);
-    background:var(--bg); backdrop-filter:none; -webkit-backdrop-filter:none;
-    border:none; border-top:1px solid var(--border);
-    box-shadow:none; border-radius:0;
-    padding:var(--s-6) var(--s-5); z-index:var(--z-nav); overflow-y:auto;
+    background:var(--color-surface); backdrop-filter:none; -webkit-backdrop-filter:none;
+    border:none; box-shadow:var(--sh-overlay); border-radius:0;
+    padding:calc(var(--header-h,66px) + var(--s-4)) var(--s-6) var(--s-6);
+    z-index:var(--z-nav); overflow-y:auto;
+    display:flex; flex-direction:column;
   }
+  [dir="ltr"] .main-nav{--drawer-out:100%}
+  [dir="rtl"] .main-nav{--drawer-out:-100%}
   .main-nav.open{
-    transform:translateY(0); visibility:visible;
+    transform:translateX(0); visibility:visible;
     transition:transform var(--d-mid) var(--ease), visibility 0s;
   }
-  .main-nav ul{flex-direction:column; align-items:flex-start; gap:var(--s-5)}
-  .main-nav a{font-size:1.5rem; padding:6px 0; border-radius:0; background:none}
-  .main-nav a:hover{background:none}
-  .main-nav a.active{background:none; color:var(--text); box-shadow:none}
+
+  /* The dim. Its own element rather than a ::before on the drawer, because a
+     pseudo-element inside a transformed, scrolling panel cannot cover the page
+     behind it. */
+  .nav-backdrop{
+    position:fixed; inset:0; z-index:calc(var(--z-nav) - 1);
+    background:rgba(9,9,9,.42);
+    -webkit-backdrop-filter:blur(10px) saturate(118%);
+            backdrop-filter:blur(10px) saturate(118%);
+    opacity:0; visibility:hidden;
+    transition:opacity var(--d-mid) var(--ease), visibility 0s linear var(--d-mid);
+  }
+  .nav-backdrop.open{opacity:1; visibility:visible; transition:opacity var(--d-mid) var(--ease), visibility 0s}
+
+  .main-nav ul{flex-direction:column; align-items:stretch; gap:var(--s-2)}
+  .main-nav a{
+    font-size:1.45rem; font-weight:var(--fw-semibold);
+    line-height:1.25; letter-spacing:var(--ls-display);
+    padding:var(--s-3) 0; border-radius:0; background:none;
+    color:var(--color-text);
+    /* A hairline between items rather than a big gap: at this type size the
+       rule is what makes four links read as a list instead of four headings. */
+    border-bottom:1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    transition:color var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+  }
+  .main-nav li:last-child a{border-bottom:0}
+  .main-nav a:hover,.main-nav a:focus-visible{
+    background:none; color:var(--color-accent-ink);
+    /* Toward the reading edge, so it leans into the text rather than away. */
+    transform:translateX(calc(var(--drawer-out) / -25));
+  }
+  .main-nav a.active{
+    background:none; color:var(--color-accent-ink); box-shadow:none;
+  }
+
+  /* Close. Top of the panel on the side the eye lands first. */
+  .nav-close{
+    position:absolute; top:var(--s-4); inset-inline-end:var(--s-5);
+    width:42px; height:42px; padding:0; display:grid; place-items:center;
+    border:1px solid var(--color-border); border-radius:50%;
+    background:var(--color-surface); color:var(--color-text); cursor:pointer;
+    transition:background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+  }
+  .nav-close svg{width:20px; height:20px; display:block}
+  .nav-close:hover{background:var(--color-ink-soft); transform:rotate(90deg)}
+
+  /* Pinned to the bottom of the panel by margin-top:auto on the flex column,
+     so it sits at the foot whether there are four links or ten. */
+  .nav-social{
+    margin-top:auto; padding-top:var(--s-6);
+    border-top:1px solid var(--color-border);
+    display:flex; justify-content:center; gap:var(--s-3);
+  }
 }
 
 /* ==========================================================================
@@ -2133,9 +2199,9 @@ body.loaded > footer{
 }
 .footer-bottom{
   padding-top:var(--s-5); text-align:center;
-  font-size:.82rem; color:var(--color-muted);
+  font-size:.82rem; color:var(--color-accent-ink);
 }
-.footer-bottom .brand-mark{font-weight:inherit; font-size:inherit; color:var(--color-lavender-deep)}
+.footer-bottom .brand-mark{font-weight:var(--fw-semibold); font-size:inherit; color:var(--color-accent-ink)}
 
 /* ==========================================================================
    Icon system.

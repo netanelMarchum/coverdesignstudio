@@ -82,6 +82,49 @@ if (burger && nav) {
   burger.setAttribute('aria-controls', 'main-nav');
   nav.id = nav.id || 'main-nav';
 
+  /* The drawer's furniture is built here rather than written into ten HTML
+     files: a close button, the dim behind it, and a social/contact row at the
+     foot. Same markup on every page by construction, and nothing to forget
+     when a page is added. All three are inert on desktop — the CSS only
+     positions them inside the mobile media query. */
+  var backdrop = document.createElement('div');
+  backdrop.className = 'nav-backdrop';
+  document.body.appendChild(backdrop);
+
+  var closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'nav-close';
+  closeBtn.setAttribute('aria-label', 'סגירת התפריט');
+  closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">' +
+    '<path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+  nav.insertBefore(closeBtn, nav.firstChild);
+
+  /* The socials are CLONED from the footer rather than re-listed. One source of
+     truth for which accounts exist, and .social-row already carries the chip
+     styling and the accent-on-hover the rest of the UI uses. */
+  var social = document.createElement('div');
+  social.className = 'nav-social';
+  var fromFooter = document.querySelector('.site-footer .social-row');
+  if (fromFooter) social.appendChild(fromFooter.cloneNode(true));
+
+  var mailLink = document.querySelector('.site-footer a[href^="mailto:"]');
+  if (mailLink) {
+    var m = document.createElement('a');
+    m.href = mailLink.getAttribute('href');
+    m.setAttribute('aria-label', 'שליחת מייל');
+    m.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" ' +
+      'aria-hidden="true" focusable="false">' +
+      '<path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/>' +
+      '<rect x="2" y="4" width="20" height="16" rx="2"/></svg>';
+    (social.querySelector('.social-row') || social).appendChild(m);
+  }
+  nav.appendChild(social);
+
+  closeBtn.addEventListener('click', function () { setOpen(false, true); });
+  backdrop.addEventListener('click', function () { setOpen(false, true); });
+
   // The panel covers the viewport, so the page behind it must not scroll: a
   // menu that scrolls the content underneath it reads as two surfaces fighting.
   /* The panel's slide stays in CSS — it already handles the asymmetric
@@ -116,6 +159,7 @@ if (burger && nav) {
 
   function setOpen(open, restoreFocus) {
     nav.classList.toggle('open', open);
+    backdrop.classList.toggle('open', open);
     burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     document.body.style.overflow = open ? 'hidden' : '';
     if (open) staggerLinks();

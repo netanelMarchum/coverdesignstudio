@@ -16,6 +16,7 @@ export const targets = [
   { in: 'assets/js/validate.js', out: 'assets/js/validate.min.js' },
   { in: 'assets/js/forms.js', out: 'assets/js/forms.min.js' },
   { in: 'assets/js/a11y.js', out: 'assets/js/a11y.min.js' },
+  { in: 'assets/js/lang-boot.js', out: 'assets/js/lang-boot.min.js' },
   { in: 'assets/js/i18n.js', out: 'assets/js/i18n.min.js' },
   { in: 'assets/js/instagram.js', out: 'assets/js/instagram.min.js' },
   { in: 'assets/js/ig-config.js', out: 'assets/js/ig-config.min.js' },
@@ -23,6 +24,7 @@ export const targets = [
   { in: 'assets/js/cookie-consent.js', out: 'assets/js/cookie-consent.min.js' },
   { in: 'assets/js/cover-experience.js', out: 'assets/js/cover-experience.min.js' },
   { in: 'assets/js/motion.js', out: 'assets/js/motion.min.js' },
+  { in: 'assets/js/fx-objects.js', out: 'assets/js/fx-objects.min.js' },
   { in: 'assets/js/scroll-rail.js', out: 'assets/js/scroll-rail.min.js' },
   { in: 'assets/js/cursor-trail.js', out: 'assets/js/cursor-trail.min.js' },
   { in: 'assets/js/velocity-carousel.js', out: 'assets/js/velocity-carousel.min.js' },
@@ -32,4 +34,4 @@ export const targets = [
 /** Cache-busting token appended to every asset URL in the HTML.
  *  vercel.json serves /assets/* as immutable for a year, so this MUST be bumped
  *  whenever a bundled file changes or returning visitors keep the stale copy. */
-export const ASSET_VERSION = 13;
+export const ASSET_VERSION = 15;

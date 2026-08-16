@@ -53,10 +53,19 @@
   var half = 0;
   var x = 0;
   var boost = 0;      // added by scroll velocity, decays to 0
-  var dir = 1;        // 1 = drifting start-ward, -1 = reversed
   var target = 1;     // 1 = running, 0 = held
   var scale = 1;      // eased toward target, so nothing ever stops dead
   var BASE = 0.4;     // px per frame at rest — a drift, not a slide
+
+  /* Park the track and take the loop off the ticker. Used whenever the row has
+     nothing to loop — most often the frame the feed script blanks it — so the
+     content that IS there is always at x:0 and visible, never translated into
+     the clip. The loop restarts by itself on the next successful build(). */
+  function stop() {
+    wrapX = null;
+    x = 0;
+    gsap.set(grid, { x: 0, skewX: 0 });
+  }
 
   /* The loop is made by repeating the row. Clones are inert: aria-hidden and
      removed from the tab order, so the same covers are not announced or tabbed
@@ -79,15 +88,35 @@
       n.remove();
     });
     var originals = Array.prototype.slice.call(grid.children);
-    if (!originals.length) return;
 
-    // One set, measured with no clones present and therefore no trailing gap.
-    var setW = grid.scrollWidth;
+    /* The feed script empties this row (grid.innerHTML = '') before it appends
+       the live cards. If that lands while the track is translated a full set to
+       the left, the row is parked off-screen and the section reads as EMPTY.
+       So an empty or unmeasurable row parks the track back at zero and stops
+       the loop until there is something to loop again. */
+    if (!originals.length) { stop(); return; }
+
+    /* Measured with the transform neutralised: getBoundingClientRect reports
+       the RENDERED box, so a translated — and especially a skewed — track
+       measures wider than it is, and the wrap distance comes out long. That is
+       the gap. offsetWidth would dodge the transform but rounds to whole
+       pixels, and a fraction of a pixel lost per lap is a seam that walks. */
+    gsap.set(grid, { x: 0, skewX: 0 });
+    var setW = grid.getBoundingClientRect().width;
     var gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
     var step = setW + gap;                     // the exact wrap distance
-    if (step <= 0) return;
+    if (step <= 0) { stop(); return; }
 
-    var copies = Math.max(1, Math.ceil((innerWidth * 2) / step));
+    /* How many extra sets it takes to keep the viewport covered at every point
+       in the cycle. The track spans [x, x + total] with x anywhere in
+       [-step, 0], so the worst case is x = -step and the requirement is
+       total - step >= viewport. Solved for the copy count that is
+       ceil((viewport + gap) / step), plus one whole spare set — clone cost is
+       one <img> the browser has already decoded, and running one short is an
+       empty stretch of section. Measured off the wrapper, not innerWidth: the
+       wrapper is what actually has to stay covered. */
+    var viewW = viewport.getBoundingClientRect().width || innerWidth;
+    var copies = Math.ceil((viewW + gap) / step) + 1;
     for (var c = 0; c < copies; c++) {
       originals.forEach(function (node) {
         var k = node.cloneNode(true);
@@ -131,8 +160,15 @@
         });
       });
       if (!real) return;
+      /* Synchronously, NOT in a rAF. MutationObserver callbacks run as a
+         microtask after the mutating task and before the next paint, so
+         rebuilding here means no frame is ever painted with new content
+         against the old wrap distance — which is the flash of empty row.
+         build() only ever adds clones, and the filter above ignores those, so
+         this cannot recurse. */
       rebuilding = true;
-      requestAnimationFrame(function () { build(); rebuilding = false; });
+      build();
+      rebuilding = false;
     }).observe(grid, { childList: true });
   }
 
@@ -144,10 +180,13 @@
       trigger: viewport,
       start: 'top bottom',
       end: 'bottom top',
+      /* Scroll SPEED only. This used to flip the row's direction on the sign
+         of the velocity, so scrolling up ran the covers backwards — and every
+         change of direction is a moment where the eye loses the thread of a
+         loop. One direction, always: cards leave at the left edge and come
+         back in from the right, whatever the page is doing. */
       onUpdate: function (self) {
-        var v = self.getVelocity();
-        if (v) dir = v > 0 ? 1 : -1;
-        boost = gsap.utils.clamp(0, 26, Math.abs(v) / 140);
+        boost = gsap.utils.clamp(0, 26, Math.abs(self.getVelocity()) / 140);
       },
     });
   }
@@ -170,7 +209,7 @@
     scale += (target - scale) * 0.09;
     if (scale < 0.001) scale = 0;
 
-    x -= (BASE + boost) * dir * scale;
+    x -= (BASE + boost) * scale;      // always negative: always leftward
     gsap.set(grid, {
       x: wrapX(x),
       /* A whisper of skew in the direction of travel — it reads as speed. Any
@@ -179,7 +218,7 @@
          property of how fast the row is ACTUALLY going. That is what stops a
          hovered card from sitting at an angle while the row is standing still,
          and it means the lift on that card is read against a square frame. */
-      skewX: gsap.utils.clamp(-4, 4, -boost * 0.16 * dir * scale),
+      skewX: gsap.utils.clamp(-4, 0, -boost * 0.16 * scale),
       force3D: true,
     });
   });

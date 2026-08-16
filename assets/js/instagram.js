@@ -47,7 +47,11 @@
       if (state.items.length) {
         var from = 0;
         if (!swapped) { grid.innerHTML = ''; swapped = true; }
-        else { from = grid.children.length; }
+        // Count REAL cards only. The velocity carousel fills this row with
+        // clones to make its loop seamless, and grid.children counts those too
+        // — so "show more" was slicing from a number two or three times the
+        // card count and appending nothing, or skipping whole pages of covers.
+        else { from = grid.querySelectorAll(':scope > :not([data-vel-clone])').length; }
         var html = state.items.slice(from, state.shown).map(card).join('');
         if (html) {
           var tmp = document.createElement('div');

@@ -24,13 +24,24 @@
      a framed piece with a mat around it, and nothing is lost to the edges. */
   padding:clamp(20px,4.5vh,64px);
   opacity:0;
+  /* The container is the stable thing. Its box is fixed by inset:0 and never
+     animates — only the <img> inside it is transformed — so nothing here can
+     shift layout or give ScrollTrigger a reason to re-measure the pin. The
+     clip is what guarantees a scaled frame can never widen the document and
+     produce a horizontal scrollbar. */
+  overflow:hidden;
   /* No standing will-change. Eight full-viewport layers each promoted to their
      own compositor layer is a lot of GPU memory to hold permanently, and on a
      phone it is what turns a smooth scrub into a stuttering one. GSAP promotes
      the two layers that are actually tweening and releases them after. */
 }
+/* GSAP animates scale and y on the IMG, never on .layer. Same reason: the
+   frame the artwork sits in has to stay exactly where it is while the artwork
+   moves inside it. transform + opacity only — no width, height, top or margin
+   anywhere in this file's animation path. */
 #cx .layer img{
   width:100%; height:100%; display:block;
+  transform-origin:center center;
   /* contain, not cover: these are finished cover designs, so cropping the
      edges off to fill the viewport would cut the artwork. The whole frame
      stays readable and the black letterbox around it reads as a gallery mat. */
@@ -56,6 +67,11 @@
   .cx-immersive .wa-float,.cx-immersive .a11y-fab,.wa-float,.a11y-fab{transition:none}
 }
 
-/* Fallback (no GSAP / reduced motion): hold the finished cover, still. */
+/* Fallback (no GSAP / reduced motion): hold the finished cover, still.
+   Reduced motion lands here through gsap.matchMedia() rather than an early
+   return, so switching the OS preference at runtime resolves to the still
+   frame without a reload. The section keeps its height and scrolls normally —
+   what is removed is the movement, not the content. */
 #cx.cx-static .layer{opacity:0; transform:none}
 #cx.cx-static .layer:last-child{opacity:1}
+#cx.cx-static .layer img{transform:none}

@@ -24,9 +24,14 @@ assets/css/cover-experience.css
 assets/js/a11y.js
 assets/js/cookie-consent.js
 assets/js/cover-experience.js
+assets/js/fx-objects.js
 assets/js/i18n.js
 assets/js/ig-config.js
 assets/js/instagram.js
 assets/js/lightbox.js
 assets/js/motion.js
 assets/js/script.js
+
+# 3D source cut-outs. assets/img/fx/*.webp are built from these (225K total);
+# the 1.9MB of source PNGs stay in the repo but never ship.
+assets/img/asset bk

@@ -1,104 +1,180 @@
 /* ==========================================================================
-   Cookie consent — self-contained, bilingual (HE / EN).
-   Shows a dismissible banner until the visitor clicks "Accept".
-   Choice is remembered in localStorage so it never nags again.
+   Cookie consent — bilingual, and part of the site rather than bolted to it.
+   --------------------------------------------------------------------------
+   The previous version carried forty lines of CSS inside this file, complete
+   with its own fallback palette: a different orange, two cool greys and its own
+   radii. A banner that ships its own colours drifts out of the design system
+   the first time the design system moves, and this one had. All of it now lives
+   in style.css and is built from .btn, .btn.outline and .eyebrow.
+
+   LANGUAGE
+   i18n.js translates by walking the document and snapshotting every Hebrew text
+   node at load. This banner does not exist yet when that walk runs, so it can
+   never be picked up by it — which is why both languages are written out here
+   in full, and why it listens for the cds:lang event instead of hoping.
+
+   THE SETTINGS PANEL
+   It names what this site actually stores. There is no analytics category with
+   a toggle that does nothing: offering a switch that controls nothing is worse
+   than offering no switch at all.
    ========================================================================== */
 (function () {
-  var KEY = 'cds-cookie-consent';
+  'use strict';
 
-  // already accepted? do nothing.
-  try { if (localStorage.getItem(KEY) === '1') return; } catch (e) {}
+  var KEY = 'cds-cookie-consent';   // 'all' | 'essential'  ('1' from the old build)
+  var CACHE_PREFIX = 'mt:';         // the translation cache i18n.js writes
 
-  var isEn = (document.documentElement.lang || 'he').toLowerCase().indexOf('en') === 0;
-  var inEnDir = location.pathname.indexOf('/en/') !== -1;
-  var privacyHref = inEnDir ? '../privacy.html' : 'privacy.html';
+  try { if (localStorage.getItem(KEY)) return; } catch (e) {}
 
-  var t = isEn ? {
-    text: 'This website uses cookies to ensure you get the best experience on our website.',
-    policy: 'Cookies Policy',
-    accept: 'Accept'
-  } : {
-    text: 'אתר זה משתמש בעוגיות (Cookies) כדי להבטיח לך את החוויה הטובה ביותר באתר.',
-    policy: 'מדיניות עוגיות',
-    accept: 'אישור'
+  var COPY = {
+    he: {
+      label: 'עוגיות',
+      text: 'אנו משתמשים בקובצי Cookies כדי לשפר את חוויית הגלישה באתר, לנתח את השימוש באתר ולהתאים את התוכן והשירותים שלנו. המשך השימוש באתר מהווה הסכמה לשימוש ב-Cookies בהתאם למדיניות הפרטיות שלנו.',
+      accept: 'אישור',
+      settings: 'הגדרות',
+      policy: 'מדיניות פרטיות',
+      region: 'הודעת עוגיות',
+      essential: 'הכרחיות',
+      essentialOn: 'תמיד פעיל',
+      essentialText: 'שומרות את בחירת השפה ואת ההסכמה הזו. בלעדיהן האתר לא יזכור שום העדפה.',
+      functional: 'פונקציונליות',
+      functionalText: 'מטמון תרגום מקומי שמזרז את המעבר לאנגלית.',
+      note: 'הפירוט המלא נמצא במדיניות הפרטיות.',
+      save: 'שמירה'
+    },
+    en: {
+      label: 'Cookies',
+      text: 'We use cookies to improve your browsing experience, analyze website usage, and personalize our content and services. By continuing to use this website, you agree to our use of cookies in accordance with our Privacy Policy.',
+      accept: 'Accept',
+      settings: 'Settings',
+      policy: 'Privacy Policy',
+      region: 'Cookie notice',
+      essential: 'Essential',
+      essentialOn: 'Always on',
+      essentialText: 'Stores your language choice and this consent. Without them the site remembers no preference.',
+      functional: 'Functional',
+      functionalText: 'A local translation cache that speeds up switching to English.',
+      note: 'The full list is in the Privacy Policy.',
+      save: 'Save'
+    }
   };
 
-  // Every value here is a token from the stylesheet. The fallbacks after each
-  // comma are only for the case where this script somehow runs without it — and
-  // they are the SAME colours, not a second palette: the previous set carried a
-  // different orange (#FF7002), two cool greys and its own radii, so the banner
-  // was visibly not part of the site it appeared on.
-  //
-  // z-index: --z-consent, which the ladder in the stylesheet reserves for
-  // exactly this element. It was 1000 — the preloader's layer, above the page
-  // transition veil, so the banner stayed lit over a covered page.
-  //
-  // The button is dark ink on the brand orange, never white: white on this
-  // orange measures 2.62:1 and fails AA at any size the button would use.
-  var css = '' +
-    '.cookie-consent{position:fixed;inset-inline:var(--s-4,16px);bottom:var(--s-4,16px);' +
-    'z-index:var(--z-consent,400);max-width:560px;margin-inline:auto;' +
-    'background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);' +
-    'color:var(--text,#1A1A1A);border:1px solid var(--hairline,rgba(20,17,20,.11));' +
-    'border-radius:var(--r-md,20px);box-shadow:var(--sh-overlay,0 24px 60px -12px rgba(0,0,0,.28));' +
-    'padding:var(--s-4,16px) var(--s-5,24px);' +
-    'display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-4,16px);font-family:var(--font,inherit);' +
-    'font-weight:300;transform:translateY(24px);opacity:0;' +
-    'transition:transform var(--d-mid,.32s) var(--ease,ease),opacity var(--d-mid,.32s) var(--ease,ease)}' +
-    '.cookie-consent.show{transform:none;opacity:1}' +
-    '.cookie-consent p{margin:0;flex:1 1 240px;font-size:.92rem;line-height:1.55;color:var(--text-dim,#5A5450)}' +
-    '.cookie-consent a{color:var(--text,#1A1A1A);font-weight:700;text-decoration:underline}' +
-    '.cookie-consent .cc-accept{flex:0 0 auto;background:var(--accent,#FF6D29);color:var(--text,#1A1A1A);border:0;' +
-    'border-radius:var(--r-lg,9999px);padding:11px 30px;font-family:inherit;font-weight:700;font-size:.95rem;' +
-    'cursor:pointer;transition:transform var(--d-fast,.18s) var(--ease,ease),box-shadow var(--d-fast,.18s) var(--ease,ease);' +
-    'box-shadow:var(--sh-accent,0 14px 34px -10px rgba(243,130,24,.5))}' +
-    '.cookie-consent .cc-accept:hover{transform:translateY(var(--lift-btn,-2px));box-shadow:var(--sh-3,0 24px 60px -18px rgba(10,10,10,.22))}' +
-    '.cookie-consent .cc-accept:active{transform:scale(.98);transition-duration:var(--d-press,.1s)}' +
-    '@media (max-width:520px){.cookie-consent{flex-direction:column;align-items:stretch;text-align:center}' +
-    '.cookie-consent .cc-accept{width:100%}}' +
-    '@media (prefers-reduced-motion:reduce){.cookie-consent{transition:none}}';
+  function lang() {
+    return (document.documentElement.lang || 'he').toLowerCase().indexOf('en') === 0 ? 'en' : 'he';
+  }
+
+  var el = {};
 
   function build() {
-    var style = document.createElement('style');
-    style.textContent = css;
-    document.head.appendChild(style);
-
     var bar = document.createElement('div');
     bar.className = 'cookie-consent';
-    bar.setAttribute('role', 'dialog');
-    bar.setAttribute('aria-live', 'polite');
-    bar.setAttribute('aria-label', isEn ? 'Cookie notice' : 'הודעת עוגיות');
+    // A landmark, not a dialog. It does not trap focus and it does not block
+    // the page, and announcing it as a dialog would promise both.
+    bar.setAttribute('role', 'region');
 
-    var p = document.createElement('p');
-    p.appendChild(document.createTextNode(t.text + ' '));
-    var link = document.createElement('a');
-    link.href = privacyHref;
-    link.textContent = t.policy;
-    p.appendChild(link);
+    bar.innerHTML =
+      '<p class="eyebrow"></p>' +
+      '<p class="cc-text"></p>' +
+      '<div class="cc-actions">' +
+        '<button type="button" class="btn cc-accept"></button>' +
+        '<button type="button" class="btn outline cc-settings" aria-expanded="false" aria-controls="cc-panel"></button>' +
+        '<a class="cc-link" href="privacy.html"></a>' +
+      '</div>' +
+      '<div class="cc-panel" id="cc-panel" hidden>' +
+        '<div class="cc-row">' +
+          '<span class="cc-row-head"><span class="cc-essential-name"></span><span class="cc-state"></span></span>' +
+          '<p class="cc-essential-text"></p>' +
+        '</div>' +
+        '<div class="cc-row">' +
+          '<label class="cc-row-head"><span class="cc-functional-name"></span>' +
+            '<input type="checkbox" class="cc-functional" checked></label>' +
+          '<p class="cc-functional-text"></p>' +
+        '</div>' +
+        '<p class="cc-note"></p>' +
+        '<button type="button" class="btn cc-save"></button>' +
+      '</div>';
 
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'cc-accept';
-    btn.textContent = t.accept;
-    btn.addEventListener('click', function () {
-      try { localStorage.setItem(KEY, '1'); } catch (e) {}
-      bar.classList.remove('show');
-      setTimeout(function () { if (bar.parentNode) bar.parentNode.removeChild(bar); }, 500);
+    el.bar = bar;
+    ['eyebrow', 'cc-text', 'cc-accept', 'cc-settings', 'cc-link', 'cc-panel', 'cc-state',
+     'cc-note', 'cc-save', 'cc-essential-name', 'cc-essential-text',
+     'cc-functional-name', 'cc-functional-text', 'cc-functional']
+      .forEach(function (c) { el[c] = bar.querySelector('.' + c); });
+
+    el['cc-accept'].addEventListener('click', function () { close('all'); });
+
+    el['cc-save'].addEventListener('click', function () {
+      var keep = el['cc-functional'].checked;
+      if (!keep) clearCache();
+      close(keep ? 'all' : 'essential');
     });
 
-    bar.appendChild(p);
-    bar.appendChild(btn);
+    el['cc-settings'].addEventListener('click', function () {
+      var open = el['cc-panel'].hidden;
+      el['cc-panel'].hidden = !open;
+      el['cc-settings'].setAttribute('aria-expanded', String(open));
+    });
+
+    paint();
     document.body.appendChild(bar);
 
-    // let the entrance transition run
+    // Two frames: one to get the element into the layout at its start state,
+    // one for the transition to have something to move from.
     requestAnimationFrame(function () {
-      requestAnimationFrame(function () { bar.classList.add('show'); });
+      requestAnimationFrame(function () { bar.classList.add('is-in'); });
     });
+
+    document.addEventListener('cds:lang', paint);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', build);
-  } else {
-    build();
+  // Re-reads every string from the copy table. Called on build and again every
+  // time the language changes, so the banner is never a sentence behind.
+  function paint() {
+    var t = COPY[lang()];
+    el.bar.setAttribute('aria-label', t.region);
+    el.eyebrow.textContent = t.label;
+    el['cc-text'].textContent = t.text;
+    el['cc-accept'].textContent = t.accept;
+    el['cc-settings'].textContent = t.settings;
+    el['cc-link'].textContent = t.policy;
+    el['cc-essential-name'].textContent = t.essential;
+    el['cc-state'].textContent = t.essentialOn;
+    el['cc-essential-text'].textContent = t.essentialText;
+    el['cc-functional-name'].textContent = t.functional;
+    el['cc-functional-text'].textContent = t.functionalText;
+    el['cc-note'].textContent = t.note;
+    el['cc-save'].textContent = t.save;
   }
+
+  function clearCache() {
+    try {
+      var doomed = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(CACHE_PREFIX) === 0) doomed.push(k);
+      }
+      // Collected first: removing while iterating re-indexes the store and
+      // every second key survives.
+      doomed.forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) {}
+  }
+
+  function close(value) {
+    try { localStorage.setItem(KEY, value); } catch (e) {}
+    el.bar.classList.remove('is-in');
+    document.removeEventListener('cds:lang', paint);
+
+    var gone = false;
+    function drop() {
+      if (gone) return;
+      gone = true;
+      if (el.bar.parentNode) el.bar.parentNode.removeChild(el.bar);
+    }
+    el.bar.addEventListener('transitionend', drop, { once: true });
+    // transitionend never fires under prefers-reduced-motion, where the
+    // stylesheet removes the transition entirely.
+    setTimeout(drop, 600);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
+  else build();
 })();

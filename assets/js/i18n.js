@@ -241,8 +241,10 @@
   }
 
   function markSwitch(en) {
-    document.querySelectorAll(".lang-switch a").forEach(function (a) {
-      a.classList.toggle("active", /en/i.test(a.textContent) === en);
+    document.querySelectorAll(".lang-switch [data-lang]").forEach(function (b) {
+      // aria-pressed is the state, and the stylesheet selects on it directly —
+      // so the visual and the announced state cannot drift apart.
+      b.setAttribute("aria-pressed", String((b.getAttribute("data-lang") === "en") === en));
     });
   }
 
@@ -293,7 +295,10 @@
     try { localStorage.setItem("lang", "he"); } catch (e) {}
   }
 
-  function applySync(lang) { lang === "en" ? toEnglishSync() : toHebrewSync(); }
+  function applySync(lang) {
+    lang === "en" ? toEnglishSync() : toHebrewSync();
+    document.dispatchEvent(new CustomEvent("cds:lang", { detail: { lang: lang } }));
+  }
 
   // Switching language is not a navigation, the visitor stays exactly where
   // they were. Swapping every string changes the document height, so pin the
@@ -307,10 +312,20 @@
     // Order matters: ScrollTrigger.refresh() re-measures every pin and moves the
     // scroll position itself while doing so, so it has to run BEFORE the offset
     // is restored, refreshing afterwards threw the visitor ~800px down the page.
+    // Lenis keeps its own idea of where the page is. A bare window.scrollTo
+    // moves the document but not Lenis, so on the next frame Lenis writes its
+    // stale position back and the visitor is thrown up the page. Restore
+    // THROUGH Lenis when it is running; window.scrollTo is the fallback.
+    function restore(to) {
+      var lenis = window.__cdsLenis;
+      if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
+      else window.scrollTo(0, to);
+    }
+
     function work() {
       applySync(lang);
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-      window.scrollTo(0, y);
+      restore(y);
     }
 
     var tx = window.pageTransition;
@@ -318,17 +333,13 @@
 
     tx.cover(work).then(function () {
       // Belt and braces: a pinned timeline can still settle a frame late.
-      if (Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(0, y);
+      if (Math.abs((window.scrollY || 0) - y) > 1) restore(y);
       if (lang === "en") translateRest();
     });
   }
 
-  // The HE/EN control is a function now, intercept clicks, never navigate.
-  document.querySelectorAll(".lang-switch a").forEach(function (a) {
-    a.addEventListener("click", function (e) {
-      e.preventDefault();
-      switchTo(/en/i.test(a.textContent) ? "en" : "he");
-    });
+  document.querySelectorAll(".lang-switch [data-lang]").forEach(function (b) {
+    b.addEventListener("click", function () { switchTo(b.getAttribute("data-lang")); });
   });
 
   // On load the veil is already playing its own entry animation, apply the
@@ -336,5 +347,11 @@
   // rather than fading twice.
   var saved;
   try { saved = localStorage.getItem("lang"); } catch (e) {}
-  if (saved === "en") { applySync("en"); translateRest(); }
+  if (saved === "en") {
+    // toEnglishSync() sets the attributes lang-boot.js has already set, which
+    // is harmless — but switchTo() would have short-circuited on them, so the
+    // swap is called directly rather than going through it.
+    applySync("en");
+    translateRest();
+  }
 })();

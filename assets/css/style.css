@@ -1,3 +1,17 @@
+/* A branded band. The showreel section used to be the site's one near-black
+   plate, which meant every component inside it needed a dark-surface exception —
+   its own heading colour, its own button, its own card background, its own focus
+   ring. All of that is gone with it.
+
+   What marks the band now is the palette's own soft mass: lavender, at the
+   strength where it reads as a change of ground rather than as a coloured box.
+   Components inside need no correction at all, because the ground is still
+   light. */
+.section-brand{
+  background:color-mix(in srgb, var(--color-lavender) 26%, var(--color-bg));
+  border-block:1px solid color-mix(in srgb, var(--color-lavender) 46%, transparent);
+}
+
 /* Studio Cover Design — site styles (fonts, colors, layout) */
 
 /* Every @font-face now lives in assets/css/fonts.css, loaded ahead of this
@@ -63,7 +77,6 @@
      would read as "a coloured background" — they have to sit behind artwork
      without competing with it. */
   --glow-top:radial-gradient(58% 44% at 78% 6%, color-mix(in srgb, var(--color-lavender) 62%, transparent), transparent 68%);
-  --glow-soft:radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--color-lavender) 40%, transparent), transparent 70%);
   --glow-brown:radial-gradient(64% 50% at 12% 96%, color-mix(in srgb, var(--color-lavender) 46%, transparent), transparent 72%);
 
 
@@ -148,8 +161,6 @@
   --sh-2:0 2px 10px -4px rgba(9,9,9,.07);
   --sh-3:0 14px 34px -18px rgba(9,9,9,.14);
   --sh-overlay:0 22px 52px -22px rgba(9,9,9,.2);
-  --sh-glow:0 10px 26px -12px rgba(9,9,9,.16);
-  --sh-accent:var(--sh-glow);
   --edge-top:0 1px 2px rgba(20,17,20,.05);
 
   /* motion — one easing + duration language across the whole site */
@@ -320,7 +331,14 @@
 html.a11y-contrast .grain,html.a11y-grayscale .grain{display:none}
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth; overflow-x:clip}
+/* NO scroll-behavior:smooth here. Setting scrollTop/scrollTo on the root is
+   spec'd to obey it, so every programmatic scroll restore becomes an ANIMATED
+   scroll — and both ScrollTrigger.refresh() (which saves and restores scroll
+   while re-measuring pins) and Lenis (which writes scroll every frame) do
+   exactly that. The two animations fight and the page drifts, usually back
+   toward the top. Smooth anchor scrolling is Lenis's job (motion.js), with
+   scrollIntoView({behavior:'smooth'}) as the no-Lenis fallback. */
+html{scroll-behavior:auto; overflow-x:clip}
 
 /* The cursor trail's surface. One canvas, fixed, and completely inert: it
    takes no pointer events, holds no content and sits under every control, so
@@ -336,6 +354,246 @@ html{scroll-behavior:smooth; overflow-x:clip}
 }
 @media (prefers-reduced-motion:reduce){.cursor-trail{display:none}}
 @media (hover:none),(pointer:coarse){.cursor-trail{display:none}}
+
+/* ══ Floating objects ═════════════════════════════════════════════════════
+   Seven glossy 3D forms were supplied; six are used. They are already lavender
+   and lime — the site's two brand colours — which is why they can sit on this
+   canvas at all. The idea they carry: the page's atmosphere (the two soft
+   lavender radial masses on <body>) condensing into objects you can see the
+   volume of. That fixes the motion vocabulary too — they are buoyant, so they
+   drift. Nothing here bounces and nothing spins.
+
+   DEPTH IS THREE CUES AT ONCE, NOT ONE
+   Size alone is a weak depth cue and it contradicts itself the moment a large
+   object needs to sit far back. Every object here sets --fx-o (opacity) and a
+   data-fx parallax factor that move together: the further back, the paler AND
+   the slower. That also solves a legibility problem — a 620px saturated mass
+   at full strength behind a heading would fight the type.
+
+     object    size    opacity   parallax
+     ribbon    620px    .28       .14      furthest
+     wave      600px    .34       .18
+     blob      400px    .42       .26
+     ring      240px    .58       .38
+     wire      280px    .90       .64      nearest, and the only one in front
+
+   Five objects, not six: a second sphere was exported and cut. Every one of
+   these had to earn a composition of its own — a cropped mass, an object in
+   the margin beside a heading, a form crossing a section boundary, a line in
+   front of the content, a mass anchored low. A sixth would have had to repeat
+   one of them, and a repeated composition is what makes a page read as
+   decorated rather than art-directed.
+
+   TWO TRANSFORMS, TWO ELEMENTS
+   GSAP owns the outer span — the scroll parallax and the one-shot entrance.
+   The CSS idle drift owns the image inside it. Put both on one element and
+   whichever writes last wins, and the drift silently stops.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.fx{
+  position:absolute;
+  z-index:-1;                 /* behind the section's content, above its ground */
+  width:var(--fx-w);
+  opacity:var(--fx-o,1);
+  pointer-events:none;
+  line-height:0;
+  will-change:transform;
+}
+/* The one object that reads as nearest sits in front of the content rather
+   than behind it. It is a thin line covering about 9% of its own box and it is
+   placed in whitespace — a solid mass in front of type would be a legibility
+   failure, not a depth cue. */
+.fx-front{z-index:1}
+
+.fx img{
+  width:100%; height:auto; display:block;
+  animation:fxDrift var(--fx-dur,12s) ease-in-out infinite alternate;
+  animation-delay:var(--fx-delay,0s);
+}
+
+/* The idle life. Within the amounts a viewer feels but does not catch: under
+   10px of travel and under 5° of rotation, over a 20-second-plus round trip so
+   no two objects ever fall into step. */
+@keyframes fxDrift{
+  from{transform:translate3d(0,0,0) rotate(var(--fx-rot,0deg))}
+  to{transform:translate3d(var(--fx-dx,4px),var(--fx-dy,-9px),0)
+               rotate(calc(var(--fx-rot,0deg) + var(--fx-spin,2deg)))}
+}
+
+/* ── the placements ─────────────────────────────────────────────────────
+   Logical insets throughout, so the whole composition mirrors with the
+   language rather than breaking when the site switches to English. */
+
+/* Hero: one object only. Six cover tiles and a ribbon already live here, and a
+   second floating form would be the point at which the hero stops having a
+   subject. Large, cropped hard by the bottom corner — it reads as a mass the
+   viewport happens to be cutting, not as a graphic placed in a corner. */
+.fx-wave{
+  --fx-w:min(600px,64vw); --fx-o:.34;
+  --fx-rot:-7deg; --fx-spin:2deg; --fx-dy:-8px; --fx-dx:7px; --fx-dur:13s;
+  inset-block-end:-7%; inset-inline-start:-13%;
+}
+
+/* Work: the whitespace beside the section head. In RTL the heading sets to the
+   right, so the far side of that line is empty and has been since the section
+   was built. */
+.fx-ring{
+  --fx-w:240px; --fx-o:.58;
+  --fx-rot:11deg; --fx-spin:-3deg; --fx-dy:-10px; --fx-dx:-5px; --fx-dur:10s; --fx-delay:-3s;
+  inset-block-start:6%; inset-inline-end:6%;
+}
+
+/* The bridge. It hangs off the bottom of the lavender band and crosses the
+   hairline into the section below, so the two chapters share an object instead
+   of being sealed from each other. The palest and slowest thing on the page —
+   at any more presence it would read as a mistake in the band's edge. */
+.fx-ribbon{
+  --fx-w:min(620px,72vw); --fx-o:.28;
+  --fx-rot:4deg; --fx-spin:-2deg; --fx-dy:-7px; --fx-dx:-6px; --fx-dur:15s; --fx-delay:-6s;
+  inset-block-end:-16%; inset-inline-start:-8%;
+}
+
+/* Work summary: the only line in the set, and the only object in front of the
+   content. It sits over the top corner of the video block, where there is
+   nothing but frame. */
+.fx-wire{
+  --fx-w:280px; --fx-o:.9;
+  --fx-rot:-9deg; --fx-spin:4deg; --fx-dy:-6px; --fx-dx:5px; --fx-dur:9s; --fx-delay:-2s;
+  inset-block-start:-3%; inset-inline-end:8%;
+}
+
+/* Contact: a mass low and cropped on one side, a small bright orb high on the
+   other. The form sits between them and neither reaches it. */
+.fx-blob{
+  --fx-w:min(400px,52vw); --fx-o:.42;
+  --fx-rot:-6deg; --fx-spin:3deg; --fx-dy:-9px; --fx-dx:-4px; --fx-dur:12s; --fx-delay:-4s;
+  inset-block-end:5%; inset-inline-start:-15%;
+}
+
+/* ── tablet ─────────────────────────────────────────────────────────────
+   Scale and inset both come in. Shrinking alone would leave every object at
+   the same distance from its edge, which is what makes a scaled-down desktop
+   composition read as a scaled-down desktop composition. */
+@media (max-width:1024px){
+  .fx-wave{--fx-w:min(430px,58vw); inset-inline-start:-18%}
+  .fx-ribbon{--fx-w:min(400px,62vw); inset-block-end:-11%}
+  .fx-blob{--fx-w:min(280px,46vw)}
+  .fx-ring{--fx-w:170px}
+  .fx-wire{--fx-w:190px}
+}
+
+/* ── mobile ─────────────────────────────────────────────────────────────
+   Three objects, not six. At this width the content column is the full screen,
+   so every object is potentially behind text — the three that survive are the
+   ones anchored to a corner the copy never reaches. The ring, the wire and the
+   contact orb go entirely; there is no version of them at this size that is
+   not either invisible or in the way. */
+@media (max-width:720px){
+  .fx-ring,.fx-wire{display:none}
+  .fx-wave{--fx-w:74vw; --fx-o:.24; inset-block-end:-4%; inset-inline-start:-24%}
+  .fx-ribbon{--fx-w:78vw; --fx-o:.2; inset-block-end:-6%; inset-inline-start:-20%}
+  .fx-blob{--fx-w:56vw; --fx-o:.3; inset-block-end:0; inset-inline-start:-16%}
+  /* Less rotation and less travel: the same values that read as buoyancy on a
+     wide screen read as wobble on a narrow one. */
+  .fx img{--fx-dy:-5px; --fx-dx:2px; --fx-spin:1deg}
+}
+
+/* ── reduced motion ─────────────────────────────────────────────────────
+   The objects stay. They are art direction, not animation — removing them
+   would change the composition rather than calm it. What stops is all of the
+   movement: the idle drift here, the parallax and the entrance in
+   fx-objects.js, which returns before it wires anything. */
+@media (prefers-reduced-motion:reduce){
+  .fx img{animation:none}
+  .fx{will-change:auto}
+}
+
+/* ══ Cookie consent ═══════════════════════════════════════════════════════
+   It lived as a 40-line CSS string inside cookie-consent.js, with its own
+   fallback palette that had drifted a full brand behind the site — the old
+   orange, two cool greys, its own radii. A banner that ships its own colours is
+   a banner that will eventually be wearing a different site's.
+
+   It is built from the sheet's own parts now: the surface card, the lavender
+   eyebrow, and .btn / .btn.outline for the actions. Nothing here is a new
+   component except the layout that arranges them.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.cookie-consent{
+  position:fixed; z-index:var(--z-consent);
+  inset-inline:var(--s-4); inset-block-end:var(--s-4);
+  max-width:660px; margin-inline:auto;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-md);
+  box-shadow:var(--sh-overlay);
+  padding:var(--s-5);
+  display:grid; gap:var(--s-4);
+  transform:translateY(14px); opacity:0;
+  transition:transform var(--d-mid) var(--ease), opacity var(--d-mid) var(--ease);
+}
+.cookie-consent.is-in{transform:none; opacity:1}
+
+/* The eyebrow is the tell that this belongs to the site: it is the same
+   lavender pill that heads every section on every page. */
+.cookie-consent .eyebrow{margin-bottom:0; justify-self:start}
+.cc-text{
+  margin:0; font-size:var(--t-sm); line-height:var(--lh-relaxed);
+  color:var(--color-muted); max-width:60ch;
+}
+.cc-actions{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-3)}
+/* The policy is a link because it goes somewhere; the other two are buttons
+   because they do something here. */
+.cc-link{
+  font-size:var(--t-sm); font-weight:var(--fw-medium);
+  color:var(--color-text); text-decoration:underline;
+  text-underline-offset:3px;
+  margin-inline-start:auto;
+}
+.cc-link:hover{text-decoration-thickness:2px}
+
+/* ── the settings panel ─────────────────────────────────────────────────
+   Not a category list with invented toggles. This site loads no analytics, no
+   advertising and no third-party script of any kind, so the only honest panel
+   is one that names the four keys it actually writes and offers the single
+   choice that is really available. */
+.cc-panel{
+  display:grid; gap:var(--s-3);
+  padding-block-start:var(--s-4);
+  border-block-start:1px solid var(--color-border);
+}
+.cc-panel[hidden]{display:none}
+.cc-row{display:grid; gap:4px}
+.cc-row-head{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+  font-size:var(--t-sm); font-weight:var(--fw-semibold); color:var(--color-text);
+}
+.cc-row p{margin:0; font-size:var(--t-xs); line-height:1.5; color:var(--color-muted)}
+.cc-state{
+  font-size:var(--t-xs); font-weight:var(--fw-medium);
+  letter-spacing:var(--ls-tracked); color:var(--color-muted);
+}
+/* A real checkbox. A custom switch here would be a fourth control style for a
+   single use, and this one has to be unambiguous. */
+.cc-row input[type="checkbox"]{
+  inline-size:18px; block-size:18px; accent-color:var(--color-text); cursor:pointer;
+}
+.cc-row input[type="checkbox"]:disabled{cursor:default; opacity:.5}
+.cc-note{
+  margin:0; font-size:var(--t-xs); line-height:1.5; color:var(--color-muted);
+}
+/* A grid child stretches by default, and a full-bleed neon bar is a second
+   primary action shouting louder than the first one directly above it. */
+.cc-panel .btn{justify-self:start}
+
+@media (max-width:520px){
+  .cookie-consent{padding:var(--s-4); gap:var(--s-3)}
+  .cc-actions{flex-direction:column; align-items:stretch}
+  .cc-actions .btn{width:100%}
+  /* Pushed off the auto margin, the link would sit hard against the buttons. */
+  .cc-link{margin-inline-start:0; text-align:center; padding-block-start:var(--s-2)}
+}
+@media (prefers-reduced-motion:reduce){
+  .cookie-consent{transition:none}
+}
 
 /* ══ The scroll rail ══════════════════════════════════════════════════════
    A hairline down the right edge with a travelling head, a progress fill and a
@@ -353,7 +611,11 @@ html{scroll-behavior:smooth; overflow-x:clip}
 .rail{
   --rail-accent:#E7B7F5;
   --rail-x:22px;          /* the line's distance from the right edge */
-  position:fixed; inset-block:0; inset-inline-end:0;
+  /* Physical right, not inline-end. A scrollbar is chrome, not content: every
+     visitor expects it at the right edge whichever way the text runs, and in
+     RTL the logical property was putting it on the left. This is the one place
+     in the sheet where a physical side is the correct answer. */
+  position:fixed; inset-block:0; right:0;
   width:64px; z-index:var(--z-float);
   /* The strip must never eat a click meant for the page. Only the ticks and
      the head take pointer events, and they opt in individually. */
@@ -365,19 +627,19 @@ html{scroll-behavior:smooth; overflow-x:clip}
 
 /* the track */
 .rail-line{
-  position:absolute; inset-block:var(--s-8); inset-inline-end:var(--rail-x);
+  position:absolute; inset-block:var(--s-8); right:var(--rail-x);
   width:1px; background:var(--color-border);
 }
 /* the travelled part, painted in the section's colour */
 .rail-fill{
-  position:absolute; inset-block:var(--s-8); inset-inline-end:var(--rail-x);
+  position:absolute; inset-block:var(--s-8); right:var(--rail-x);
   width:1px; background:var(--rail-accent);
   transform-origin:top center; transform:scaleY(0);
 }
 
 /* the head — a capsule, the same pill vocabulary as every control on the site */
 .rail-head{
-  position:absolute; inset-inline-end:calc(var(--rail-x) - 1.5px);
+  position:absolute; right:calc(var(--rail-x) - 1.5px);
   top:var(--s-8);
   width:4px; height:34px; margin-block-start:calc(var(--s-8) * -1);
   border-radius:var(--r-lg);
@@ -394,14 +656,14 @@ html{scroll-behavior:smooth; overflow-x:clip}
    A short rule per section, extending and labelling itself on hover or focus.
    Real buttons: this is in-page navigation and it is reachable by keyboard. */
 .rail-tick{
-  position:absolute; inset-inline-end:calc(var(--rail-x) - 4px);
+  position:absolute; right:calc(var(--rail-x) - 4px);
   width:10px; height:22px; padding:0; margin-block-start:-11px;
   background:none; border:0; cursor:pointer;
   pointer-events:auto;
-  display:flex; align-items:center; justify-content:flex-end;
 }
 .rail-tick::before{
-  content:""; width:9px; height:1px;
+  content:""; position:absolute; top:50%; right:0; transform:translateY(-50%);
+  width:9px; height:1px;
   background:var(--color-text); opacity:.32;
   transition:width var(--d-fast) var(--ease), opacity var(--d-fast) var(--ease), background var(--d-fast) var(--ease);
 }
@@ -412,7 +674,7 @@ html{scroll-behavior:smooth; overflow-x:clip}
 /* The label only exists on approach — a permanent column of section names
    beside the content is a table of contents, not a scrollbar. */
 .rail-tick-label{
-  position:absolute; inset-inline-end:22px;
+  position:absolute; right:22px;
   white-space:nowrap;
   font-size:var(--t-xs); font-weight:var(--fw-semibold);
   letter-spacing:.02em; color:var(--color-text);
@@ -573,7 +835,6 @@ p{margin:0 0 1em; color:var(--text-dim)}
   margin-bottom:1.2em;
 }
 .brand-mark{color:var(--text); font-weight:var(--fw-semibold)}
-.section-dark .brand-mark{color:var(--paper)}
 /* ==========================================================================
    Sections.
    The ground is lit once, on <body>, so a section is transparent by default and
@@ -594,50 +855,8 @@ p{margin:0 0 1em; color:var(--text-dim)}
 }
 /* Kept for the pages that name it. It is a deeper pass of the same ground,
    with its own pool of light so the band does not go dead. */
-/* One dark band survives, and it earns it: it sits behind the showreel, where
-   the copy has to stay legible over moving footage nobody can predict. Keeping
-   it dark is what lets that section carry white type at 15:1 instead of
-   depending on which frame is on screen. */
-.section-dark{
-  background:var(--bg-deep);
-  color:var(--paper);
-  border-block:1px solid var(--hairline);
-}
-.section-dark::after{
-  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
-  background:var(--glow-soft);
-}
 
-/* Background showreel.
-   The scrim is not decoration — it is what guarantees the copy stays legible
-   over footage nobody can predict. At 74% over the base, even a frame that is
-   pure white composites to #4A4A4A, so white text still measures ~8:1. Without
-   it the contrast of this section would depend on whatever frame is on screen. */
-.section-video{position:absolute; inset:0; z-index:-1; overflow:hidden; pointer-events:none}
-.section-video video{width:100%; height:100%; object-fit:cover; display:block}
-.section-video::after{
-  content:""; position:absolute; inset:0;
-  /* Graded rather than flat: heavier at the edges where text sits, lighter
-     through the middle so the footage is still legible as footage. The floor
-     is high enough that even a white frame composites dark enough to carry
-     white copy — the section cannot depend on which frame is on screen. */
-  background:rgba(20,17,20,.66);
-}
-/* The section paints its own flat background over the video otherwise. */
-.section-dark.has-video{background:var(--bg-deep)}
-.section-dark.has-video::after{content:none}
-.section-dark.has-video::before{opacity:.6}
-/* On the dark surface the same system inverts: the warm wash carries more
-   weight because it has further to lift off near-black, and the dots go light. */
-.section-dark::before{
-  background:
-    radial-gradient(62% 44% at 50% 0%, rgba(243,130,24,.13), transparent 72%),
-    radial-gradient(52% 40% at 88% 100%, rgba(243,130,24,.07), transparent 74%);
-}
-.section-dark p{color:rgba(239,235,226,.74)}
-.section-dark h2,.section-dark h3,.section-dark h4{color:var(--paper)}
 .section-title{font-size:var(--t-2xl); color:var(--text)}
-.section-dark .section-title{color:var(--paper)}
 
 /* ==========================================================================
    Heading gradient — one treatment, every level, every page.
@@ -664,8 +883,6 @@ p{margin:0 0 1em; color:var(--text-dim)}
    site look like a template, and the hierarchy here is carried by size, weight
    and spacing instead. */
 :where(h1,h2,h3,h4,h5,h6){color:var(--text)}
-/* The two places that are still a dark plate on purpose. */
-:where(.section-dark) :where(h1,h2,h3,h4,h5,h6){color:var(--paper)}
 html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
 
 /* ==========================================================================
@@ -683,7 +900,6 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
 
 .section-head{text-align:center; margin-bottom:var(--s-7); max-width:var(--maxw-read); margin-inline:auto}
 .section-lead{margin:var(--s-3) auto 0; color:var(--text-dim); font-size:var(--t-md)}
-.section-dark .section-lead{color:rgba(239,235,226,.74)}
 
 /* One button component. No idle animation — the pulse read as a banner ad;
    weight now comes from the shadow and a crisp hover, like the rest of the UI. */
@@ -723,11 +939,6 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
   box-shadow:var(--edge-top);
   transition-duration:var(--d-press);
 }
-/* The ground is uniformly dark now, so the button does not need to invert on
-   a "dark section" — it is the same control everywhere, which is most of what
-   makes a system feel designed rather than assembled. */
-.section-dark .btn{background:var(--orange); color:var(--bg); box-shadow:var(--edge-top)}
-.section-dark .btn:hover{background:#FF7E42; box-shadow:var(--edge-top), var(--sh-glow)}
 
 /* Outline variant used on CTA rows */
 /* Glass. A translucent fill, a thin semi-transparent white border and the same
@@ -744,9 +955,6 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
   color:var(--color-text); transform:translateY(-2px);
   box-shadow:var(--sh-3);
 }
-/* On the dark plate the glass has to invert back: white at low alpha. */
-.section-dark .btn.outline{background:rgba(255,255,255,.1); color:var(--paper); border-color:rgba(255,255,255,.34)}
-.section-dark .btn.outline:hover{background:rgba(255,255,255,.18); color:var(--paper); border-color:rgba(255,255,255,.5)}
 
 /* ==========================================================================
    Preloader — dark curtain that splits behind a single logo mark. Nothing
@@ -854,10 +1062,11 @@ body.loaded > footer{
      chrome living in the pill inside it. */
   background:transparent;
   border:0;
-  /* Fixed layout direction: the nav reads ראשי→גרפיקה→וידאו→הפצה right-to-left
-     on BOTH the Hebrew and the English version of every page — nothing mirrors
-     when you hit the language switch. */
-  direction:rtl;
+  /* No direction of its own. The bar used to be pinned to RTL so it would
+     look identical in both languages — which meant that in English the logo
+     sat on the right and the language control on the left, against the reading
+     order of every other element on the page. It mirrors now: the mark leads,
+     the language trails, whichever way the text runs. */
 }
 .header-inner{
   max-width:var(--maxw); margin:0 auto; padding:var(--s-3) var(--s-5);
@@ -868,8 +1077,12 @@ body.loaded > footer{
    it reads as an object resting on the canvas rather than a band cutting across
    it, which is the single most characteristic move in the reference. */
 .hdr-shell{
-  display:flex; align-items:center; gap:var(--s-4);
-  width:100%; padding:8px 8px 8px var(--s-5);
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-4);
+  width:100%;
+  /* Logical, so the whole bar mirrors with the language. The logo end gets the
+     wider inset because a bare mark needs the air; the language pill carries
+     its own border and would look inset twice if it got the same. */
+  padding-block:8px; padding-inline-start:var(--s-3); padding-inline-end:8px;
   background:var(--color-surface);
   border:1px solid var(--color-border);
   border-radius:var(--r-lg);
@@ -899,23 +1112,20 @@ body.loaded > footer{
    mark, and brand marks sit outside the palette the way the social icons do.
    Given its own padding rules because it is an image, not a word: the link
    padding that suits a text label would leave it floating in dead space. */
-.nav-logo a{
-  display:flex; align-items:center; justify-content:center;
+/* The mark now anchors the bar itself rather than riding at the end of the
+   link list, which also means it stays on screen at mobile width instead of
+   disappearing into the drawer. */
+.hdr-logo{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
   padding:4px 8px; border-radius:var(--r-xs);
   transition:background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
 }
-.nav-logo img{
+.hdr-logo img{
   display:block; width:auto; height:26px;
   transition:transform var(--d-fast) var(--ease);
 }
-.nav-logo a:hover{background:var(--color-ink-soft)}
-.nav-logo a:hover img{transform:scale(1.06)}
-@media (max-width:920px){
-  /* In the drawer the links stack large, so the mark is scaled to sit with
-     them rather than staying at chrome size. */
-  .nav-logo a{justify-content:flex-start; padding:6px 0}
-  .nav-logo img{height:34px}
-}
+.hdr-logo:hover{background:var(--color-ink-soft)}
+.hdr-logo:hover img{transform:scale(1.06)}
 /* The current section is a glass pill, not a solid one — solid orange here
    would compete with the single primary CTA the page is allowed. */
 /* The current section is marked with the accent, and this is one of the four
@@ -929,14 +1139,31 @@ body.loaded > footer{
   display:flex; align-items:center; gap:2px; font-size:.82rem; font-weight:var(--fw-medium);
   background:var(--surface-1); border:1px solid var(--hairline); border-radius:var(--r-lg); padding:3px;
 }
-.lang-switch a{
-  opacity:.6; padding:5px 12px; border-radius:var(--r-lg); color:var(--text);
-  transition:opacity var(--d-fast), background var(--d-fast), color var(--d-fast), box-shadow var(--d-fast);
+/* The selected language is a lavender pill — the same object as .eyebrow, down
+   to the tracking and the weight. That is deliberate: the sheet already has a
+   mark for "this is the label on the thing you are looking at", and language is
+   exactly that. It was a solid black chip before, which is a third button style
+   the design system never had.
+
+   The neon stays out of it. The nav's active page is already a neon pill two
+   centimetres away, and the accent is budgeted at about four appearances on a
+   page; spending one on a control that is not the primary action would flatten
+   the difference between "the page you are on" and "the language you are in".
+
+   Contrast on lavender is 11.8:1, so the letterforms are safe. */
+.lang-switch button{
+  font-family:inherit; font-size:var(--t-xs); font-weight:var(--fw-semibold);
+  letter-spacing:var(--ls-tracked); line-height:1;
+  color:var(--color-muted);
+  background:none; border:0; cursor:pointer;
+  /* the trailing letter-space is real space — put it back on the left */
+  padding:7px 11px 7px 14px;
+  border-radius:var(--r-lg);
+  transition:color var(--d-fast) var(--ease), background var(--d-fast) var(--ease);
 }
-.lang-switch a:hover{opacity:1}
-.lang-switch a.active{
-  opacity:1; background:var(--text); color:var(--paper);
-  box-shadow:var(--sh-2);
+.lang-switch button:hover{color:var(--color-text)}
+.lang-switch button[aria-pressed="true"]{
+  background:var(--color-lavender); color:var(--color-text);
 }
 .burger{
   display:none; background:none; border:none; color:var(--text);
@@ -959,7 +1186,7 @@ body.loaded > footer{
 }
 .hdr-over .site-header::after{opacity:0}
 .hdr-over .lang-switch{background:var(--surface-1); border-color:var(--hairline)}
-.site-header,.main-nav,.main-nav a,.lang-switch,.lang-switch a,.burger{
+.site-header,.main-nav,.main-nav a,.lang-switch,.lang-switch button,.burger{
   transition:background var(--d-mid) var(--ease), color var(--d-mid) var(--ease),
              border-color var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
 }
@@ -1320,7 +1547,14 @@ body.loaded > footer{
   -webkit-mask:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
           mask:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
-.ticker-track{display:inline-block; animation:tickerMove 30s linear infinite}
+/* Full-bleed guarantee: each half of the track must be at least one viewport
+   wide, otherwise the -50% loop swings bare ground into view at the right edge
+   on wide screens. flex + space-around spreads the surplus evenly across all
+   items, so the two halves stay identical and the loop is still seamless. */
+.ticker-track,.svc-ticker-track,.logo-ticker-track{
+  display:flex; width:max-content; min-width:200vw; justify-content:space-around;
+}
+.ticker-track{animation:tickerMove 30s linear infinite}
 .ticker span{
   display:inline-block; padding:0 34px; position:relative;
   color:var(--ticker-ink);
@@ -1345,7 +1579,7 @@ body.loaded > footer{
   background:var(--off); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
   padding:18px 0;
 }
-.svc-ticker-track{display:inline-block; animation:tickerMove 34s linear infinite}
+.svc-ticker-track{animation:tickerMove 34s linear infinite}
 .svc-ticker span{
   display:inline-block; padding:0 30px; position:relative;
   color:var(--ticker-ink);
@@ -1724,7 +1958,7 @@ html[data-a11y-size="3"]{font-size:118%}
   border-block:1px solid var(--color-border);
   padding:var(--s-5) 0; direction:ltr;
 }
-.logo-ticker-track{display:inline-flex; width:max-content; animation:tickerMove 46s linear infinite}
+.logo-ticker-track{animation:tickerMove 46s linear infinite}
 .logo-ticker-wrap:hover .logo-ticker-track{animation-play-state:paused}
 
 .plat-chip{
@@ -1800,7 +2034,6 @@ html[data-a11y-size="3"]{font-size:118%}
   transition:transform var(--d-card) var(--ease), box-shadow var(--d-card) var(--ease);
 }
 .video-card:hover{transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
-.section-dark .video-card{background:var(--color-surface); border-color:var(--color-border)}
 
 .video-card .thumb{
   position:relative; aspect-ratio:16/9; overflow:hidden;
@@ -1854,7 +2087,6 @@ html[data-a11y-size="3"]{font-size:118%}
   transition:transform var(--d-fast) var(--ease);
 }
 .video-card:hover .cap::after{transform:translate(2px,-2px)}
-.section-dark .video-card .cap{color:var(--color-text)}
 
 /*  Requirement / delivery cards  */
 .req-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5)}
@@ -2168,14 +2400,13 @@ html[data-a11y-size="3"]{font-size:118%}
 /* ===== Accessibility polish (keyboard focus + reduced motion) ===== */
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .vid-tab:focus-visible,.reel-sound:focus-visible,.video-card:focus-visible,
-.insta-item:focus-visible,.lang-switch a:focus-visible{
+.insta-item:focus-visible{
   outline:2px solid var(--color-focus)!important;
   outline-offset:3px!important;
   border-radius:var(--r-xs);
 }
 /* On the dark surfaces the ring goes back to the bright accent: 7.7:1 there
    against --accent-deep's 3.33:1, and it reads as the brand at full strength. */
-.section-dark,.site-footer{--color-focus:var(--accent)}
 .video-card:focus-visible .thumb,.insta-item:focus-visible{outline-offset:0}
 
 /* ==========================================================================
@@ -2188,7 +2419,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
    ========================================================================== */
 .insta-item:active,.video-card:active,.explain-card:active,
 .reel-card:active,.vid-tab:active,.a11y-fab:active,.wa-float:active,
-.social-row a:active,.main-nav a:active,.lang-switch a:active,
+.social-row a:active,.main-nav a:active,.lang-switch button:active,
 .a11y-panel button:active,.intro-scroll:active{
   transform:scale(.985);
   transition-duration:var(--d-press);

@@ -382,40 +382,11 @@ window.pageTransition = (function () {
 
 
 
-// Background showreel — loaded only if it is going to be watched.
-//
-// The file is 63MB / 85s. Attaching it as a normal autoplay background would
-// pull that down on every visit, on every connection, before anyone had
-// scrolled to it. So the <video> ships with no src at all: the poster carries
-// the section until the observer decides the video is worth fetching.
-//
-// It is never fetched at all when the visitor has asked for reduced motion or
-// has Save-Data on — in both cases the poster frame is the finished design.
-(function () {
-  var wraps = [].slice.call(document.querySelectorAll('.section-video'));
-  if (!wraps.length) return;
+// The background showreel was removed with the dark band: the section is a
+// light branded band now and has no video behind it. The clip cards inside it
+// still carry their own posters, and the showreel file itself is still used by
+// the work-summary player further down the page.
 
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var conn = navigator.connection || {};
-  var thrifty = conn.saveData === true || /(^|-)2g$/.test(conn.effectiveType || '');
-  if (reduce || thrifty || !('IntersectionObserver' in window)) return;
-
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (en) {
-      if (!en.isIntersecting) return;
-      var v = en.target.querySelector('video[data-src]');
-      io.unobserve(en.target);
-      if (!v) return;
-      v.src = v.dataset.src;
-      delete v.dataset.src;
-      // Autoplay can still be refused; the poster stays put if it is.
-      var p = v.play();
-      if (p && p.catch) p.catch(function () {});
-    });
-  }, { rootMargin: '200px 0px' });   // a screen of warning, not a screen of waste
-
-  wraps.forEach(function (w) { io.observe(w); });
-})();
 
 
 // Work-summary video — casual-download friction.

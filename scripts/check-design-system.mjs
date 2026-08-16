@@ -58,7 +58,7 @@ check('dead component CSS', orphans.length === 0, orphans.join(' '));
 // the homepage and the video page were still rendering it, and the clips shipped
 // as unstyled blocks. A rule can be removed by accident; a class in the markup
 // is evidence that something was supposed to style it.
-const HOOKS = new Set(['lang-en', 'intro-scroll-label']);   // i18n + JS only, never styled
+const HOOKS = new Set(['intro-scroll-label']);   // i18n + JS only, never styled
 const inMarkup = new Set();
 for (const p of pages) {
   if (p === 'index-v2.html') continue;   // its own stylesheet

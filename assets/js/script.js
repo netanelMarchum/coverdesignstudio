@@ -416,3 +416,20 @@ window.pageTransition = (function () {
 
   wraps.forEach(function (w) { io.observe(w); });
 })();
+
+
+// Work-summary video — casual-download friction.
+//
+// Honest framing: none of this makes a browser-delivered video impossible to
+// save. Anyone who opens devtools or the network panel has the file. What it
+// does do is remove every route a normal visitor would take: there is no
+// download control in the player, no anchor pointing at the file anywhere in
+// the markup, no picture-in-picture, no right-click Save video as, and no drag
+// to the desktop. It costs nothing in performance or accessibility — the
+// keyboard controls, captions surface and focus behaviour are all untouched.
+(function () {
+  var v = document.querySelector('.worksum-video');
+  if (!v) return;
+  v.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  v.addEventListener('dragstart', function (e) { e.preventDefault(); });
+})();

@@ -23,12 +23,19 @@
      lerp is deliberately high — the brief asks for smooth, and a low value
      produces the floaty lag that makes a page feel unresponsive. */
   var lenis = null;
-  if (window.Lenis) {
+  if (window.Lenis && !window.__cdsLenis) {
     lenis = new window.Lenis({ lerp: 0.12, wheelMultiplier: 1, smoothWheel: true });
+    // Published so the pinned cover experience uses THIS instance rather than
+    // creating a second one. Two Lenis instances driving the same scroll is the
+    // classic way a pinned section starts fighting itself.
+    window.__cdsLenis = lenis;
 
     // ScrollTrigger drives the pinned cover experience and has to be told
     // where the page actually is, or the pin drifts against the smoothed scroll.
     if (window.ScrollTrigger) {
+      // A phone hides and shows its address bar on scroll, which fires resize and
+      // makes ScrollTrigger recalculate a pin mid-gesture — the section jumps.
+      window.ScrollTrigger.config({ ignoreMobileResize: true });
       lenis.on('scroll', window.ScrollTrigger.update);
       window.gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
       window.gsap.ticker.lagSmoothing(0);
@@ -78,6 +85,38 @@
         scrollTrigger: { trigger: '.intro', start: 'top top', end: 'bottom top', scrub: 0.8 },
       });
     }
+  }
+
+  /* ---- work summary: the choreographed entrance ------------------------
+     The five beats the section is built around, driven by one ScrollTrigger so
+     they cannot drift apart: the block establishes, the video wipes open, the
+     type enters, the index follows, the CTA resolves last.
+
+     The wipe is clip-path — it reveals the frame the video already occupies
+     rather than moving or scaling it, so nothing reflows and the poster is
+     never seen sliding. transform and clip-path only. */
+  var ws = document.querySelector('.worksum');
+  if (ws && window.ScrollTrigger) {
+    var media = ws.querySelector('.worksum-media');
+    var beats = [
+      ws.querySelector('.eyebrow'),
+      ws.querySelector('.section-title'),
+      ws.querySelector('.worksum-lead'),
+      ws.querySelector('.worksum-index'),
+      ws.querySelector('.worksum-cta'),
+    ].filter(Boolean);
+
+    var intro = gsap.timeline({
+      scrollTrigger: { trigger: ws, start: 'top 78%', once: true },
+      defaults: { ease: 'expo.out' },
+    });
+
+    if (media) {
+      intro.fromTo(media,
+        { clipPath: 'inset(0% 0% 100% 0%)' },
+        { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1 }, 0);
+    }
+    intro.from(beats, { y: 18, opacity: 0, duration: .7, stagger: .09 }, 0.25);
   }
 
   /* ---- magnetic CTA -----------------------------------------------------

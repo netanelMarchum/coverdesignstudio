@@ -23,7 +23,11 @@
   /* Inset from the viewport rather than bleeding to it: the artwork reads as
      a framed piece with a mat around it, and nothing is lost to the edges. */
   padding:clamp(20px,4.5vh,64px);
-  opacity:0; will-change:opacity, transform;
+  opacity:0;
+  /* No standing will-change. Eight full-viewport layers each promoted to their
+     own compositor layer is a lot of GPU memory to hold permanently, and on a
+     phone it is what turns a smooth scrub into a stuttering one. GSAP promotes
+     the two layers that are actually tweening and releases them after. */
 }
 #cx .layer img{
   width:100%; height:100%; display:block;

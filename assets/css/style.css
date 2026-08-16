@@ -244,6 +244,7 @@
      #cx keeps its own 0–20 scale: `perspective` makes it a stacking context,
      so those values are scoped to that scene and cannot collide with these. */
   --z-grain:50;      /* global film grain: over surfaces, under all chrome */
+  --z-cursor:60;     /* the cursor trail: over content, under every control */
   --z-nav:90;        /* mobile nav drawer */
   --z-header:100;
   --z-float:200;     /* WhatsApp + accessibility launchers */
@@ -320,6 +321,200 @@ html.a11y-contrast .grain,html.a11y-grayscale .grain{display:none}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth; overflow-x:clip}
+
+/* The cursor trail's surface. One canvas, fixed, and completely inert: it
+   takes no pointer events, holds no content and sits under every control, so
+   it can never take a click or a focus ring from the page underneath it. */
+.cursor-trail{
+  position:fixed; inset:0;
+  width:100%; height:100%;
+  z-index:var(--z-cursor);
+  pointer-events:none;
+  /* multiply keeps the lime reading as ink laid on the page rather than a
+     light sitting above it — over artwork it darkens instead of washing out. */
+  mix-blend-mode:multiply;
+}
+@media (prefers-reduced-motion:reduce){.cursor-trail{display:none}}
+@media (hover:none),(pointer:coarse){.cursor-trail{display:none}}
+
+/* ══ The scroll rail ══════════════════════════════════════════════════════
+   A hairline down the right edge with a travelling head, a progress fill and a
+   tick per section. Built by assets/js/scroll-rail.js.
+
+   The visual language is the site's own, not the reference's: hairlines and
+   pills, which is what the rest of this sheet is made of. The ticks are short
+   horizontal rules rather than dots or symbols, because a rule is the mark this
+   design system already uses everywhere else.
+
+   The two brand colours do the work. --rail-accent is set per section by the
+   script, interpolated across the page from lavender to lime, so the colour is
+   a readout of position rather than a decoration applied to it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.rail{
+  --rail-accent:#E7B7F5;
+  --rail-x:22px;          /* the line's distance from the right edge */
+  position:fixed; inset-block:0; inset-inline-end:0;
+  width:64px; z-index:var(--z-float);
+  /* The strip must never eat a click meant for the page. Only the ticks and
+     the head take pointer events, and they opt in individually. */
+  pointer-events:none;
+  opacity:.55;
+  transition:opacity var(--d-mid) var(--ease);
+}
+.rail.is-live,.rail:hover,.rail:focus-within{opacity:1}
+
+/* the track */
+.rail-line{
+  position:absolute; inset-block:var(--s-8); inset-inline-end:var(--rail-x);
+  width:1px; background:var(--color-border);
+}
+/* the travelled part, painted in the section's colour */
+.rail-fill{
+  position:absolute; inset-block:var(--s-8); inset-inline-end:var(--rail-x);
+  width:1px; background:var(--rail-accent);
+  transform-origin:top center; transform:scaleY(0);
+}
+
+/* the head — a capsule, the same pill vocabulary as every control on the site */
+.rail-head{
+  position:absolute; inset-inline-end:calc(var(--rail-x) - 1.5px);
+  top:var(--s-8);
+  width:4px; height:34px; margin-block-start:calc(var(--s-8) * -1);
+  border-radius:var(--r-lg);
+  background:var(--rail-accent);
+  transform-origin:center;
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--rail-accent) 22%, transparent);
+  transition:box-shadow var(--d-mid) var(--ease);
+}
+.rail.is-live .rail-head{
+  box-shadow:0 0 0 6px color-mix(in srgb, var(--rail-accent) 30%, transparent);
+}
+
+/* ── the ticks ──────────────────────────────────────────────────────────
+   A short rule per section, extending and labelling itself on hover or focus.
+   Real buttons: this is in-page navigation and it is reachable by keyboard. */
+.rail-tick{
+  position:absolute; inset-inline-end:calc(var(--rail-x) - 4px);
+  width:10px; height:22px; padding:0; margin-block-start:-11px;
+  background:none; border:0; cursor:pointer;
+  pointer-events:auto;
+  display:flex; align-items:center; justify-content:flex-end;
+}
+.rail-tick::before{
+  content:""; width:9px; height:1px;
+  background:var(--color-text); opacity:.32;
+  transition:width var(--d-fast) var(--ease), opacity var(--d-fast) var(--ease), background var(--d-fast) var(--ease);
+}
+.rail-tick:hover::before,.rail-tick:focus-visible::before{width:16px; opacity:1}
+.rail-tick.is-active::before{
+  width:16px; opacity:1; background:var(--rail-accent); height:2px;
+}
+/* The label only exists on approach — a permanent column of section names
+   beside the content is a table of contents, not a scrollbar. */
+.rail-tick-label{
+  position:absolute; inset-inline-end:22px;
+  white-space:nowrap;
+  font-size:var(--t-xs); font-weight:var(--fw-semibold);
+  letter-spacing:.02em; color:var(--color-text);
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-lg); padding:5px 12px;
+  box-shadow:var(--sh-2);
+  opacity:0; transform:translateX(6px);
+  pointer-events:none;
+  transition:opacity var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+}
+.rail-tick:hover .rail-tick-label,
+.rail-tick:focus-visible .rail-tick-label{opacity:1; transform:none}
+.rail-tick:focus-visible{outline:none}
+.rail-tick:focus-visible .rail-tick-label{outline:2px solid var(--color-focus); outline-offset:2px}
+
+/* ── touch ──────────────────────────────────────────────────────────────
+   A read-only indicator. No ticks, no labels, nothing that could take a touch
+   away from the finger already scrolling the page. */
+.rail.is-passive{width:18px; opacity:.4}
+.rail.is-passive .rail-tick{display:none}
+.rail.is-passive{--rail-x:8px}
+@media (max-width:560px){
+  .rail-head{height:26px}
+  .rail-line,.rail-fill{inset-block:var(--s-6)}
+}
+
+/* ── reduced motion ─────────────────────────────────────────────────────
+   The rail keeps working — it is a position readout, and removing it would
+   remove information. What goes is the easing, the velocity stretch and the
+   idle fade; the head simply sits where the page is. */
+@media (prefers-reduced-motion:reduce){
+  .rail{opacity:1; transition:none}
+  .rail-head,.rail-tick::before,.rail-tick-label{transition:none}
+}
+
+/* ── the native bar, hidden only once the rail is actually running ──────
+   scroll-rail.js sets .rail-on at the end of its setup. If the script is
+   blocked or throws, this never applies and the styled native scrollbar below
+   is still there. */
+html.rail-on{scrollbar-width:none}
+html.rail-on::-webkit-scrollbar{width:0; height:0}
+
+/* ══ The scrollbar ════════════════════════════════════════════════════════
+   A thin ink indicator against the right edge, with nothing around it.
+
+   THE ONE DECISION THAT MATTERS HERE
+   A 4px scrollbar looks right and is miserable to grab. So the scrollbar is
+   14px WIDE — a comfortable pointer target — and the thumb only PAINTS 4px of
+   that: a transparent border plus background-clip:content-box leaves the rest
+   as hit area you cannot see. Thin to look at, not thin to use. Setting
+   ::-webkit-scrollbar{width:4px} instead would have made the page's only
+   scroll affordance almost impossible to drag, which is not a premium detail,
+   it is a bug with good taste.
+
+   Colour comes from --color-text through color-mix; no new token, no new hex.
+   The track is genuinely nothing — no rail, no groove, no container.
+
+   Scope: this styles the document scrollbar and any scrolling panel that does
+   not opt out. .insta-grid.is-swipe already hides its own and is more specific,
+   so the swipe row is untouched.
+   ═══════════════════════════════════════════════════════════════════════════ */
+html{
+  /* Firefox. It cannot round a thumb or set an exact width, so it gets the
+     closest honest equivalent: its own thin metric, ink thumb, no track. */
+  scrollbar-width:thin;
+  scrollbar-color:color-mix(in srgb, var(--color-text) 32%, transparent) transparent;
+}
+::-webkit-scrollbar{width:14px; height:14px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{
+  background-color:color-mix(in srgb, var(--color-text) 32%, transparent);
+  /* the 5px transparent border is what turns 14px of hit area into 4px of ink */
+  border:5px solid transparent;
+  background-clip:content-box;
+  border-radius:var(--r-lg);
+}
+::-webkit-scrollbar-thumb:hover{
+  background-color:color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+::-webkit-scrollbar-thumb:active{
+  background-color:var(--color-text);
+}
+/* The corner where two scrollbars would meet, and the buttons some builds still
+   draw at each end — neither belongs in this language. */
+::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-button{display:none; width:0; height:0}
+
+/* The scrollbar is the page's only indication of position and length, so it
+   goes solid and full-width for anyone who has asked for more contrast rather
+   than staying a 32% hairline. */
+@media (prefers-contrast:more){
+  html{scrollbar-color:var(--color-text) transparent}
+  ::-webkit-scrollbar-thumb{
+    background-color:var(--color-text);
+    border-width:4px;
+  }
+}
+/* The site's own high-contrast mode paints the page black, so the ink thumb
+   would vanish into it. */
+html.a11y-contrast{scrollbar-color:#fff transparent}
+html.a11y-contrast ::-webkit-scrollbar-thumb{background-color:#fff; border-width:4px}
 body{
   margin:0; background:var(--bg); color:var(--text);
   font-family:var(--font); font-weight:var(--fw-regular); line-height:var(--lh-relaxed);
@@ -980,6 +1175,62 @@ body.loaded > footer{
 
 /* #work then opens out of that darkness rather than starting on flat white */
 
+/* ── The cover row ──────────────────────────────────────────────────────
+   Two shapes from one piece of markup. .insta-grid is a plain grid by default
+   and stays one if the carousel script never runs; the script adds .is-carousel
+   on a fine pointer or .is-swipe on touch. */
+.vel-viewport{
+  position:relative;
+  /* Full width of the viewport, centred: the row runs the entire middle of the
+     section rather than stopping at the text column. The heading and the button
+     keep the container width — only this wrapper breaks out. */
+  width:100vw;
+  margin-inline:calc(50% - 50vw);
+  margin-block:var(--s-5) 0;
+  overflow:hidden;
+  /* Fades at the two edges so cards enter and leave instead of being clipped.
+     A mask, not an overlay: the ground behind it is lit and a solid fade would
+     show as two smudges. */
+  -webkit-mask:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+          mask:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.insta-grid.is-carousel{
+  display:flex; width:max-content;
+  direction:ltr;   /* the track is physical; the cards inside keep the page direction */
+  grid-template-columns:none;
+  /* Generous. At 12px the cards read as a strip; the space between them is
+     what makes each one an object rather than a frame in a filmstrip. */
+  gap:var(--s-5);
+  will-change:transform;
+}
+.insta-grid.is-carousel > *,
+.insta-grid.is-swipe > *{direction:rtl}
+/* 26vw between a 280 floor and a 360 ceiling: four across a 1440 viewport,
+   five on a very wide one, and never smaller than the artwork deserves. */
+.insta-grid.is-carousel > *{
+  flex:0 0 clamp(280px, 26vw, 360px);
+}
+/* Touch: a real scrollable row. No transform, no clone loop, no animation to
+   fight a finger that is already dragging it. */
+.insta-grid.is-swipe{
+  display:flex; gap:var(--s-5);
+  direction:ltr;
+  grid-template-columns:none;
+  overflow-x:auto; overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding-block-end:var(--s-2);
+}
+.insta-grid.is-swipe::-webkit-scrollbar{display:none}
+/* On a phone the card is most of the screen — the artwork stays dominant
+   instead of shrinking to match the desktop proportion. */
+.insta-grid.is-swipe > *{flex:0 0 clamp(240px, 74vw, 320px); scroll-snap-align:start}
+/* The viewport does its own edge-fading; on touch the row scrolls inside it. */
+@media (hover:none){
+  .vel-viewport{overflow:visible; -webkit-mask:none; mask:none}
+}
+
 /*  Instagram feed grid  */
 .insta-grid{
   display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-3);
@@ -995,7 +1246,7 @@ body.loaded > footer{
   border-radius:var(--r-sm);
   background:var(--color-surface);
   border:1px solid var(--color-border);
-  padding:10px 10px 0;
+  padding:var(--s-3) var(--s-3) 0;
   box-shadow:var(--sh-2);
   transition:transform var(--d-card) var(--ease), box-shadow var(--d-card) var(--ease);
 }
@@ -1005,8 +1256,8 @@ body.loaded > footer{
 .insta-item .cap{
   position:static; opacity:1; background:none; inset:auto;
   display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
-  padding:12px 4px; color:var(--color-text);
-  font-size:.82rem; font-weight:var(--fw-medium); line-height:1.35;
+  padding:var(--s-3) 4px var(--s-2); color:var(--color-text);
+  font-size:.875rem; font-weight:var(--fw-medium); line-height:1.4;
   text-align:start;
 }
 .insta-item .cap::after{
@@ -1019,9 +1270,14 @@ body.loaded > footer{
 /* The cover lifts a touch, brightens, and casts a soft shadow. Uniform scale
    only — the artwork keeps its exact proportions, and object-fit:cover inside
    an overflow:hidden square means the frame never changes shape either. */
+/* height:auto, not 100%. Both rules target the same element and this one wins,
+   so height:100% was overriding the aspect-ratio declared above it — the square
+   was being decided by whatever height the card happened to have rather than by
+   the ratio. width + aspect-ratio + cover is the combination that cannot
+   distort, at any card size. */
 .insta-item img{
-  width:100%; height:100%; object-fit:cover;
-  transition:transform var(--d-image) var(--ease), filter var(--d-image) var(--ease);
+  width:100%; height:auto; object-fit:cover;
+  transition:transform var(--d-image) var(--ease);
 }
 /* No blur-in on arrival: filter is not a compositor-only property, so sharpening
    eight 800x800 covers at once re-rasterised the whole grid every frame while it
@@ -1096,76 +1352,125 @@ body.loaded > footer{
   font-size:var(--t-lg); font-weight:var(--fw-semibold);
 }
 
-/*  Work summary — video right, copy left, in both directions  ------------
-    The page is dir="rtl", which would put the first grid item on the right and
-    mirror the whole composition on the English version. The brief pins the
-    video to the right physically, so the grid runs direction:ltr and the copy
-    column sets direction:rtl back on itself — the layout stops mirroring while
-    the Hebrew inside it still flows and aligns the way Hebrew has to.
-    ------------------------------------------------------------------------ */
+/* ══ Work summary ══════════════════════════════════════════════════════
+   Not two columns of equal weight. The video is the mass the composition is
+   built around: it takes the larger track, runs past the container to the
+   physical right edge of the viewport, and is taller than the copy beside it.
+   The copy is set as a narrow editorial column that hangs LOW against that
+   mass rather than centring itself in it — the offset is what stops the pair
+   reading as a media box with a paragraph next to it.
+
+   Under both of them the index continues the composition: the same grid, the
+   same rules, the three departments as a ruled list. It is the second half of
+   one idea, not a second section.
+
+   DIRECTION. The page is dir="rtl", which would mirror all of this and put the
+   video on the left. The art direction is physical, so the grid runs ltr and
+   each text block sets rtl back on itself — the same device the tickers, the
+   carousel and the hero already use.
+   ══════════════════════════════════════════════════════════════════════════ */
+.worksum-section{padding-block:clamp(72px,10vw,var(--s-10))}
+
 .worksum{
   display:grid; direction:ltr;
-  grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);
-  gap:clamp(24px,3.4vw,var(--s-6));
-  align-items:stretch;
+  grid-template-columns:minmax(0,.78fr) minmax(0,1.32fr);
+  column-gap:clamp(28px,4vw,var(--s-7));
+  row-gap:var(--s-6);
+  align-items:end;
 }
-/* Explicit placement, so the video can be first in the source (which is the
-   order mobile wants) without needing an order override to undo it here. */
 .worksum-media{grid-column:2; grid-row:1; margin:0}
 .worksum-copy{
   grid-column:1; grid-row:1;
   direction:rtl; text-align:right;
-  display:flex; flex-direction:column; justify-content:center;
-  gap:var(--s-4);
+  display:flex; flex-direction:column; align-items:flex-start;
+  /* Hangs low against the video rather than centring — the copy meets the
+     lower two thirds of the mass, which is where the eye lands after it. */
+  padding-block-end:clamp(8px,3vh,var(--s-6));
 }
+.worksum-index{grid-column:1 / -1; grid-row:2}
 
-/* The video is part of the composition, not a card sitting inside it.
-   No border and no radius — a framed rectangle reads as an object placed on the
-   page, and what the brief asks for is the two halves reading as one block.
-   It also bleeds to the viewport edge: the container caps at --maxw and this
-   pulls the media back out to the physical right edge, so the footage runs off
-   the page instead of stopping at a margin. The site already sets
-   overflow-x:clip on html and body, which is what keeps the 100vw arithmetic
-   from producing a scrollbar. */
+/* ── the video ─────────────────────────────────────────────────────────
+   Breaks the container on the right only. Left edge stays on the grid, so the
+   asymmetry is deliberate rather than a centred element that happens to be
+   wide. Height is set by the composition, not by the file's aspect ratio. */
 .worksum-media{
   position:relative; overflow:hidden;
+  border-radius:var(--r-md) 0 0 var(--r-md);
   background:var(--bg-deep);
-  min-height:clamp(420px,58vh,660px);
+  min-height:clamp(460px,64vh,720px);
   margin-inline-end:calc(-1 * ((100vw - min(100vw, var(--maxw))) / 2 + var(--s-5)));
 }
-/* cover, so the frame stays the shape the layout wants at every width and the
-   footage is cropped rather than letterboxed. The poster obeys object-fit too,
-   so the resting state is framed identically to playback. */
 .worksum-video{
+  position:absolute; inset:0;
   display:block; width:100%; height:100%;
   object-fit:cover;
-  /* the element is absolutely placed so it fills the figure's min-height
-     without the video's intrinsic ratio dictating the row */
-  position:absolute; inset:0;
 }
 
-.worksum-copy .section-title{margin-bottom:var(--s-2)}
-.worksum-copy p{
-  margin:0; color:var(--text-dim);
+/* ── the copy ──────────────────────────────────────────────────────────── */
+.worksum-copy .section-title{margin:0 0 var(--s-4)}
+.worksum-lead{
+  margin:0; color:var(--color-muted);
   font-size:var(--t-md); line-height:var(--lh-normal);
-  max-width:46ch;          /* a readable measure, not the full column */
+  max-width:30ch;          /* a deliberate measure, not the column width */
 }
-.worksum-cta{margin-top:var(--s-3)}
+.worksum-cta{margin-top:var(--s-6)}
 
-@media (max-width:900px){
-  /* One column, video first — it is the dominant element and it is first in the
-     source, so nothing has to be reordered to get there. */
-  .worksum{grid-template-columns:minmax(0,1fr); gap:var(--s-5)}
-  .worksum-media,.worksum-copy{grid-column:1; grid-row:auto}
-  .worksum-media{
-    min-height:0; aspect-ratio:16/10;
-    margin-inline:calc(-1 * var(--s-5));   /* edge to edge on the small screens too */
-  }
-  .worksum-copy{justify-content:flex-start}
-  .worksum-copy p{max-width:none}
+/* ── the index: the second half of the same idea ───────────────────────── */
+.worksum-index{
+  direction:rtl;
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0; margin:var(--s-5) 0 0; padding:0; list-style:none;
+  border-block-start:1px solid var(--color-border);
 }
+.worksum-index li{border-inline-start:1px solid var(--color-border)}
+.worksum-index li:first-child{border-inline-start:0}
+.worksum-index a{
+  display:grid; gap:6px; align-content:start;
+  padding:var(--s-5) var(--s-5) var(--s-5) 0;
+  transition:background var(--d-fast) var(--ease);
+}
+.worksum-index li:not(:first-child) a{padding-inline-start:var(--s-5)}
+.worksum-index a:hover{background:var(--color-ink-soft)}
+.wi-n{
+  font-family:var(--font-display); font-weight:var(--fw-bold);
+  font-size:var(--t-xs); letter-spacing:var(--ls-tracked);
+  color:var(--color-muted); font-feature-settings:"tnum";
+}
+.wi-name{
+  font-size:var(--t-md); font-weight:var(--fw-semibold);
+  color:var(--color-text); line-height:1.25;
+}
+.wi-note{font-size:.86rem; color:var(--color-muted); line-height:1.45; max-width:32ch}
+
+/* ── Tablet: the relationship survives, the proportions change ──────────
+   The video keeps its bleed and its dominance; the copy moves beneath it as a
+   full-width editorial block rather than being squeezed into a narrow track. */
+@media (max-width:1024px){
+  .worksum{grid-template-columns:minmax(0,1fr); row-gap:var(--s-5)}
+  .worksum-media{grid-column:1; grid-row:1; min-height:clamp(380px,48vh,520px)}
+  .worksum-copy{grid-column:1; grid-row:2; padding-block-end:0}
+  .worksum-index{grid-column:1; grid-row:3}
+  .worksum-lead{max-width:52ch}
+}
+@media (max-width:760px){
+  .worksum-index{grid-template-columns:minmax(0,1fr)}
+  .worksum-index li{border-inline-start:0; border-block-start:1px solid var(--color-border)}
+  .worksum-index li:first-child{border-block-start:0}
+  .worksum-index li:not(:first-child) a{padding-inline-start:0}
+  .worksum-index a{padding:var(--s-4) 0}
+  .wi-note{max-width:none}
+}
+/* ── Mobile: the video stays the dominant object ────────────────────────
+   Full bleed on both edges and a portrait-leaning ratio, so it reads as the
+   subject of the screen rather than as a strip above some text. */
 @media (max-width:560px){
-  .worksum-media{aspect-ratio:4/3}
+  .worksum-media{
+    min-height:0; aspect-ratio:4/5;
+    border-radius:0;
+    margin-inline:calc(-1 * var(--s-5));
+  }
+  .worksum-cta{margin-top:var(--s-5)}
+  .worksum-cta .btn{width:100%; justify-content:center}
 }
 
 /*  Contact  */

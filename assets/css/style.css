@@ -1310,6 +1310,18 @@ body.loaded > footer{
   background:none; border:0; box-shadow:none;
   border-radius:0; padding:0;
 }
+/* THE DRAWER'S FURNITURE BELONGS TO THE DRAWER.
+   script.js injects a close button and a social row into this nav on every
+   page, so the mobile panel is identical everywhere without ten files having
+   to agree. Both were only ever POSITIONED inside the drawer's media query,
+   never hidden outside it — so on desktop they stayed in normal flow as
+   block-level children of the nav and stacked above and below the link row:
+   the X clipped off at the top edge of the bar, five social chips hanging
+   under it. And because the nav is centred with translate(-50%,-50%), that
+   three-row stack is what got centred, which is what pushed the links
+   themselves off the middle of the bar. They come back at the drawer
+   breakpoint, where the media query sets their display again. */
+.nav-close,.nav-social{display:none}
 .main-nav ul{display:flex; align-items:center; gap:4px}
 .main-nav a{
   display:inline-block; font-size:.9rem; font-weight:var(--fw-medium); color:var(--color-muted);
@@ -1328,8 +1340,63 @@ body.loaded > footer{
    disappearing into the drawer. */
 .hdr-logo{
   display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  gap:10px;
   padding:4px 8px; border-radius:var(--r-xs);
   transition:background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+}
+/* The wordmark beside the mark.
+   nowrap is the load-bearing declaration: .hdr-shell is a space-between flex
+   row, so the moment this string is allowed to wrap the bar becomes two lines
+   tall and the burger drops with it. It stays on one line and gives up size
+   instead — never height.
+
+   Sized against the 26px mark rather than in absolute terms: at 1rem it reads
+   as a heading with a small icon in front, which inverts what the pair is. It
+   is set to sit UNDER the mark's cap height so the mark still leads. */
+.hdr-name{
+  /* Mobile only. The desktop bar has always been mark + centred pill nav, and
+     a wordmark beside the mark widens the start of the row and shifts that nav
+     off centre. It is turned on inside the burger breakpoint below. */
+  display:none;
+  white-space:nowrap;
+  font-family:var(--font-display);
+  font-weight:var(--fw-bold);
+  font-size:clamp(.82rem, 2.6vw, .98rem);
+  letter-spacing:var(--ls-display);
+  line-height:1;
+  color:var(--color-text);
+}
+/* THE ROW CAN NEVER BECOME TWO LINES.
+   Below ~420px the bar is mark + name + language pill + burger inside roughly
+   285px of usable width, and by my own arithmetic 360px — the single most
+   common phone width there is — was within about ten pixels of overflowing.
+   Ten pixels of estimate is not a margin worth trusting, so this does not rely
+   on the estimate at all. Three layers, in order of what gives first:
+
+     1. the name tightens (smaller, less tracking, narrower gap)
+     2. it is allowed to shrink and ellipsis rather than push
+     3. below 340px it goes entirely
+
+   The controls never move and the bar never wraps, whatever the string or the
+   font ends up measuring. Nothing here touches the aria-label, so the link's
+   accessible name is the same at every width. */
+.hdr-logo{min-width:0}
+.hdr-name{flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis}
+
+/* 920px is the burger breakpoint — the same line where the nav leaves the bar
+   and the mark is left alone at the start of the row. That is the only width
+   where the name has anywhere to go. */
+@media (max-width:920px){
+  .hdr-name{display:block}
+}
+@media (max-width:420px){
+  .hdr-logo{gap:7px; padding-inline:4px}
+  .hdr-name{font-size:.8rem; letter-spacing:0}
+}
+/* At this width the name is the only one of the four things in the bar that is
+   not a control. It goes before anything anyone taps has to get smaller. */
+@media (max-width:339px){
+  .hdr-name{display:none}
 }
 .hdr-logo img{
   display:block; width:auto; height:26px;
@@ -1465,7 +1532,13 @@ body.loaded > footer{
   .nav-backdrop.open{opacity:1; visibility:visible; transition:opacity var(--d-mid) var(--ease), visibility 0s}
 
   .main-nav ul{flex-direction:column; align-items:stretch; gap:var(--s-2)}
-  .main-nav a{
+  /* `li a`, NOT `a`. The drawer's furniture is built in script.js and the
+     social row it appends is made of anchors too, so a bare `.main-nav a`
+     handed every icon chip the menu item's 1.45rem type, its vertical padding
+     and its hairline: five 38px circles each carrying 12px of padding and a
+     stray rule across the bottom, with the icon squeezed into what was left.
+     The list items are the menu; everything else in the panel styles itself. */
+  .main-nav li a{
     font-size:1.45rem; font-weight:var(--fw-semibold);
     line-height:1.25; letter-spacing:var(--ls-display);
     padding:var(--s-3) 0; border-radius:0; background:none;
@@ -1473,15 +1546,20 @@ body.loaded > footer{
     /* A hairline between items rather than a big gap: at this type size the
        rule is what makes four links read as a list instead of four headings. */
     border-bottom:1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-    transition:color var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+    /* COLOUR ONLY — NOTHING THAT TRANSITIONS transform.
+       The entrance stagger writes an inline transform on these links every
+       frame. With `transform` in this transition the browser eased toward each
+       of those frames on its own --d-fast curve, and the tween's opening
+       from-state (14px down) was itself transitioned in from 0 — so the links
+       arrived twitching against a curve running underneath them instead of
+       rising once. One owner per property. */
+    transition:color var(--d-fast) var(--ease);
   }
   .main-nav li:last-child a{border-bottom:0}
-  .main-nav a:hover,.main-nav a:focus-visible{
+  .main-nav li a:hover,.main-nav li a:focus-visible{
     background:none; color:var(--color-accent-ink);
-    /* Toward the reading edge, so it leans into the text rather than away. */
-    transform:translateX(calc(var(--drawer-out) / -25));
   }
-  .main-nav a.active{
+  .main-nav li a.active{
     background:none; color:var(--color-accent-ink); box-shadow:none;
   }
 
@@ -1503,6 +1581,14 @@ body.loaded > footer{
     border-top:1px solid var(--color-border);
     display:flex; justify-content:center; gap:var(--s-3);
   }
+  /* The corner floats are z-index 200 and the drawer is 90, so they sit ON the
+     open panel — and the accessibility button lands exactly on the first chip
+     in the row above, which made the mail icon unclickable: a tap there opened
+     the accessibility panel instead. They have nothing to do while the menu is
+     open (the backdrop has covered the page they belong to), so they step
+     aside for it. They already carry their own opacity transition. */
+  body:has(.main-nav.open) .a11y-fab,
+  body:has(.main-nav.open) .wa-float{opacity:0; pointer-events:none}
 }
 
 /* ==========================================================================
@@ -1679,6 +1765,20 @@ body.loaded > footer{
    on a fine pointer or .is-swipe on touch. */
 .vel-viewport{
   position:relative;
+  /* THE TRACK IS LAID OUT LTR, AND THAT IS WHAT KEEPS THE ROW ON SCREEN.
+     The page is dir="rtl". The track is `width:max-content` and far wider than
+     this wrapper, and an overflowing block is anchored to its parent's start
+     edge — under rtl that is the RIGHT edge, so the whole track hung off to the
+     left with only its last screenful showing. The marquee then tweened
+     xPercent to -50, i.e. further left, and the row emptied out completely
+     before snapping back at the end of the lap. That is the "ticker
+     disappears".
+
+     The loop's -50% recipe assumes the track starts at the left edge and
+     travels left, so the wrapper is given that coordinate system explicitly.
+     Only the track's placement is physical: the cards inside are put back to
+     rtl by `.insta-grid.is-carousel > *`, so captions read correctly. */
+  direction:ltr;
   /* Full width of the viewport, centred: the row runs the entire middle of the
      section rather than stopping at the text column. The heading and the button
      keep the container width — only this wrapper breaks out. */

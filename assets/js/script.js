@@ -134,11 +134,15 @@ if (burger && nav) {
      arriving one after another instead of as a single block. Transform and
      opacity only, cleared the moment it finishes so the panel's own styles own
      the element again and a second open does not inherit a stale inline value. */
-  var navLinks = nav.querySelectorAll('a');
+  /* The list items only. The social row appended above is anchors too, and
+     staggering those meant the icon chips popped in one by one at the foot of
+     the panel alongside the menu — five extra things moving in a place the eye
+     is not reading yet. The menu arrives; its furniture is simply there. */
+  var navLinks = nav.querySelectorAll('li a');
   function staggerLinks() {
     if (!window.gsap || !navLinks.length) return;
     if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
-    if (!window.matchMedia('(max-width: 900px)').matches) return;   // drawer only
+    if (!window.matchMedia('(max-width: 920px)').matches) return;   // drawer only — same breakpoint the drawer's CSS uses
     gsap.killTweensOf(navLinks);
     gsap.fromTo(navLinks,
       { y: 14, autoAlpha: 0 },

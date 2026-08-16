@@ -136,6 +136,23 @@
     }
   }
 
+  /* A REFRESH IS A MEASUREMENT PASS, NOT A GESTURE.
+     ScrollTrigger scrolls the page itself to measure a pin, and syncImmersive
+     was wired to onRefresh as well — so it read that synthetic jump as "the
+     visitor is scrolling down hard", hid the chrome, and then never got a real
+     onUpdate to take it back. The site loaded with no header at all: the menu,
+     the language switch and the logo were translated off the top of the screen
+     and held at opacity 0 until something else happened to scroll. A refresh
+     runs on load, on resize, and again when the webfonts land, so this was
+     every visit.
+
+     A refresh can now only ever REVEAL. Hiding stays where it belongs: on a
+     real onUpdate, from a real downward gesture. */
+  function revealChrome() {
+    clearTimeout(idleChrome);
+    document.documentElement.classList.remove('cx-immersive');
+  }
+
   /* ---- responsive + reduced motion, one construct -----------------------
      gsap.matchMedia() builds per breakpoint and reverts everything it made
      when the query stops matching, so a resize across a breakpoint cannot
@@ -197,7 +214,7 @@
            after the triggers below it leaves those measuring against a layout
            without this spacer. Lower number = refreshed first. */
         refreshPriority: -1,
-        onRefresh: syncImmersive,
+        onRefresh: revealChrome,
         onUpdate: syncImmersive,
         onToggle: syncImmersive,
       },

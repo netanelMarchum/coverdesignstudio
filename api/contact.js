@@ -17,14 +17,39 @@
    against the raw body, so curl-ing this endpoint directly gets the same
    answers as the form does. There is no code path that trusts the client.
 
+   DELIVERY: FORMSUBMIT
+   Mail goes out through formsubmit.co, called SERVER TO SERVER from here. That
+   placement is the whole security story: FormSubmit is normally wired up by
+   pointing a <form action> straight at it, which publishes the destination
+   address in the page source for every scraper on the internet. Called from
+   this handler instead, the target never reaches the browser, and every check
+   below still has to pass before FormSubmit is contacted at all — the endpoint
+   is the gate it always was.
+
+   The /ajax/ endpoint is used rather than the plain one because it answers
+   with JSON. That is what lets a failed delivery stay a failure: the success
+   state is only returned once FormSubmit has actually confirmed the send.
+
+   No API key exists. FormSubmit authenticates by the target itself, which is
+   why the target is an environment variable and not a literal in this file.
+
    SECRETS
-   None are in this file and none reach the browser. Two environment variables,
-   set in the Vercel dashboard:
-     RESEND_API_KEY   the mail provider key
-     CONTACT_TO       where submissions are delivered
+   None are in this file and none reach the browser.
+     FORMSUBMIT_TARGET     required. The address mail is delivered to, or the
+                           random alias formsubmit.co issues after activation.
+                           The alias is preferable: it delivers to the same
+                           inbox without the address existing anywhere.
+                           CONTACT_TO is accepted as a fallback name.
    Optional:
-     CONTACT_FROM     verified sender, defaults to onboarding@resend.dev
-     ALLOWED_ORIGIN   defaults to the production host below
+     ALLOWED_ORIGIN        defaults to the production host below
+     RECAPTCHA_SECRET_KEY  turns on captcha verification; unset means off
+     RECAPTCHA_MIN_SCORE   v3 score floor, defaults to 0.5
+
+   ACTIVATION. FormSubmit will not deliver anything until the target has been
+   confirmed once: the first submission triggers a confirmation mail to it, and
+   the link in that mail has to be clicked. Until then this endpoint reports a
+   delivery failure rather than a false success, which is correct — nothing has
+   been delivered.
    ========================================================================== */
 
 import './_lib/validate.js';
@@ -38,10 +63,46 @@ const V = globalThis.CDSValidate;
    is observable to the tests, which is how the paths below get exercised. */
 const config = () => ({
   ALLOWED_ORIGIN: process.env.ALLOWED_ORIGIN || 'https://studiocoverdesign.com',
-  TO: process.env.CONTACT_TO,
-  FROM: process.env.CONTACT_FROM || 'Studio Cover Design <onboarding@resend.dev>',
-  KEY: process.env.RESEND_API_KEY,
+  TARGET: process.env.FORMSUBMIT_TARGET || process.env.CONTACT_TO,
 });
+
+/* reCAPTCHA v3, verified here and only here. A score the browser reports is
+   worth nothing — the token is opaque and only Google can tell us what it is.
+
+   FAIL-OPEN WHEN UNCONFIGURED, FAIL-CLOSED WHEN CONFIGURED.
+   No RECAPTCHA_SECRET_KEY set means the feature is off and the other five
+   layers stand on their own, so deploying this file does not silently break
+   every form on the site the moment it lands. Once the secret IS set, a
+   missing, malformed or low-scoring token is a 403. Those are the two
+   behaviours you want; "configured but ignored" is the one you never do. */
+async function verifyCaptcha(token, ip) {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) return true;                       // feature off
+  if (!token || typeof token !== 'string' || token.length > 4096) return false;
+
+  const body = new URLSearchParams({ secret, response: token });
+  if (ip && ip !== 'unknown') body.set('remoteip', ip);
+
+  try {
+    const r = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    const j = await r.json();
+    if (!j.success) return false;
+    // v2 responses carry no score; only gate on it when Google sends one.
+    const min = Number(process.env.RECAPTCHA_MIN_SCORE || 0.5);
+    if (typeof j.score === 'number' && j.score < min) return false;
+    if (j.action && j.action !== 'contact') return false;
+    return true;
+  } catch (e) {
+    // Google unreachable. Refusing every message because a third party is down
+    // loses real enquiries; the other five layers still apply.
+    console.error('[contact] captcha verify unreachable:', e.message);
+    return true;
+  }
+}
 
 const MAX_BODY = 8 * 1024;        // a form this size cannot legitimately exceed it
 const MIN_FILL_MS = 2500;         // nobody reads and types a form faster than this
@@ -71,12 +132,6 @@ const clientIp = (req) =>
   (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
   req.socket?.remoteAddress || 'unknown';
 
-/** Escape for the HTML mail body. The submission is untrusted text and it is
- *  about to be rendered in someone's mail client. */
-const esc = (s) => String(s == null ? '' : s)
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
 function readBody(req) {
   if (req.body && typeof req.body === 'object') return Promise.resolve(req.body);
   return new Promise((resolve, reject) => {
@@ -92,13 +147,43 @@ function readBody(req) {
   });
 }
 
-async function sendMail(cfg, subject, html, text, replyTo) {
-  const res = await fetch('https://api.resend.com/emails', {
+/** Hand a flat set of named fields to FormSubmit and insist it confirms.
+ *
+ *  NO HTML IS BUILT HERE ANY MORE, and that is a security improvement rather
+ *  than a loss. The old code assembled an HTML mail body and escaped every
+ *  value on the way in; one missed call site was an injection into someone's
+ *  mail client. FormSubmit renders the fields into its own table template, so
+ *  there is no template here to inject into — the class of bug is gone rather
+ *  than defended against.
+ *
+ *  _captcha:false because this is a server-to-server call: FormSubmit's own
+ *  captcha is a browser challenge and there is no browser in this hop. The
+ *  submission has already passed origin, rate limit, honeypot, timing,
+ *  validation and duplicate checks before reaching this line.
+ */
+async function sendMail(cfg, subject, fields, replyTo) {
+  const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(cfg.TARGET), {
     method: 'POST',
-    headers: { Authorization: `Bearer ${cfg.KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: cfg.FROM, to: [cfg.TO], subject, html, text, reply_to: replyTo }),
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      _subject: subject,
+      _replyto: replyTo,
+      _template: 'table',
+      _captcha: 'false',
+      ...fields,
+    }),
   });
-  if (!res.ok) throw new Error(`mail ${res.status}: ${(await res.text()).slice(0, 200)}`);
+
+  const raw = await res.text();
+  let json = null;
+  try { json = JSON.parse(raw); } catch (e) { /* handled below */ }
+
+  // FormSubmit answers {"success":"true"} — a STRING, not a boolean — and 200s
+  // some failures, so the status alone is not proof of delivery. Anything that
+  // is not an explicit success is treated as a failure, which is what keeps the
+  // success state honest.
+  const ok = json && String(json.success) === 'true';
+  if (!ok) throw new Error(`formsubmit ${res.status}: ${raw.slice(0, 200)}`);
 }
 
 export default async function handler(req, res) {
@@ -164,6 +249,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, errors: result.errors });
   }
 
+  /* After validation, before anything that costs money. No point spending a
+     round trip to Google on a submission that fails our own rules. */
+  if (!(await verifyCaptcha(body.captcha, ip))) {
+    hits.set(ip, seen.concat(now));
+    return res.status(403).json({ ok: false, error: 'captcha', errors: { _form: t.generic } });
+  }
+
   const v = result.values;
 
   /* The same person sending the same thing twice in ten minutes is a double
@@ -174,8 +266,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, duplicate: true });
   }
 
-  if (!cfg.KEY || !cfg.TO) {
-    console.error('[contact] RESEND_API_KEY or CONTACT_TO is not set — cannot deliver');
+  if (!cfg.TARGET) {
+    console.error('[contact] FORMSUBMIT_TARGET is not set, cannot deliver');
     return res.status(500).json({ ok: false, error: 'config', errors: { _form: t.generic } });
   }
 
@@ -193,34 +285,21 @@ export default async function handler(req, res) {
     'User agent': V.tidy(req.headers['user-agent'], 200) || '—',
   };
 
-  const rows = [
-    ['Name', v.name], ['Phone', v.phone], ['Email', v.email],
-    ['Message', v.message || '—'],
-  ];
-
-  const html =
-    `<div style="font:15px/1.6 -apple-system,Segoe UI,Arial,sans-serif;color:#161316">` +
-    `<h2 style="margin:0 0 4px;font-size:18px">${esc(def.label)}</h2>` +
-    `<p style="margin:0 0 18px;color:#6b6b6b;font-size:13px">${esc(when)}</p>` +
-    `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:640px">` +
-    rows.map(([k, val]) =>
-      `<tr><td style="padding:8px 12px 8px 0;vertical-align:top;color:#6b6b6b;white-space:nowrap">${esc(k)}</td>` +
-      `<td style="padding:8px 0;border-bottom:1px solid #eee"><strong>${esc(val)}</strong></td></tr>`).join('') +
-    `</table>` +
-    `<p style="margin:22px 0 6px;font-size:12px;color:#6b6b6b">Metadata</p>` +
-    `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px;color:#6b6b6b">` +
-    Object.entries(meta).map(([k, val]) =>
-      `<tr><td style="padding:3px 12px 3px 0;white-space:nowrap">${esc(k)}</td><td>${esc(val)}</td></tr>`).join('') +
-    `</table></div>`;
-
-  const text =
-    rows.map(([k, val]) => `${k}: ${val}`).join('\n') + '\n\n---\n' +
-    Object.entries(meta).map(([k, val]) => `${k}: ${val}`).join('\n');
+  /* One flat object: FormSubmit renders each key as a row in its table, in the
+     order given, so the field order here is the order in the mail. Underscore
+     keys are FormSubmit's own directives and are added by sendMail. */
+  const fields = {
+    Name: v.name,
+    Phone: v.phone,
+    Email: v.email,
+    Message: v.message || '-',
+    ...meta,
+  };
 
   try {
-    await sendMail(cfg, `[${def.label}] ${v.name} — ${v.phone}`, html, text, v.email);
+    await sendMail(cfg, `[${def.label}] ${v.name} - ${v.phone}`, fields, v.email);
   } catch (err) {
-    // The provider's message can carry the key or the recipient; it goes to the
+    // The provider's message can carry the target address; it goes to the
     // server log, never to the response.
     console.error('[contact] send failed:', err.message);
     return res.status(502).json({ ok: false, error: 'send', errors: { _form: t.generic } });

@@ -235,13 +235,34 @@
       <h2 class="section-title">רוצים שהסאונד שלכם יהיה זמין בכל מקום?</h2>
       <p class="section-lead">אנחנו מעלים את השיר לספוטיפיי, לאפל מיוזיק, ליוטיוב מיוזיק ולשאר הפלטפורמות, פותחים לכם פרופיל אמן מאומת ודואגים שהעטיפה תיראה נכון בכל אחת מהן.</p>
     </div>
-    <figure class="dist-shot explain-card reveal">
-      <img class="shot" src="assets/img/distribution/spotify-streams-stats.jpg" alt="כרטיס סטטיסטיקות השמעות של אמן בספוטיפיי, עם מספר ההשמעות, המאזינים החודשיים והמדינות המובילות" width="1000" height="1443" loading="lazy" decoding="async">
-    </figure>
+    <div class="dist-grid reveal reveal-stagger">
+      <article class="dist-card">
+        <span class="dist-ico" style="--ico-delay:0s" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+        <h3>הפצה לכל הפלטפורמות</h3>
+        <p>השיר שלך עולה לספוטיפיי, אפל מיוזיק, יוטיוב מיוזיק, דיזר ולמעלה מ-25 חנויות ופלטפורמות סטרימינג נוספות ביציאה אחת.</p>
+      </article>
+      <article class="dist-card">
+        <span class="dist-ico" style="--ico-delay:-1.6s" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <h3>פרופיל אמן מאומת</h3>
+        <p>אנחנו פותחים, מגדירים ומאמתים עבורך את חשבונות האמן הרשמיים (כמו Spotify for Artists), כדי שתהיה לך שליטה מלאה על המותג והנתונים שלך.</p>
+      </article>
+      <article class="dist-card">
+        <span class="dist-ico" style="--ico-delay:-3.1s" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg></span>
+        <h3>סאונד זמין לסטורי ולטיקטוק</h3>
+        <p>המוזיקה שלך מסונכרנת לרשתות החברתיות וזמינה לשימוש בסטוריז באינסטגרם, פייסבוק וטיקטוק. תן למעריצים לשתף את השיר שלך ולהפיץ אותו הלאה בקלות.</p>
+      </article>
+    </div>
+
+    <div class="load-more reveal"><a class="btn" href="distribution.html">עוד על ההפצה</a></div>
   </div>
 
-  <!-- Full-bleed, and aria-hidden: the names are decoration here, the section
-       already says in words where the music lands. -->
+
+
+  <!-- The ticker is the section's bottom rule. Full-bleed on purpose: it
+       breaks the container so the band runs edge to edge and reads as the
+       seam between this section and the next, rather than as a widget parked
+       inside one. aria-hidden because the names are decoration here; the
+       copy above already says in words where the music lands. -->
   <div class="logo-ticker-wrap" aria-hidden="true">
     <div class="logo-ticker-track">
       <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/spotify.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Spotify</span></span>
@@ -270,10 +291,6 @@
       <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/tidal.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Tidal</span></span>
       <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/shazam.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Shazam</span></span>
     </div>
-  </div>
-
-  <div class="container">
-    <div class="load-more reveal"><a class="btn" href="distribution.html">עוד על ההפצה</a></div>
   </div>
 </section>
 
@@ -418,12 +435,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
 <script src="assets/js/script.min.js?v=15"></script>
 <script src="assets/js/validate.min.js?v=15" defer></script>
+<script src="assets/js/forms-config.min.js?v=15" defer></script>
 <script src="assets/js/forms.min.js?v=15" defer></script>
 <script src="assets/js/lightbox.min.js?v=15" defer></script>
 <script src="assets/js/a11y.min.js?v=15"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="assets/js/motion.min.js?v=15"></script>
+<script src="assets/js/hero.min.js?v=15"></script>
 <script src="assets/js/fx-objects.min.js?v=15"></script>
 <script src="assets/js/scroll-rail.min.js?v=15" defer></script>
 <script src="assets/js/cursor-trail.min.js?v=15" defer></script>

@@ -16,12 +16,12 @@ Nothing else needs to change, and neither value ever reaches the browser.
 
 | Variable | Required | What it is |
 | --- | --- | --- |
-| `RESEND_API_KEY` | yes | API key from [resend.com](https://resend.com) (free tier covers this volume) |
+| `FORMSUBMIT_TARGET` | yes | Delivery address, or the alias formsubmit.co issues after activation. `CONTACT_TO` is accepted as a fallback name. |
 | `CONTACT_TO` | yes | where submissions are delivered, e.g. `office@studiocoverdesign.com` |
 | `CONTACT_FROM` | no | verified sender. Defaults to Resend's sandbox address, which only delivers to the account owner — set a real one once your domain is verified |
 | `ALLOWED_ORIGIN` | no | defaults to `https://studiocoverdesign.com` |
 
-Until `RESEND_API_KEY` and `CONTACT_TO` are set the endpoint answers `500` and
+Until `FORMSUBMIT_TARGET` is set the endpoint answers `500` and
 logs why. Everything before the send — validation, rate limiting, spam checks —
 runs regardless, so the failure is loud and local rather than silent.
 

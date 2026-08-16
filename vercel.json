@@ -23,7 +23,7 @@
         { "key": "Cross-Origin-Embedder-Policy", "value": "credentialless" },
         { "key": "X-DNS-Prefetch-Control", "value": "off" },
         { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.cdninstagram.com https://*.fbcdn.net https://res.cloudinary.com; media-src 'self' https://res.cloudinary.com; connect-src 'self' https://api.mymemory.translated.net; frame-ancestors 'self'; frame-src https://www.youtube-nocookie.com; worker-src 'none'; manifest-src 'self'; base-uri 'self'; form-action 'self' https://wa.me; object-src 'none'; upgrade-insecure-requests" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.cdninstagram.com https://*.fbcdn.net https://res.cloudinary.com; media-src 'self' https://res.cloudinary.com; connect-src 'self' https://api.mymemory.translated.net https://www.google.com; frame-ancestors 'self'; frame-src https://www.youtube-nocookie.com https://www.google.com; worker-src 'none'; manifest-src 'self'; base-uri 'self'; form-action 'self' https://wa.me; object-src 'none'; upgrade-insecure-requests" }
       ]
     },
     {

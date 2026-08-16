@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (seen || !wrap) {
     document.body.classList.add('loaded');
+    document.dispatchEvent(new CustomEvent('cds:loaded'));
     if (wrap) wrap.style.display = 'none';
     return;
   }
@@ -45,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function () {
   function reveal() {
     if (revealed) return; revealed = true;
     document.body.classList.add('loaded');
+    // The hero timeline in hero.js starts on this. An event rather than a
+    // fixed delay, so the two can never drift apart when either is retimed.
+    document.dispatchEvent(new CustomEvent('cds:loaded'));
     try { sessionStorage.setItem('cds-intro-seen', '1'); } catch (e) {}
   }
   // Both conditions have to be true: the page is ready AND the mark has
@@ -99,6 +103,14 @@ if (burger && nav) {
         y: 0, autoAlpha: 1, duration: 0.42, stagger: 0.055,
         ease: 'expo.out', delay: 0.08, overwrite: true,
         clearProps: 'transform,opacity,visibility',
+        /* autoAlpha:0 writes visibility:hidden, and clearProps only runs when
+           a tween COMPLETES. Interrupt this one — close the drawer mid-stagger,
+           rotate the phone, tap the burger twice — and the links keep that
+           inline visibility:hidden forever: an open menu with nothing in it.
+           onInterrupt is the other half clearProps does not cover. */
+        onInterrupt: function () {
+          gsap.set(navLinks, { clearProps: 'transform,opacity,visibility' });
+        },
       });
   }
 
@@ -258,6 +270,32 @@ if (vidTabs.length) {
 // ---------------------------------------------------------------------------
 // Page + language transitions.
 //
+// Put the address on the clipboard when someone acts on a mailto link.
+//
+// ON CLICK, NOT ON HOVER, and that is not a shortcut.
+// A clipboard write needs transient user activation: Firefox and Safari refuse
+// it outright without one and hovering is not one, so a hover version would
+// silently do nothing for a large share of visitors. It is also destructive in
+// a way a visitor cannot undo — the clipboard holds one thing, and quietly
+// overwriting whatever someone had copied because their pointer crossed the
+// footer costs them work they cannot get back. A click is a decision, so it is
+// the moment the write is both permitted and fair.
+//
+// Nothing is announced and nothing is drawn: the mail client still opens
+// exactly as before, and the address is simply also on the clipboard.
+// Capture phase, so it runs whatever else is bound to the link.
+(function () {
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[href^="mailto:"]');
+    if (!a) return;
+    if (!navigator.clipboard || !window.isSecureContext) return;
+    // Strip the scheme and any ?subject= tail: the useful thing is the address.
+    var addr = a.getAttribute('href').slice(7).split('?')[0].trim();
+    if (!addr) return;
+    navigator.clipboard.writeText(decodeURIComponent(addr)).catch(function () {});
+  }, true);
+})();
+
 // The veil (.page-veil) is in the markup and fades ITSELF out via CSS on every
 // load, so the first painted frame is already covered — nothing can flash.
 // This module only drives the other direction: cover, do the work, uncover.

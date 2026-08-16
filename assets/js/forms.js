@@ -20,8 +20,10 @@
   const T = () => (isEn() ? V.MSG.en : V.MSG.he);
 
   const COPY = {
-    he: { sending: 'שולח…', thanks: 'תודה רבה!', sent: 'ההודעה נשלחה בהצלחה.', retry: 'שליחה חוזרת' },
-    en: { sending: 'Sending…', thanks: 'Thank you!', sent: 'Your message has been sent successfully.', retry: 'Send another' },
+    he: { sending: 'שולח…', thanks: 'תודה רבה!', sent: 'הטופס נשלח בהצלחה', retry: 'שליחה חוזרת',
+          verify: 'האימות נכשל. נא לרענן את העמוד ולנסות שוב.' },
+    en: { sending: 'Sending…', thanks: 'Thank you!', sent: 'The form was sent successfully', retry: 'Send another',
+          verify: 'Verification failed. Please refresh the page and try again.' },
   };
   const C = () => (isEn() ? COPY.en : COPY.he);
 
@@ -82,9 +84,55 @@
     box.focus({ preventScroll: true });
   }
 
+  /* ---- reCAPTCHA v3, loaded on demand ---------------------------------
+     Google's script is ~200KB and this site's forms sit at the bottom of long
+     pages, so loading it in the head would tax every visitor for a request
+     most of them never make. It is fetched the first time someone touches a
+     field instead: by the time the submit button is pressed it has long since
+     arrived, and a visitor who only reads the page never pays for it.
+
+     Invisible (v3), not the checkbox: the brief asks not to interrupt
+     legitimate users, and there is no puzzle to style into the design system.
+
+     Every failure path here resolves to null rather than throwing. The token
+     is one layer of six, and a blocked Google CDN must not be able to take the
+     contact form down; the server decides what a missing token means. */
+  const SITE_KEY = (window.RECAPTCHA_SITE_KEY || '').trim();
+  let captchaLoad = null;
+
+  function loadCaptcha() {
+    if (captchaLoad) return captchaLoad;
+    if (!SITE_KEY) return (captchaLoad = Promise.resolve(null));
+    captchaLoad = new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(SITE_KEY);
+      s.async = true;
+      s.defer = true;
+      s.onload = () => {
+        if (window.grecaptcha && window.grecaptcha.ready) {
+          window.grecaptcha.ready(() => resolve(window.grecaptcha));
+        } else resolve(null);
+      };
+      s.onerror = () => resolve(null);
+      document.head.appendChild(s);
+    });
+    return captchaLoad;
+  }
+
+  async function captchaToken() {
+    try {
+      const g = await loadCaptcha();
+      if (!g) return null;
+      return await g.execute(SITE_KEY, { action: 'contact' });
+    } catch (e) { return null; }
+  }
+
   function bind(form) {
     const formId = form.getAttribute('data-form');
     if (!formId || !V.FORMS[formId]) return;
+
+    // One-shot warm-up. focusin covers keyboard and pointer alike.
+    form.addEventListener('focusin', loadCaptcha, { once: true });
 
     const fields = V.FORMS[formId].fields;
     const btn = form.querySelector('[type="submit"]');
@@ -131,6 +179,12 @@
       if (btn) { btn.disabled = true; btn.classList.add('is-loading'); btn.textContent = C().sending; }
 
       try {
+        // Minted per submission, immediately before the request: v3 tokens
+        // expire after two minutes, so one taken at page load would be stale
+        // by the time a real person finished typing.
+        const token = await captchaToken();
+        if (token) data.captcha = token;
+
         const res = await fetch('/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -142,6 +196,10 @@
 
         if (out.errors) {
           fields.forEach((n) => (out.errors[n] ? setError(el(n), out.errors[n]) : clearError(el(n))));
+        }
+        if (res.status === 403 && out.error === 'captcha') {
+          if (summary) { summary.textContent = C().verify; summary.setAttribute('data-state', 'err'); }
+          return;
         }
         const msg = res.status === 429
           ? (lang === 'en' ? 'Too many messages. Please try again later.' : 'נשלחו יותר מדי הודעות. נא לנסות שוב מאוחר יותר.')

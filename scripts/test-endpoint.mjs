@@ -7,14 +7,20 @@
 import handler from '../api/contact.js';
 
 process.env.ALLOWED_ORIGIN = 'https://studiocoverdesign.com';
-process.env.CONTACT_TO = 'office@example.com';
-process.env.RESEND_API_KEY = 're_test_key_not_real';
+process.env.FORMSUBMIT_TARGET = 'office@example.com';
 
-// Stub the provider call. Also proves the key never appears in a response.
+// Stub the provider call, answering exactly as formsubmit.co/ajax does —
+// including `success` being the STRING "true", which is what the handler has
+// to cope with. Also proves the target never appears in a response.
 let sent = [];
+let providerReply = { status: 200, body: JSON.stringify({ success: 'true' }) };
 globalThis.fetch = async (url, opts) => {
-  sent.push({ url, body: JSON.parse(opts.body), auth: opts.headers.Authorization });
-  return { ok: true, status: 200, text: async () => 'ok' };
+  sent.push({ url, body: JSON.parse(opts.body) });
+  return {
+    ok: providerReply.status < 400,
+    status: providerReply.status,
+    text: async () => providerReply.body,
+  };
 };
 
 function call(body, { origin = 'https://studiocoverdesign.com', method = 'POST', ip = '1.2.3.4' } = {}) {
@@ -71,12 +77,13 @@ sent = [];
 const okRes = await call(good(), { ip: '5.5.5.1' });
 r.push(['valid submission accepted', okRes.status, 200]);
 r.push(['valid submission sends one mail', sent.length, 1]);
-r.push(['mail goes to the configured address', sent[0]?.body.to[0], 'office@example.com']);
-r.push(['reply-to is the enquirer', sent[0]?.body.reply_to, 'a@b.com']);
-r.push(['subject names the form', /Contact — Home/.test(sent[0]?.body.subject || ''), true]);
-r.push(['phone normalised in mail', /0521234567/.test(sent[0]?.body.text || ''), true]);
-r.push(['form id recorded', /contact/.test(sent[0]?.body.text || ''), true]);
-r.push(['timestamp recorded', /Submitted/.test(sent[0]?.body.text || ''), true]);
+r.push(['mail goes to the configured target', /formsubmit\.co\/ajax\/office%40example\.com$/.test(sent[0]?.url || ''), true]);
+r.push(['reply-to is the enquirer', sent[0]?.body._replyto, 'a@b.com']);
+r.push(['subject names the form', /Contact — Home/.test(sent[0]?.body._subject || ''), true]);
+r.push(['provider captcha disabled for server-to-server', sent[0]?.body._captcha, 'false']);
+r.push(['phone normalised in mail', sent[0]?.body.Phone, '0521234567']);
+r.push(['form id recorded', /contact/.test(sent[0]?.body.Form || ''), true]);
+r.push(['timestamp recorded', /Jerusalem/.test(sent[0]?.body.Submitted || ''), true]);
 
 // Duplicate: same payload, same person, inside the window.
 sent = [];
@@ -96,10 +103,20 @@ r.push(['rate limit trips', last.status, 429]);
 r.push(['script in name refused', (await call(good({ name: '<script>alert(1)</script>' }), { ip: '9.9.9.7' })).status, 400]);
 r.push(['html in message refused', (await call(good({ message: '<img src=x onerror=alert(1)>' }), { ip: '9.9.9.8' })).status, 400]);
 
-// The provider key must never reach the caller.
+// The destination address must never reach the caller.
 const leak = JSON.stringify(okRes.body) + JSON.stringify(dup.body);
-r.push(['no key in any response', /re_test_key/.test(leak), false]);
-r.push(['key used for the provider only', /^Bearer re_test_key/.test(sent[0]?.auth || 'Bearer re_test_key_not_real'), true]);
+r.push(['no target address in any response', /office@example\.com/.test(leak), false]);
+
+// A provider failure must stay a failure. This is the one that stops a broken
+// mailbox, or an unactivated FormSubmit target, from showing a success state.
+providerReply = { status: 200, body: JSON.stringify({ success: 'false', message: 'not activated' }) };
+const notActivated = await call(good({ email: 'z@b.com' }), { ip: '9.9.9.20' });
+r.push(['provider refusal is not a success', notActivated.status, 502]);
+r.push(['provider refusal reports no ok', notActivated.body.ok, false]);
+providerReply = { status: 500, body: 'upstream boom' };
+const upstream = await call(good({ email: 'y@b.com' }), { ip: '9.9.9.21' });
+r.push(['provider 500 is not a success', upstream.status, 502]);
+providerReply = { status: 200, body: JSON.stringify({ success: 'true' }) };
 
 for (const [label, got, want] of r) check(label, got, want);
 

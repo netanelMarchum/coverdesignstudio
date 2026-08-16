@@ -1,5 +1,10 @@
 node_modules/
 
+# Env files never reach the CDN. .env is gitignored too; .env.example is
+# committed on purpose (no real values) but has no business being served.
+.env
+.env.*
+
 # Unreferenced files pulled out of the live site. Kept on disk for recovery,
 # never uploaded. Delete the folder once you're satisfied nothing is missing.
 _archive/
@@ -33,6 +38,8 @@ assets/js/motion.js
 assets/js/script.js
 assets/js/cursor-trail.js
 assets/js/forms.js
+assets/js/forms-config.js
+assets/js/hero.js
 assets/js/lang-boot.js
 assets/js/scroll-rail.js
 assets/js/validate.js

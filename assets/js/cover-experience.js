@@ -106,14 +106,34 @@
   /* Header/float hiding, driven off the trigger state rather than an edge
      event: onToggle alone does not re-fire after a ScrollTrigger.refresh().
 
-     VELOCITY, NOT direction. `direction` flips on the tiny negative deltas
-     Lenis produces as it settles, so reading it made the header slide in and
-     out every time the visitor stopped scrolling — worst on the last frame,
-     which is exactly where people stop to look. A real upward gesture clears
-     the threshold; a settle never does. Scrolling up is still how you leave. */
+     Velocity rather than `direction`, because direction flips on the tiny
+     negative deltas Lenis produces as it settles and that made the header
+     slide in and out every time the visitor stopped. */
+  var idleChrome = null;
+
+  /* THE HEADER MUST NEVER BE ABLE TO STAY HIDDEN.
+     This read `getVelocity() > -260`, which is true at velocity 0 — so
+     stopping anywhere inside the pin left the chrome hidden, and only a hard
+     upward flick brought it back. That is the menu disappearing.
+
+     Two changes, and both bias the same way. Hiding now needs REAL downward
+     motion rather than merely "not scrolling up fast", and it is released by a
+     timer the moment scrolling stops. Scroll down and the chrome goes; pause,
+     scroll up, or leave the section and it returns. There is no sequence that
+     ends with it hidden while the visitor is not actively scrolling down,
+     which is the only property that actually matters here. */
   function syncImmersive(self) {
-    var immersive = self.isActive && self.getVelocity() > -260;
+    var immersive = self.isActive && self.getVelocity() > 120;
     document.documentElement.classList.toggle('cx-immersive', immersive);
+
+    // onUpdate stops firing when the scroll stops, so the last frame of a
+    // downward gesture would otherwise leave the class on forever.
+    clearTimeout(idleChrome);
+    if (immersive) {
+      idleChrome = setTimeout(function () {
+        document.documentElement.classList.remove('cx-immersive');
+      }, 700);
+    }
   }
 
   /* ---- responsive + reduced motion, one construct -----------------------
@@ -223,6 +243,7 @@
        cx-static goes back on, because between this teardown and the next
        breakpoint's build there is no timeline holding the frames visible. */
     return function () {
+      clearTimeout(idleChrome);
       root.classList.add('cx-static');
       document.documentElement.classList.remove('cx-immersive');
     };
@@ -231,6 +252,7 @@
   /* Cleanup. Without this a bfcache restore leaves the old pin spacer in the
      document and the section measures against a stale layout. */
   window.addEventListener('pagehide', function () {
+    clearTimeout(idleChrome);
     mm.revert();
     document.documentElement.classList.remove('cx-immersive');
   });

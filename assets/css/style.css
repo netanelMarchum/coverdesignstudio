@@ -78,6 +78,11 @@
      raw it is 1.15:1, invisible; at 75% it is 2.04:1, which is precisely the
      visibility the grey dots had before, so nothing on the page got fainter. */
   --color-lavender-deep:color-mix(in srgb, var(--color-lavender) 55%, var(--color-text));
+  /* The same purple carried further into the ink, for type that has to hold a
+     column on its own — the footer's three headings. At 55% they read as a
+     tint of the body copy beside them; at 42% they are unmistakably a heading
+     and clear 6.6:1 on the footer's lavender card. */
+  --color-lavender-ink:color-mix(in srgb, var(--color-lavender) 42%, var(--color-text));
   --color-accent-deep:color-mix(in srgb, var(--color-accent) 75%, var(--color-text));
   --ticker-ink:var(--color-lavender-deep);
 
@@ -208,7 +213,6 @@
   --rise-block:28px;   /* how far a section rises into place */
   --rise-item:22px;    /* how far one card in a staggered grid rises */
   --stagger:.05s;       /* gap between siblings in a staggered grid  */
-  --stagger-hero:.12s;  /* gap between the hero's own elements       */
 
   /* 2px is reserved for controls that must read as pressable. */
   --bd-control:2px;
@@ -1209,13 +1213,23 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
    chrome alone.
 
    .cx-intro is excluded for the same reason: it hosts the pinned scene, and it
-   is far below the fold at load, so nobody ever sees it not rise. */
-body > header,
+   is far below the fold at load, so nobody ever sees it not rise.
+
+   THE HEADER IS EXCLUDED TOO, AND THAT IS THE POINT.
+   It used to be in this list, so the navigation sat at opacity 0 until the
+   body got `loaded` — and `loaded` waits for BOTH window.load and the
+   preloader's logo animation, with a 2.5s safety cap behind it. On a slow
+   connection that is several seconds with no menu on screen, then another
+   520ms of it fading up. Navigation is not decoration: it is the one thing
+   that must be there before anything else is.
+
+   Nothing shows through the curtain by letting it paint early — the header is
+   z-index 100 and the preloader is 1000, so it is simply already in place when
+   the curtain lifts instead of arriving half a second afterwards. */
 body > section:not(.cx-intro),
 body > .ticker,
 body > footer{opacity:0; transform:translateY(32px)}
 
-body.loaded > header,
 body.loaded > section:not(.cx-intro),
 body.loaded > .ticker,
 body.loaded > footer{
@@ -1224,7 +1238,6 @@ body.loaded > footer{
 }
 /* No JS, no observers: if the stylesheet loads the page is visible. */
 @media (prefers-reduced-motion:reduce){
-  body > header,
   body > section:not(.cx-intro),
   body > .ticker,
   body > footer{opacity:1; transform:none}
@@ -2089,13 +2102,13 @@ body.loaded > footer{
 /* The markup sets these as h2 so the document outline stays sequential, and
    the selector has to match that or they fall back to the browser default. */
 .footer-grid h2,.footer-grid h3{
-  font-size:var(--t-sm); color:var(--color-lavender-deep); margin-bottom:var(--s-4);
+  font-size:var(--t-sm); color:var(--color-lavender-ink); margin-bottom:var(--s-4);
   letter-spacing:var(--ls-tracked); text-transform:uppercase;
   font-weight:var(--fw-semibold);
   /* -webkit-text-fill-color has to move with the colour: these are h2/h3, and
      the heading rules paint through background-clip, so a fill left on the old
      value would win and the column titles would stay black. */
-  background-image:none; -webkit-text-fill-color:var(--color-lavender-deep);
+  background-image:none; -webkit-text-fill-color:var(--color-lavender-ink);
 }
 .footer-grid li{margin-bottom:var(--s-2)}
 .footer-grid a{font-size:.92rem; color:var(--color-muted); transition:color var(--d-fast) var(--ease)}
@@ -2449,10 +2462,95 @@ html[data-a11y-size="3"]{font-size:118%}
 .req-card .send-to a{color:var(--text); font-weight:var(--fw-semibold)}
 
 /*  Explainer gallery  */
-/* The homepage distribution shot. .explain-card already draws the frame; the
-   only thing this adds is a measure, because a 4:5 portrait run across the full
-   container would dwarf everything else in the section. */
-.dist-shot{max-width:340px; margin:var(--s-6) auto 0}
+/* The distribution section ends ON its ticker rather than above it. The band
+   is the seam between this section and the next, so the section's own bottom
+   padding is removed and the gap above the band is carried by the band's own
+   margin instead. Without this the ticker sat 96px up from the boundary with
+   empty ground beneath it, which reads as a stray strip rather than a rule. */
+#distribution{padding-block-end:0}
+#distribution .logo-ticker-wrap{margin-top:clamp(56px,7vw,var(--s-9))}
+
+/* ── Distribution: three claims, three columns ──────────────────────────
+   This replaced a single 4:5 portrait screenshot. At the container's full width
+   that image was taller than everything else in the section put together, and
+   on a wide monitor it ran the whole viewport height for one Spotify stats
+   card — one illustration carrying a section that has three separate things to
+   say. Three columns say them.
+
+   No card chrome: no border, no plate, no shadow. The section already sits on
+   the page ground and the platform marquee below it is the visual weight;
+   boxing the text as well would make a light band read as a dashboard. The
+   icon is the only mark, and it carries the brand colour so the type does not
+   have to. */
+.dist-grid{
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(28px,4vw,var(--s-7));
+  margin-top:var(--s-7);
+  text-align:center;
+}
+.dist-card{display:flex; flex-direction:column; align-items:center}
+.dist-ico{
+  display:grid; place-items:center;
+  width:62px; height:62px; margin-bottom:var(--s-4);
+  border-radius:50%;
+  /* The lavender plate is what makes a 1.5px line icon read at this size. The
+     glyph takes the deep purple so it clears contrast against it. */
+  background:color-mix(in srgb, var(--color-lavender) 34%, var(--color-surface));
+  color:var(--color-lavender-deep);
+}
+.dist-ico svg{
+  width:28px; height:28px; display:block;
+  /* The hover lives on the SVG, the float lives on the plate around it. Two
+     elements, because both want `transform` and whichever wrote last would win
+     — the same split the page's floating objects already use. */
+  transition:transform var(--d-mid) var(--ease);
+}
+
+/* The idle float. Under 7px of travel over a five second round trip, which is
+   the amount a viewer feels without catching it moving; anything more on three
+   objects side by side reads as a page that will not sit still. Each plate
+   carries a negative --ico-delay in the markup so the three are already out of
+   phase on the first frame rather than starting together and drifting apart. */
+@keyframes distFloat{
+  from{transform:translate3d(0,0,0)}
+  to  {transform:translate3d(0,-7px,0)}
+}
+.dist-ico{
+  animation:distFloat 5s var(--ease-wipe) var(--ico-delay,0s) infinite alternate;
+}
+/* Hover is the plate deepening and the glyph growing into it. Scale on the
+   icon only, so it never fights the float, and the whole card is the trigger:
+   a 62px target is a small thing to ask someone to hit precisely. */
+.dist-card:hover .dist-ico{
+  background:color-mix(in srgb, var(--color-lavender) 58%, var(--color-surface));
+}
+.dist-card:hover .dist-ico svg{transform:scale(1.12)}
+.dist-ico{transition:background var(--d-mid) var(--ease)}
+
+@media (prefers-reduced-motion:reduce){
+  .dist-ico{animation:none}
+  .dist-card:hover .dist-ico svg{transform:none}
+}
+.dist-card h3{
+  margin:0 0 var(--s-3);
+  font-size:var(--t-md); font-weight:var(--fw-semibold);
+  color:var(--color-text); letter-spacing:normal;
+}
+.dist-card p{
+  margin:0; color:var(--color-muted);
+  font-size:.95rem; line-height:var(--lh-normal);
+  max-width:34ch;          /* a measure, so the three columns read as columns */
+}
+/* Two then one. Three narrow columns of Hebrew at tablet width leaves four
+   words a line, which is a list pretending to be a grid. */
+@media (max-width:900px){
+  .dist-grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s-6)}
+}
+@media (max-width:600px){
+  .dist-grid{grid-template-columns:minmax(0,1fr); gap:var(--s-6); margin-top:var(--s-6)}
+  .dist-ico{width:52px; height:52px}
+  .dist-ico svg{width:24px; height:24px}
+}
 
 .explain-card{
   border-radius:var(--r-sm); overflow:hidden;
@@ -2532,19 +2630,15 @@ html[data-a11y-size="3"]{font-size:118%}
    .loaded so it plays after the preloader curtain instead of behind it, and
    deliberately NOT applied to .intro-word: that element already owns an
    `animation` for the scroll fill, and a second shorthand would replace it. */
-@keyframes introRise{
-  from{opacity:0; transform:translate3d(0,var(--rise-block),0)}
-  to  {opacity:1; transform:none}
-}
-/* Nothing in the hero moves until the page itself has finished arriving, so
-   every delay is measured from the end of the page entrance, not from load. */
-.loaded .intro-copy,.loaded .intro-scroll{
-  animation:introRise var(--d-reveal) var(--ease) both;
-}
-.loaded .intro-logo   {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 1))}
-.loaded .intro-copy   {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 1))}
-.loaded .intro-lead   {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 2))}
-.loaded .intro-scroll {animation-delay:calc(var(--d-page) + (var(--stagger-hero) * 4))}
+/* The hero entrance now lives in assets/js/hero.js, as one GSAP timeline.
+   What was here could not do the job it described: `animation-delay` was set on
+   .intro-logo and .intro-lead, but neither selector declared an `animation`, so
+   those delays were inert and the four-beat stagger never happened. The copy
+   block rose as one and the cue followed. Sequencing elements against each
+   other is a timeline's job, not a delay's.
+
+   Nothing is hidden here on purpose. If GSAP is blocked or fails, the hero is
+   simply present and still — never an empty band waiting for a script.
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important; transition:none!important}

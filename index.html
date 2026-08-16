@@ -62,12 +62,14 @@
 <a class="skip-link" href="#work">דלגו לתוכן הראשי</a>
 <header class="site-header">
   <div class="header-inner">
+    <div class="hdr-shell">
     <nav class="main-nav">
       <ul>
         <li><a href="index.html" class="active">ראשי</a></li>
         <li><a href="graphics.html">מחלקת גרפיקה</a></li>
         <li><a href="video.html">מחלקת וידאו</a></li>
         <li><a href="distribution.html">הפצה דיגיטלית</a></li>
+        <li class="nav-logo"><a href="index.html" aria-label="עיצוב עטיפה סטודיו — לעמוד הבית"><img src="assets/img/logo-mark-v4.webp?v=13" alt="" width="256" height="256" decoding="async"></a></li>
       </ul>
     </nav>
     <div class="header-right">
@@ -77,10 +79,22 @@
       </div>
       <button type="button" class="burger" aria-label="תפריט"><svg class="icon icon-ui" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg></button>
     </div>
+    </div>
   </div>
 </header>
 
 <section class="intro">
+  <svg class="hero-ribbon" viewBox="0 0 1440 640" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M-60 372C140 216 316 470 560 392S1006 168 1240 268c86 37 158 66 260 52v168c-118 24-206-8-306-48-224-90-410 118-634 190S110 596-60 540Z"/>
+  </svg>
+  <div class="hero-orbit" aria-hidden="true">
+    <span class="orbit-tile o1"><img src="assets/img/insta/i3.jpg" alt="" width="800" height="800" loading="lazy" decoding="async"></span>
+    <span class="orbit-tile o2"><img src="assets/img/insta/i7.jpg" alt="" width="800" height="800" loading="lazy" decoding="async"></span>
+    <span class="orbit-tile o3"><img src="assets/img/insta/i2.jpg" alt="" width="800" height="800" loading="lazy" decoding="async"></span>
+    <span class="orbit-tile o4"><img src="assets/img/insta/i5.jpg" alt="" width="800" height="800" loading="lazy" decoding="async"></span>
+    <span class="orbit-tile o5"><img src="assets/img/insta/i9.jpg" alt="" width="800" height="800" loading="lazy" decoding="async"></span>
+    <span class="orbit-tile o6"><img src="assets/img/insta/i12.jpg" alt="" width="800" height="800" loading="lazy" decoding="async"></span>
+  </div>
   <div class="intro-copy">
     <h1 class="intro-logo"><span class="intro-word">עיצוב עטיפה סטודיו</span></h1>
     <p class="intro-lead">הבית לעיצוב עטיפות בתעשיית המוזיקה. סטודיו לעיצוב עטיפות שמעניק לזמרים מיתוג ויזואלי מקצועי ומדויק, מעיצוב עטיפות ועד אנימציות וקליפים למילים. יצירתיות, איכות והתאמה אישית, במחירים נגישים. כי המוזיקה שלך ראויה לעטיפה שמספרת את הסיפור שלה.</p>
@@ -192,6 +206,27 @@
 
 
 
+<section class="section" id="worksum" aria-labelledby="worksum-title">
+  <div class="container">
+    <div class="worksum reveal reveal-stagger">
+      <figure class="worksum-media">
+        <video class="worksum-video" controls preload="none" playsinline
+               poster="assets/img/portfolio/hq8.jpg"
+               src="assets/video/showreel.mp4?v=13"
+               aria-label="תקציר עבודות של הסטודיו"></video>
+      </figure>
+      <div class="worksum-copy">
+        <h2 class="section-title" id="worksum-title">בואו נכיר</h2>
+        <p>עיצוב עטיפה סטודיו הוא הבית לעיצוב עטיפות בתעשיית המוזיקה: מיתוג ויזואלי לאמנים, קליפים ואנימציה, והפצה דיגיטלית לכל פלטפורמות הסטרימינג.</p>
+        <p>שלוש מחלקות תחת קורת גג אחת — כך שהעטיפה, הקליפ והפרומו מדברים באותה שפה, בלי לרדוף אחרי ספקים ובלי שלושה סיפורים שונים.</p>
+        <div class="worksum-cta">
+          <a class="btn" href="graphics.html">מידע נוסף</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="contact">
   <div class="container contact-wrap">
     <div class="contact-info reveal">
@@ -278,6 +313,7 @@
 <script src="assets/js/ig-config.min.js?v=13" defer></script>
 <script src="assets/js/instagram.min.js?v=13" defer></script>
 <script src="assets/js/i18n.min.js?v=13" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
 <script src="assets/js/script.min.js?v=13"></script>
 <script src="assets/js/validate.min.js?v=13" defer></script>
 <script src="assets/js/forms.min.js?v=13" defer></script>
@@ -286,6 +322,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="assets/js/cover-experience.min.js?v=13"></script>
+<script src="assets/js/motion.min.js?v=13" defer></script>
 <script src="assets/js/cookie-consent.min.js?v=13" defer></script>
 </body>
 </html>

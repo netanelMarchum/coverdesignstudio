@@ -22,6 +22,7 @@ export const targets = [
   { in: 'assets/js/lightbox.js', out: 'assets/js/lightbox.min.js' },
   { in: 'assets/js/cookie-consent.js', out: 'assets/js/cookie-consent.min.js' },
   { in: 'assets/js/cover-experience.js', out: 'assets/js/cover-experience.min.js' },
+  { in: 'assets/js/motion.js', out: 'assets/js/motion.min.js' },
   { in: 'assets/js/studio-v2.js', out: 'assets/js/studio-v2.min.js' },
 ];
 

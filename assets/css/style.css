@@ -10,65 +10,61 @@
    ========================================================================== */
 :root{
   /* ---- Palette -----------------------------------------------------------
-     Light ground. The layering idea from the dark version is kept — surfaces
-     are one material at a few densities — but it inverts: the ground is warm
-     off-white and a surface is WHITE, so a card is lighter than the page rather
-     than darker. That is the direction light UI has to run in; a grey card on a
-     white page reads as disabled.
+     Soft canvas, black type, one decorative field, one punctuation colour.
 
-     The orange changes job. On the dark ground it measured 6.6:1 and could set
-     type; on this one it is 2.6:1 and cannot — so it fills shapes, and a darker
-     cut of the same hue takes over anywhere the orange has to be read as text.
+     The reference's discipline is the whole point: the lavender is a large soft
+     MASS and the neon appears about four times on an entire page. Neither is a
+     general-purpose colour. Get that ratio wrong — neon buttons everywhere, or
+     lavender tinting every surface — and the language collapses into the
+     candy-coloured template it is one step away from.
 
-     Contrast, measured against --bg (#F2EFE9):
-       --text        15.2:1    body and headings
-       --text-dim     6.5:1    secondary text
-       --text-soft    4.8:1    small print — the floor
-       --orange-ink   4.9:1    orange that is allowed to be a letterform
-       --text on --orange  6.2:1   which is why the CTA is dark on orange       */
-  --bg:#F2EFE9;          /* warm off-white ground — never pure white */
-  --bg-deep:#141114;     /* the dark plate: showreel band, footer, veil, loader */
-  --brown:#453027;       /* warm brown, still the atmosphere under the dark plate */
-  --orange:#FF6D29;      /* the one saturated colour. A FILL, not an ink.        */
-  --orange-ink:#B04609;  /* the same hue, dark enough to be read as text         */
-  --gray:#5A5450;        /* secondary text — dark now, because the ground is not */
-  --white:#FFFFFF;
+     Contrast, measured against --color-bg:
+       --color-text     18.6:1   everything readable
+       --color-muted     4.8:1   secondary text, the floor
+       text on neon     17.3:1   which is why the CTA is black on neon
+       text on lavender 11.8:1
+     Neon measures 1.07:1 against the canvas and lavender 1.57:1 — neither can
+     ever be a letterform, a border that carries meaning, or a focus ring. */
+  --color-bg:#F7F7F5;         /* the canvas */
+  --color-text:#090909;       /* near-black, not pure */
+  --color-muted:#6E6E6B;      /* secondary copy */
+  --color-lavender:#E7B7F5;   /* the soft mass: fields, ribbons, highlights */
+  --color-lavender-soft:#F3DDF9;
+  --color-accent:#D9FF00;     /* the punctuation: CTA, arrows, active dots */
+  --color-surface:#FFFFFF;    /* cards float white on the canvas */
+  --color-border:#E8E8E8;
+  --color-ink-soft:rgba(9,9,9,.06);
 
-  /* Surfaces. White at increasing opacity over the warm ground, so a panel
-     reads as paper laid on the page and a hovered panel as the same paper
-     lifted. The hairlines are INK at low alpha: a white hairline is invisible
-     here, which is the single most common way an inverted palette breaks. */
-  --surface-1:rgba(255,255,255,.72);
-  --surface-2:rgba(255,255,255,.9);
-  --surface-3:var(--white);
-  --hairline:rgba(20,17,20,.11);
-  --hairline-2:rgba(20,17,20,.2);
-
-  /* The ambient warmth. Far weaker than the dark version needed: on a light
-     ground a tint reads at a fraction of the opacity, and anything stronger
-     turns the page yellow rather than warm. */
-  --glow-top:radial-gradient(70% 55% at 50% 0%, rgba(255,109,41,.055), transparent 72%);
-  --glow-soft:radial-gradient(50% 50% at 50% 50%, rgba(255,109,41,.05), transparent 70%);
-  --glow-brown:radial-gradient(90% 70% at 50% 100%, color-mix(in srgb, var(--brown) 40%, transparent), transparent 75%);
-
-  /* Compatibility. Many rules name the older tokens; they resolve into the
-     palette above rather than being hunted down one by one. */
+  /* Compatibility. The sheet's older names all resolve into the palette above
+     rather than being chased through 1700 lines. */
+  --bg:var(--color-bg);
+  --bg-deep:#0D0D0C;
+  --orange:var(--color-accent);
+  --orange-ink:var(--color-text);
+  --gray:var(--color-muted);
   --dark:var(--bg-deep);
-  --dark-2:#E6E1D8;      /* the placeholder behind artwork while it loads */
   --dark-3:var(--bg-deep);
-  --paper:var(--white);  /* type ON the dark plate */
-  --accent:#FF6D29;
-  --accent-2:#E85F1E;
-  --accent-deep:var(--orange-ink);
-  --off:#E9E5DC;         /* the recessed band */
+  --paper:var(--color-surface);
+  --accent:var(--color-accent);
+  --accent-deep:var(--color-text);
+  --off:#EFEFEC;
+  --surface-1:var(--color-surface);
+  --surface-2:var(--color-surface);
+  --surface-3:var(--color-surface);
+  --hairline:var(--color-border);
+  --hairline-2:rgba(9,9,9,.14);
+  --text:var(--color-text);
+  --text-dim:var(--color-muted);
+  --text-soft:var(--color-muted);
+  --border:var(--color-border);
+  --ticker-ink:var(--color-text);
 
-  --text:#1A1A1A;
-  --text-dim:var(--gray);
-  --text-soft:#6E6862;
-  --border:var(--hairline);
-  --border-dark:rgba(255,255,255,.16);   /* hairlines ON the dark plate */
-  --surface-card:var(--surface-1);
-  --ticker-ink:var(--orange-ink);
+  /* The atmosphere. Two soft lavender masses, well under the strength that
+     would read as "a coloured background" — they have to sit behind artwork
+     without competing with it. */
+  --glow-top:radial-gradient(58% 44% at 78% 6%, color-mix(in srgb, var(--color-lavender) 62%, transparent), transparent 68%);
+  --glow-soft:radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--color-lavender) 40%, transparent), transparent 70%);
+  --glow-brown:radial-gradient(64% 50% at 12% 96%, color-mix(in srgb, var(--color-lavender) 46%, transparent), transparent 72%);
 
 
 
@@ -135,7 +131,10 @@
      only ever used on controls that are fully rounded. A card at 22px and a
      button at 9999px look intentional together; the same card at 8px looks
      like the button was an accident. */
-  --r-xs:10px; --r-sm:14px; --r-md:22px; --r-lg:9999px;
+  --r-xs:12px;   /* small chrome */
+  --r-sm:16px;   /* media and cards */
+  --r-md:26px;   /* panels and the page shell */
+  --r-lg:9999px; /* pills — every button on the site */
 
   /* elevation */
   /* Elevation. On a dark ground a shadow does almost nothing — black on black
@@ -146,10 +145,10 @@
      The inner highlight is the load-bearing one: a 1px white line along the top
      edge of a translucent panel is what makes it read as glass catching light
      rather than as a flat grey rectangle. */
-  --sh-2:0 2px 8px -2px rgba(20,17,20,.08);
-  --sh-3:0 12px 28px -14px rgba(20,17,20,.16);
-  --sh-overlay:0 18px 44px -18px rgba(20,17,20,.24);
-  --sh-glow:0 8px 22px -8px rgba(255,109,41,.34);
+  --sh-2:0 2px 10px -4px rgba(9,9,9,.07);
+  --sh-3:0 14px 34px -18px rgba(9,9,9,.14);
+  --sh-overlay:0 22px 52px -22px rgba(9,9,9,.2);
+  --sh-glow:0 10px 26px -12px rgba(9,9,9,.16);
   --sh-accent:var(--sh-glow);
   --edge-top:0 1px 2px rgba(20,17,20,.05);
 
@@ -185,7 +184,7 @@
      never a skew, a rotation or a per-axis scale, which is what makes an image
      look broken rather than presented. --lift-bright rides with it so the
      hovered piece comes forward on light as well as size. */
-  --lift-card:-6px; --lift-btn:-2px; --lift-float:1.1;
+  --lift-card:-4px; --lift-btn:-2px; --lift-float:1.1;
   --zoom-media:1.03; --lift-bright:1.06;
   --rise-block:28px;   /* how far a section rises into place */
   --rise-item:22px;    /* how far one card in a staggered grid rises */
@@ -220,6 +219,7 @@
   /* GENERATED by scripts/build-icons.mjs — the two icons that live inside
      content: pseudo-elements, as masks so their colour is still a token. */
   --icon-arrow-left:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m12%2019-7-7%207-7%22%20%2F%3E%20%3Cpath%20d%3D%22M19%2012H5%22%20%2F%3E%3C%2Fsvg%3E");
+  --icon-arrow-up-right:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M7%207h10v10%22%20%2F%3E%20%3Cpath%20d%3D%22M7%2017%2017%207%22%20%2F%3E%3C%2Fsvg%3E");
   --icon-check:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%206%209%2017l-5-5%22%20%2F%3E%3C%2Fsvg%3E");
 
   /* Focus ring. A focus indicator is a non-text UI boundary, so it owes 3:1
@@ -330,9 +330,14 @@ body{
    content scrolls past it, which is what makes it read as atmosphere instead
    of as a band that moves with the page.
    z-index -1 and fixed, so it never enters hit-testing or the scroll cost. */
+/* The atmosphere, on one fixed layer for the whole document. Two soft lavender
+   masses well under the strength that would read as "a coloured page" — they
+   have to sit behind the artwork without competing with it, which is the whole
+   difference between this and a gradient-heavy site. Fixed, so the light stays
+   put while content scrolls past it. */
 body::before{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-  background:var(--glow-top), var(--glow-brown), var(--bg);
+  background:var(--glow-top), var(--glow-brown), var(--color-bg);
 }
 img{max-width:100%; display:block}
 a{color:inherit; text-decoration:none}
@@ -360,19 +365,20 @@ p{margin:0 0 1em; color:var(--text-dim)}
    punctuation rather than as decoration.
    text-transform:uppercase is a no-op on Hebrew, which has no case mapping, so
    it only ever affects the Latin runs (VFX, VJ, AI). */
+/* The label is a lavender pill — the reference's other graphic device, and the
+   one that lets a heading carry colour without the type itself being coloured. */
 .eyebrow,.editorial-label{
-  display:inline-flex; align-items:center; gap:var(--s-3);
+  display:inline-block;
   font-size:var(--t-xs); font-weight:var(--fw-semibold);
   letter-spacing:var(--ls-tracked); line-height:1;
   text-transform:uppercase;
-  color:var(--gray);
-  margin-bottom:1.1em;
-}
-.eyebrow::before,.editorial-label::before{
-  content:""; flex:none; width:24px; height:1px; background:var(--orange);
+  color:var(--color-text);
+  background:var(--color-lavender);
+  padding:8px 16px; border-radius:var(--r-lg);
+  margin-bottom:1.2em;
 }
 .brand-mark{color:var(--text); font-weight:var(--fw-semibold)}
-.section-dark .brand-mark,.site-footer .brand-mark{color:var(--paper)}
+.section-dark .brand-mark{color:var(--paper)}
 /* ==========================================================================
    Sections.
    The ground is lit once, on <body>, so a section is transparent by default and
@@ -464,7 +470,7 @@ p{margin:0 0 1em; color:var(--text-dim)}
    and spacing instead. */
 :where(h1,h2,h3,h4,h5,h6){color:var(--text)}
 /* The two places that are still a dark plate on purpose. */
-:where(.section-dark,.site-footer) :where(h1,h2,h3,h4,h5,h6){color:var(--paper)}
+:where(.section-dark) :where(h1,h2,h3,h4,h5,h6){color:var(--paper)}
 html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
 
 /* ==========================================================================
@@ -489,13 +495,15 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
 .btn{
   position:relative; isolation:isolate;
   display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
-  padding:15px 32px; border-radius:var(--r-lg);
+  padding:14px 26px; border-radius:var(--r-lg);
   /* Dark on orange, never white on orange: white measures 2.81:1 here and
      fails at any size, while the ground colour measures 6.55:1. The one
      saturated fill on the site is also the one that has to be legible. */
-  background:var(--orange); color:var(--bg);
+  /* Black on neon: 17.3:1. The neon is a fill and never a letterform — it
+     measures 1.07:1 against the canvas. */
+  background:var(--color-accent); color:var(--color-text);
   font-family:var(--font);
-  font-weight:var(--fw-semibold); font-size:var(--t-base); line-height:1.2;
+  font-weight:var(--fw-semibold); font-size:.98rem; line-height:1.2;
   letter-spacing:.01em;
   border:1px solid transparent; cursor:pointer;
   /* The inner top highlight is what stops a flat fill looking like a
@@ -509,8 +517,8 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
    already sitting in, turned up — not a new effect introduced on hover. */
 .btn:hover{
   transform:translateY(-2px);
-  background:#FF7E42;
-  box-shadow:var(--edge-top), var(--sh-glow);
+  background:#E4FF33;
+  box-shadow:var(--sh-3);
 }
 /* Press has to come AFTER hover — the pointer is always hovering while it is
    pressed, so an earlier rule would simply lose. It is also the fastest beat on
@@ -531,15 +539,15 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
    inner highlight the primary carries — so the two buttons are obviously the
    same family at two levels of emphasis, rather than two different components. */
 .btn.outline{
-  background:var(--surface-2); color:var(--text);
-  border:1px solid rgba(20,17,20,.5);
+  background:var(--color-surface); color:var(--color-text);
+  border:1px solid var(--color-text);
   -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
   box-shadow:var(--edge-top);
 }
 .btn.outline:hover{
-  background:var(--surface-3); border-color:rgba(20,17,20,.7);
-  color:var(--text); transform:translateY(-2px);
-  box-shadow:var(--edge-top), var(--sh-2);
+  background:var(--color-surface); border-color:var(--color-text);
+  color:var(--color-text); transform:translateY(-2px);
+  box-shadow:var(--sh-3);
 }
 /* On the dark plate the glass has to invert back: white at low alpha. */
 .section-dark .btn.outline{background:rgba(255,255,255,.1); color:var(--paper); border-color:rgba(255,255,255,.34)}
@@ -647,9 +655,10 @@ body.loaded > footer{
      nothing visible; it earns its place over the artwork grid and the showreel,
      which is where the bar actually overlaps something. The saturation bump is
      what keeps colour from going flat as it passes beneath. */
-  background:rgba(242,239,233,.72);
-  -webkit-backdrop-filter:blur(12px) saturate(1.6); backdrop-filter:blur(12px) saturate(1.6);
-  border-block-end:1px solid var(--hairline);
+  /* A floating object rather than a strip: transparent to the page, with the
+     chrome living in the pill inside it. */
+  background:transparent;
+  border:0;
   /* Fixed layout direction: the nav reads ראשי→גרפיקה→וידאו→הפצה right-to-left
      on BOTH the Hebrew and the English version of every page — nothing mirrors
      when you hit the language switch. */
@@ -659,6 +668,20 @@ body.loaded > footer{
   max-width:var(--maxw); margin:0 auto; padding:var(--s-3) var(--s-5);
   display:flex; align-items:center; justify-content:flex-end; min-height:42px;
   position:relative;
+}
+/* The pill is the header. White, large radius, hairline, barely-there shadow —
+   it reads as an object resting on the canvas rather than a band cutting across
+   it, which is the single most characteristic move in the reference. */
+.hdr-shell{
+  display:flex; align-items:center; gap:var(--s-4);
+  width:100%; padding:8px 8px 8px var(--s-5);
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-2);
+}
+@media (max-width:920px){
+  .hdr-shell{padding:8px var(--s-3) 8px var(--s-4)}
 }
 /* glossy centered pill nav */
 .main-nav{
@@ -670,17 +693,41 @@ body.loaded > footer{
 }
 .main-nav ul{display:flex; align-items:center; gap:4px}
 .main-nav a{
-  display:inline-block; font-size:.94rem; font-weight:var(--fw-medium); color:var(--gray);
+  display:inline-block; font-size:.9rem; font-weight:var(--fw-medium); color:var(--color-muted);
   letter-spacing:.01em;
-  padding:var(--c-5) 16px; border-radius:var(--r-lg);
+  padding:var(--c-5) 14px; border-radius:var(--r-lg);
   transition:background var(--d-fast), color var(--d-fast), box-shadow var(--d-fast);
 }
-.main-nav a:hover{background:var(--surface-2); color:var(--text)}
+.main-nav a:hover{background:var(--color-ink-soft); color:var(--color-text)}
+
+/* The mark at the end of the menu. It keeps its own orange — a logo is a brand
+   mark, and brand marks sit outside the palette the way the social icons do.
+   Given its own padding rules because it is an image, not a word: the link
+   padding that suits a text label would leave it floating in dead space. */
+.nav-logo a{
+  display:flex; align-items:center; justify-content:center;
+  padding:4px 8px; border-radius:var(--r-xs);
+  transition:background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
+}
+.nav-logo img{
+  display:block; width:auto; height:26px;
+  transition:transform var(--d-fast) var(--ease);
+}
+.nav-logo a:hover{background:var(--color-ink-soft)}
+.nav-logo a:hover img{transform:scale(1.06)}
+@media (max-width:920px){
+  /* In the drawer the links stack large, so the mark is scaled to sit with
+     them rather than staying at chrome size. */
+  .nav-logo a{justify-content:flex-start; padding:6px 0}
+  .nav-logo img{height:34px}
+}
 /* The current section is a glass pill, not a solid one — solid orange here
    would compete with the single primary CTA the page is allowed. */
+/* The current section is marked with the accent, and this is one of the four
+   places the neon is allowed to appear on a page. */
 .main-nav a.active{
-  background:var(--surface-3); color:var(--text);
-  box-shadow:var(--edge-top);
+  background:var(--color-accent); color:var(--color-text);
+  box-shadow:none; font-weight:var(--fw-semibold);
 }
 .header-right{display:flex; align-items:center; gap:var(--s-4)}
 .lang-switch{
@@ -845,6 +892,60 @@ body.loaded > footer{
 @keyframes intro-fill{to{background-position:0 0}}
 @keyframes intro-fill-rtl{to{background-position:100% 0}}
 
+/* ── The ribbon ─────────────────────────────────────────────────────────
+   One soft lavender band sweeping the hero. A single shape, not scattered
+   blobs: the reference's whole graphic identity is one gesture repeated at
+   different scales, and a field of blobs is what it looks like when that
+   discipline is missing. Blurred in CSS rather than with an SVG filter — a
+   filter on a full-width path is a per-frame raster, this is one composite. */
+.hero-ribbon{
+  position:absolute; inset-block:0; inset-inline:-6%;
+  width:112%; height:100%;
+  z-index:-1; pointer-events:none;
+  fill:var(--color-lavender);
+  opacity:.85;
+  filter:blur(18px);
+}
+@media (max-width:700px){
+  .hero-ribbon{filter:blur(12px); opacity:.7}
+}
+
+/* ── The orbiting covers ────────────────────────────────────────────────
+   Real artwork, scattered at varied size around the wordmark, overlapping the
+   ribbon. They are the studio's actual work doing the decorating — which is
+   the point of the whole direction: nothing here is an invented ornament.
+   Absolutely placed, so they never affect the flow the wordmark sits in. */
+.hero-orbit{
+  position:absolute; inset:0; z-index:-1; pointer-events:none;
+}
+.orbit-tile{
+  position:absolute; display:block; overflow:hidden;
+  border-radius:var(--r-xs);
+  box-shadow:var(--sh-2);
+  background:var(--color-surface);
+}
+.orbit-tile img{width:100%; height:100%; object-fit:cover; display:block}
+
+.orbit-tile.o1{width:92px;  height:92px;  inset-block-start:20%; inset-inline-start:6%;  transform:rotate(-6deg)}
+.orbit-tile.o2{width:120px; height:120px; inset-block-start:52%; inset-inline-start:13%; transform:rotate(4deg)}
+.orbit-tile.o3{width:78px;  height:78px;  inset-block-start:14%; inset-inline-start:26%; transform:rotate(7deg)}
+.orbit-tile.o4{width:104px; height:104px; inset-block-start:18%; inset-inline-end:9%;    transform:rotate(5deg)}
+.orbit-tile.o5{width:132px; height:132px; inset-block-start:50%; inset-inline-end:5%;    transform:rotate(-5deg)}
+.orbit-tile.o6{width:84px;  height:84px;  inset-block-start:60%; inset-inline-end:22%;   transform:rotate(8deg)}
+
+/* Below the wide breakpoints the wordmark needs the room, so the tiles thin
+   out rather than crowding it — the two largest survive, the rest go. */
+@media (max-width:1100px){
+  .orbit-tile.o3,.orbit-tile.o6{display:none}
+}
+@media (max-width:820px){
+  .orbit-tile{display:none}
+}
+
+/* ── The hero itself ───────────────────────────────────────────────────── */
+.intro{overflow:hidden}
+.intro-copy{position:relative; z-index:1}
+
 /* Scroll cue — the mouse outline holds still, the wheel inside falls. */
 .intro-scroll{
   display:inline-flex; flex-direction:column; align-items:center; gap:10px;
@@ -886,9 +987,34 @@ body.loaded > footer{
 @media (max-width:900px){.insta-grid{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:600px){.insta-grid{grid-template-columns:repeat(2,1fr)}}
 
+/* Each cover is an object resting on the canvas: white mount, generous radius,
+   the artwork inset inside it. The mount is what makes a grid of covers read as
+   a considered composition instead of a contact sheet. */
 .insta-item{
-  position:relative; display:block; aspect-ratio:1/1; overflow:hidden;
-  border-radius:var(--r-sm); background:var(--dark-2);
+  position:relative; display:block; overflow:hidden;
+  border-radius:var(--r-sm);
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  padding:10px 10px 0;
+  box-shadow:var(--sh-2);
+  transition:transform var(--d-card) var(--ease), box-shadow var(--d-card) var(--ease);
+}
+.insta-item img{aspect-ratio:1/1; border-radius:calc(var(--r-sm) - 6px)}
+/* The label bar: name on the start edge, a small neon circular arrow on the
+   end. Four of these on a page is the neon's entire budget. */
+.insta-item .cap{
+  position:static; opacity:1; background:none; inset:auto;
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+  padding:12px 4px; color:var(--color-text);
+  font-size:.82rem; font-weight:var(--fw-medium); line-height:1.35;
+  text-align:start;
+}
+.insta-item .cap::after{
+  content:""; flex:none; width:26px; height:26px; border-radius:50%;
+  background:var(--color-accent);
+  -webkit-mask:var(--icon-arrow-up-right) center/13px no-repeat;
+          mask:var(--icon-arrow-up-right) center/13px no-repeat;
+  transition:transform var(--d-fast) var(--ease);
 }
 /* The cover lifts a touch, brightens, and casts a soft shadow. Uniform scale
    only — the artwork keeps its exact proportions, and object-fit:cover inside
@@ -900,9 +1026,10 @@ body.loaded > footer{
 /* No blur-in on arrival: filter is not a compositor-only property, so sharpening
    eight 800x800 covers at once re-rasterised the whole grid every frame while it
    was also translating. The rise and the fade carry the entrance on their own. */
-.insta-item:hover img{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
-.insta-item{transition:box-shadow var(--d-mid) var(--ease)}
-.insta-item:hover{box-shadow:var(--sh-3)}
+.insta-item:hover img{transform:scale(var(--zoom-media))}
+.insta-item:hover{transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
+.insta-item:hover .cap::after{transform:translate(2px,-2px)}
+
 .insta-item .cap{
   position:absolute; inset:0; z-index:2;
   display:flex; align-items:flex-end;
@@ -924,7 +1051,10 @@ body.loaded > footer{
   direction:ltr; /* keeps marquee motion consistent */
   background:var(--surface-1);
   border-block:1px solid var(--hairline);
-  margin-block:var(--s-6);
+  /* Flush against the intro band above it — the marquee reads as the edge of
+     the hero rather than as a floating strip. The bottom margin stays: it is
+     what separates it from the section that follows. */
+  margin-block:0 var(--s-6);
 }
 /* The track runs edge to edge, so it has to fade out at the two edges rather
    than being cut by them — a marquee that hard-clips reads as an overflow bug.
@@ -966,6 +1096,78 @@ body.loaded > footer{
   font-size:var(--t-lg); font-weight:var(--fw-semibold);
 }
 
+/*  Work summary — video right, copy left, in both directions  ------------
+    The page is dir="rtl", which would put the first grid item on the right and
+    mirror the whole composition on the English version. The brief pins the
+    video to the right physically, so the grid runs direction:ltr and the copy
+    column sets direction:rtl back on itself — the layout stops mirroring while
+    the Hebrew inside it still flows and aligns the way Hebrew has to.
+    ------------------------------------------------------------------------ */
+.worksum{
+  display:grid; direction:ltr;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);
+  gap:clamp(24px,3.4vw,var(--s-6));
+  align-items:stretch;
+}
+/* Explicit placement, so the video can be first in the source (which is the
+   order mobile wants) without needing an order override to undo it here. */
+.worksum-media{grid-column:2; grid-row:1; margin:0}
+.worksum-copy{
+  grid-column:1; grid-row:1;
+  direction:rtl; text-align:right;
+  display:flex; flex-direction:column; justify-content:center;
+  gap:var(--s-4);
+}
+
+/* The video is part of the composition, not a card sitting inside it.
+   No border and no radius — a framed rectangle reads as an object placed on the
+   page, and what the brief asks for is the two halves reading as one block.
+   It also bleeds to the viewport edge: the container caps at --maxw and this
+   pulls the media back out to the physical right edge, so the footage runs off
+   the page instead of stopping at a margin. The site already sets
+   overflow-x:clip on html and body, which is what keeps the 100vw arithmetic
+   from producing a scrollbar. */
+.worksum-media{
+  position:relative; overflow:hidden;
+  background:var(--bg-deep);
+  min-height:clamp(420px,58vh,660px);
+  margin-inline-end:calc(-1 * ((100vw - min(100vw, var(--maxw))) / 2 + var(--s-5)));
+}
+/* cover, so the frame stays the shape the layout wants at every width and the
+   footage is cropped rather than letterboxed. The poster obeys object-fit too,
+   so the resting state is framed identically to playback. */
+.worksum-video{
+  display:block; width:100%; height:100%;
+  object-fit:cover;
+  /* the element is absolutely placed so it fills the figure's min-height
+     without the video's intrinsic ratio dictating the row */
+  position:absolute; inset:0;
+}
+
+.worksum-copy .section-title{margin-bottom:var(--s-2)}
+.worksum-copy p{
+  margin:0; color:var(--text-dim);
+  font-size:var(--t-md); line-height:var(--lh-normal);
+  max-width:46ch;          /* a readable measure, not the full column */
+}
+.worksum-cta{margin-top:var(--s-3)}
+
+@media (max-width:900px){
+  /* One column, video first — it is the dominant element and it is first in the
+     source, so nothing has to be reordered to get there. */
+  .worksum{grid-template-columns:minmax(0,1fr); gap:var(--s-5)}
+  .worksum-media,.worksum-copy{grid-column:1; grid-row:auto}
+  .worksum-media{
+    min-height:0; aspect-ratio:16/10;
+    margin-inline:calc(-1 * var(--s-5));   /* edge to edge on the small screens too */
+  }
+  .worksum-copy{justify-content:flex-start}
+  .worksum-copy p{max-width:none}
+}
+@media (max-width:560px){
+  .worksum-media{aspect-ratio:4/3}
+}
+
 /*  Contact  */
 .contact-wrap{display:grid; grid-template-columns:.8fr 1.2fr; gap:var(--s-7); align-items:start}
 @media (max-width:860px){.contact-wrap{grid-template-columns:1fr}}
@@ -980,14 +1182,13 @@ body.loaded > footer{
 }
 .contact-info a:hover{color:var(--text)}
 .contact-form{
-  display:grid; gap:var(--s-4); background:var(--surface-1);
-  border:1px solid var(--hairline); border-radius:var(--radius); padding:var(--s-6);
-  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
-  box-shadow:var(--edge-top);
+  display:grid; gap:var(--s-4); background:var(--color-surface);
+  border:1px solid var(--color-border); border-radius:var(--r-md); padding:var(--s-6);
+  box-shadow:var(--sh-2);
 }
 .contact-form input,.contact-form textarea{
-  width:100%; padding:14px 18px; border-radius:var(--r-sm);
-  border:1px solid var(--hairline); background:var(--surface-1);
+  width:100%; padding:14px 18px; border-radius:var(--r-xs);
+  border:1px solid var(--color-border); background:var(--color-bg);
   font-family:var(--font); font-size:1rem; color:var(--text);
 }
 .contact-form textarea{min-height:130px; resize:vertical}
@@ -1001,41 +1202,66 @@ body.loaded > footer{
 /* The footer is the largest single dark field on the site and was flat black;
    it gets the same warm lift the dark sections do so the page does not end on
    an unlit rectangle. */
+/* ── The footer ─────────────────────────────────────────────────────────
+   Light, like the rest of the page. The near-black slab it was is a different
+   language — the whole direction is a soft canvas, and closing on a black
+   rectangle reads as a footer borrowed from another site.
+
+   Instead it is the same object the nav and the cards are: a white panel with
+   a large radius resting on the canvas, with the page's lavender behind it. */
 .site-footer{
-  background:
-    radial-gradient(58% 60% at 50% 0%, rgba(243,130,24,.10), transparent 72%),
-    var(--dark);
-  color:rgba(239,235,226,.72); padding:var(--s-8) 0 var(--s-5);
+  background:none;
+  color:var(--color-muted);
+  padding:var(--s-6) 0 var(--s-5);
+}
+.site-footer .container{
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-md);
+  box-shadow:var(--sh-2);
+  padding:clamp(28px,4vw,var(--s-7)) clamp(20px,3vw,var(--s-6));
+  max-width:var(--maxw);
 }
 .footer-grid{
   display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:var(--s-6);
-  padding-bottom:var(--s-6); border-bottom:1px solid var(--border-dark);
+  padding-bottom:var(--s-6); border-bottom:1px solid var(--color-border);
 }
 @media (max-width:760px){.footer-grid{grid-template-columns:1fr 1fr}}
-/* The markup sets these as h2 so the document outline stays sequential, and the
-   selector has to match that or they fall back to the browser default. */
+@media (max-width:480px){.footer-grid{grid-template-columns:1fr}}
+/* The markup sets these as h2 so the document outline stays sequential, and
+   the selector has to match that or they fall back to the browser default. */
 .footer-grid h2,.footer-grid h3{
-  font-size:var(--t-base); color:var(--paper); margin-bottom:var(--s-4);
-  background-image:none; -webkit-text-fill-color:var(--paper);
+  font-size:var(--t-sm); color:var(--color-text); margin-bottom:var(--s-4);
+  letter-spacing:var(--ls-tracked); text-transform:uppercase;
+  font-weight:var(--fw-semibold);
+  background-image:none; -webkit-text-fill-color:var(--color-text);
 }
 .footer-grid li{margin-bottom:var(--s-2)}
-.footer-grid a{font-size:.95rem; transition:color var(--d-fast)}
-.footer-grid a:hover{color:var(--accent)}
-.footer-grid p{color:rgba(255,255,255,.6); font-size:.95rem}
+.footer-grid a{font-size:.92rem; color:var(--color-muted); transition:color var(--d-fast) var(--ease)}
+.footer-grid a:hover{color:var(--color-text)}
+.footer-grid p{color:var(--color-muted); font-size:.92rem}
 .footer-logo{display:inline-block; margin-bottom:var(--s-2)}
-.social-row{display:flex; gap:var(--s-3); margin-top:var(--s-4)}
+
+/* The social marks become the same chip the rest of the UI uses: circular,
+   hairline, and they take the accent on hover — one of the very few places
+   the neon is allowed to appear. */
+.social-row{display:flex; gap:var(--s-2); margin-top:var(--s-4)}
 .social-row a{
   width:38px; height:38px; border-radius:50%;
-  border:1px solid var(--border-dark); color:var(--paper);
+  border:1px solid var(--color-border); color:var(--color-text);
   display:flex; align-items:center; justify-content:center;
-  transition:var(--d-fast);
+  transition:background var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease), transform var(--d-fast) var(--ease);
 }
 .social-row a svg{width:var(--icon-sm); height:var(--icon-sm)}
-/* The mark goes dark on the orange fill: white on this orange is 2.6:1 and
-   misses the 3:1 a non-text UI component owes; the ink measures 7.6:1. */
-.social-row a:hover{border-color:var(--accent); background:var(--accent); color:var(--bg)}
-.footer-bottom{padding-top:var(--s-5); text-align:center; font-size:.85rem}
-.footer-bottom .brand-mark{font-weight:inherit; font-size:inherit}
+.social-row a:hover{
+  background:var(--color-accent); border-color:var(--color-accent);
+  color:var(--color-text); transform:translateY(-2px);
+}
+.footer-bottom{
+  padding-top:var(--s-5); text-align:center;
+  font-size:.82rem; color:var(--color-muted);
+}
+.footer-bottom .brand-mark{font-weight:inherit; font-size:inherit; color:var(--color-text)}
 
 /* ==========================================================================
    Icon system.
@@ -1097,7 +1323,7 @@ body.loaded > footer{
   /* Opaque, unlike the cards: a dialog sits over unpredictable content, and a
      4.5% surface would let that content read straight through the controls.
      The blur is what keeps it feeling like the same material as the chrome. */
-  background:rgba(255,255,255,.97); border-radius:var(--radius); border:1px solid var(--hairline-2);
+  background:var(--color-surface); border-radius:var(--r-md); border:1px solid var(--color-border);
   -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
   box-shadow:var(--sh-overlay);
   padding:var(--s-4);
@@ -1168,12 +1394,17 @@ html[data-a11y-size="3"]{font-size:118%}
 /*  Category tabs (video department)  */
 .vid-tabs{display:flex; gap:var(--c-5); justify-content:center; flex-wrap:wrap; margin-bottom:40px}
 .vid-tab{
-  font-family:var(--font); font-weight:var(--fw-semibold); font-size:.95rem; color:var(--text-dim);
-  background:var(--off); border:1px solid var(--border); border-radius:var(--r-lg);
-  padding:var(--c-6) 22px; cursor:pointer; transition:var(--d-fast);
+  font-family:var(--font); font-weight:var(--fw-medium); font-size:.92rem; color:var(--color-muted);
+  background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-lg);
+  padding:11px 20px; cursor:pointer;
+  transition:background var(--d-fast) var(--ease), color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
 }
-.vid-tab:hover{color:var(--text); border-color:var(--accent)}
-.vid-tab.active{background:var(--accent); border-color:var(--accent); color:var(--dark); box-shadow:var(--sh-accent)}
+.vid-tab:hover{color:var(--color-text); border-color:var(--hairline-2)}
+/* The selected tab is one of the page's few neon moments. */
+.vid-tab.active{
+  background:var(--color-accent); border-color:var(--color-accent);
+  color:var(--color-text); font-weight:var(--fw-semibold); box-shadow:none;
+}
 .vid-panel{display:none}
 .vid-panel.active{display:block}
 .vid-empty{
@@ -1184,8 +1415,9 @@ html[data-a11y-size="3"]{font-size:118%}
 
 /*  Logo ticker (distribution platforms)  */
 .logo-ticker-wrap{
-  overflow:hidden; background:var(--dark-2); border-top:1px solid var(--border-dark);
-  border-bottom:1px solid var(--border-dark); padding:var(--s-5) 0; direction:ltr;
+  overflow:hidden; background:var(--color-surface);
+  border-block:1px solid var(--color-border);
+  padding:var(--s-5) 0; direction:ltr;
 }
 .logo-ticker-track{display:inline-flex; width:max-content; animation:tickerMove 46s linear infinite}
 .logo-ticker-wrap:hover .logo-ticker-track{animation-play-state:paused}
@@ -1195,32 +1427,36 @@ html[data-a11y-size="3"]{font-size:118%}
 }
 .plat-logo{
   width:30px; height:30px; flex:none; object-fit:contain;
-  filter:grayscale(1) brightness(0) invert(1); opacity:.42;
+  filter:grayscale(1); opacity:.5;
   transition:filter var(--d-mid) ease, opacity var(--d-mid) ease, transform var(--d-mid) ease;
 }
 .plat-name{
   font-family:var(--font); font-weight:var(--fw-medium); font-size:1rem;
-  color:rgba(255,255,255,.45); transition:color var(--d-mid) ease;
+  color:var(--color-muted); transition:color var(--d-mid) var(--ease);
 }
-.plat-chip:hover .plat-logo{filter:none; opacity:1; transform:scale(1.12)}
-.plat-chip:hover .plat-name{color:#fff}
+.plat-chip:hover .plat-logo{filter:none; opacity:1; transform:scale(1.1)}
+.plat-chip:hover .plat-name{color:var(--color-text)}
 
 /*  Flow steps (how it works)  */
 .flow-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-5); counter-reset:flow}
 @media (max-width:900px){.flow-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.flow-grid{grid-template-columns:1fr}}
 .flow-step{
-  position:relative; background:var(--off); border:1px solid var(--border);
-  border-radius:var(--radius); padding:var(--s-6) var(--s-5) var(--s-5);
-  transition:transform var(--d-mid), border-color var(--d-mid), box-shadow var(--d-mid);
+  position:relative; background:var(--color-surface); border:1px solid var(--color-border);
+  border-radius:var(--r-sm); padding:var(--s-6) var(--s-5) var(--s-5);
+  box-shadow:var(--sh-2);
+  transition:transform var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
 }
-.flow-step:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-2)}
+.flow-step:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
 .flow-step .num{
   display:inline-flex; align-items:center; justify-content:center;
-  width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--bg);
-  font-family:var(--font-display); font-weight:var(--fw-bold); font-size:1.05rem;
+  /* Lavender, not neon: four numbered discs in a row would spend the accent
+     budget on a decoration. The neon stays for things you click. */
+  width:40px; height:40px; border-radius:50%;
+  background:var(--color-lavender); color:var(--color-text);
+  font-family:var(--font-display); font-weight:var(--fw-bold); font-size:1.02rem;
   margin-bottom:var(--s-4); font-feature-settings:"tnum";
-  box-shadow:var(--sh-accent);
+  box-shadow:none;
 }
 .flow-step h3{font-size:var(--t-md); margin-bottom:var(--s-2)}
 .flow-step p{font-size:.92rem; margin:0}
@@ -1243,24 +1479,44 @@ html[data-a11y-size="3"]{font-size:118%}
 .video-grid{
   display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:var(--s-4);
 }
+/* ── Clip cards ─────────────────────────────────────────────────────────
+   The reference's card, mapped onto the studio's clips: white mount, artwork
+   inset, a soft lavender play disc centred on the frame, and a label bar
+   underneath carrying the title and a small neon arrow. The scrim is gone —
+   a lavender disc reads as "video" on its own, and darkening the whole frame
+   to make a play button legible dims the work the card exists to show. */
 .video-card{
-  border-radius:var(--r-sm); overflow:hidden;
-  background:var(--surface-card); border:1px solid var(--border);
-  display:block;
+  display:block; overflow:hidden;
+  border-radius:var(--r-sm);
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  padding:10px 10px 0;
+  box-shadow:var(--sh-2);
+  transition:transform var(--d-card) var(--ease), box-shadow var(--d-card) var(--ease);
 }
-/* On the showreel band the card sits on the dark plate, so it lifts with white
-   rather than with the light-surface token — --dark-2 is a light placeholder
-   in this palette and would punch a pale hole in the band. */
-.section-dark .video-card{background:rgba(255,255,255,.06); border-color:var(--border-dark)}
-.video-card .thumb{position:relative; aspect-ratio:16/9; overflow:hidden}
+.video-card:hover{transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
+.section-dark .video-card{background:var(--color-surface); border-color:var(--color-border)}
+
+.video-card .thumb{
+  position:relative; aspect-ratio:16/9; overflow:hidden;
+  border-radius:calc(var(--r-sm) - 6px);
+  background:var(--color-border);
+}
 .video-card .thumb img,.video-card .thumb video{
-  width:100%; height:100%; object-fit:cover; transition:transform var(--d-mid) var(--ease);
+  width:100%; height:100%; object-fit:cover;
+  transition:transform var(--d-mid) var(--ease);
 }
-.video-card:hover .thumb img{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
+.video-card:hover .thumb img{transform:scale(var(--zoom-media))}
+
+/* The play disc. Lavender at 88% over the artwork, which is legible on any
+   frame without dimming it, and the one place --color-lavender-soft is used
+   as a surface rather than as atmosphere. */
 .video-card .thumb::after{
-  content:""; position:absolute; inset:0; z-index:2;
-  background:rgba(20,17,20,.25);
-  transition:background var(--d-mid) var(--ease);
+  content:""; position:absolute; z-index:2; top:50%; left:50%;
+  width:56px; height:56px; margin:-28px 0 0 -28px;
+  border-radius:50%;
+  background:color-mix(in srgb, var(--color-lavender-soft) 88%, transparent);
+  transition:transform var(--d-mid) var(--ease), background var(--d-mid) var(--ease);
 }
 /* Drawn, not typeset: a border triangle is the same shape at every DPR and on
    every platform, and it always points right — a transport control is a
@@ -1268,24 +1524,40 @@ html[data-a11y-size="3"]{font-size:118%}
 .video-card .thumb::before{
   content:""; position:absolute; z-index:3; top:50%; left:50%;
   width:0; height:0; border-style:solid;
-  border-width:11px 0 11px 19px;
-  border-color:transparent transparent transparent var(--paper);
+  border-width:9px 0 9px 15px;
+  border-color:transparent transparent transparent var(--color-text);
   transform:translate(-50%,-50%) translateX(2px);
   transition:transform var(--d-mid) var(--ease);
 }
-.video-card:hover .thumb::after{background:rgba(255,109,41,.35)}
-.video-card:hover .thumb::before{transform:translate(-50%,-50%) translateX(2px) scale(1.12)}
-.video-card .thumb.playing::before{display:none}
-.video-card .cap{padding:var(--s-4); font-size:.92rem; color:var(--text-dim)}
-.section-dark .video-card .cap{color:rgba(255,255,255,.75)}
+.video-card:hover .thumb::after{transform:scale(1.08); background:var(--color-lavender)}
+.video-card:hover .thumb::before{transform:translate(-50%,-50%) translateX(2px) scale(1.08)}
+.video-card .thumb.playing::before,.video-card .thumb.playing::after{display:none}
+
+/* The label bar, matching the cover cards exactly — one card language, two
+   kinds of content. */
+.video-card .cap{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+  padding:12px 4px;
+  font-size:.82rem; font-weight:var(--fw-medium); line-height:1.35;
+  color:var(--color-text); text-align:start;
+}
+.video-card .cap::after{
+  content:""; flex:none; width:26px; height:26px; border-radius:50%;
+  background:var(--color-accent);
+  -webkit-mask:var(--icon-arrow-up-right) center/13px no-repeat;
+          mask:var(--icon-arrow-up-right) center/13px no-repeat;
+  transition:transform var(--d-fast) var(--ease);
+}
+.video-card:hover .cap::after{transform:translate(2px,-2px)}
+.section-dark .video-card .cap{color:var(--color-text)}
 
 /*  Requirement / delivery cards  */
 .req-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5)}
 @media (max-width:860px){.req-grid{grid-template-columns:1fr}}
 .req-card{
-  background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius);
+  background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-sm);
   padding:var(--s-6) var(--s-5); box-shadow:var(--sh-2);
-  transition:transform var(--d-mid), box-shadow var(--d-mid);
+  transition:transform var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
 }
 .req-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
 .req-card h3{font-size:1.2rem; margin-bottom:var(--s-4); display:flex; align-items:center; gap:10px}
@@ -1301,27 +1573,30 @@ html[data-a11y-size="3"]{font-size:118%}
    still the accent token. */
 .req-card li::before{
   content:""; flex:none; width:1.05em; height:1.05em; margin-top:.28em;
-  background:var(--accent);
+  background:var(--color-text);
   -webkit-mask:var(--icon-check) center/contain no-repeat;
   mask:var(--icon-check) center/contain no-repeat;
 }
-.req-card.alt{background:var(--dark); border-color:var(--border-dark)}
-.req-card.alt h3{color:#fff}
-.req-card.alt li{color:rgba(255,255,255,.78)}
+/* The paired card takes the lavender so the two read as a set rather than as
+    one card and one inverted card. */
+.req-card.alt{background:var(--color-lavender-soft); border-color:var(--color-lavender)}
+.req-card.alt h3{color:var(--color-text)}
+.req-card.alt li{color:var(--color-text)}
 .req-card .send-to{
   margin-top:var(--s-5); padding-top:var(--s-4); border-top:1px solid var(--border);
   font-size:.92rem; color:var(--text-soft);
 }
-.req-card.alt .send-to{border-color:var(--border-dark); color:rgba(255,255,255,.6)}
+.req-card.alt .send-to{border-color:var(--color-lavender); color:var(--color-muted)}
 .req-card .send-to a{color:var(--text); font-weight:var(--fw-semibold)}
 
 /*  Explainer gallery  */
 .explain-card{
-  border-radius:var(--radius); overflow:hidden; border:1px solid var(--hairline); background:var(--surface-1);
-  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:var(--edge-top);
-  transition:transform var(--d-mid), border-color var(--d-mid), box-shadow var(--d-mid);
+  border-radius:var(--r-sm); overflow:hidden;
+  border:1px solid var(--color-border); background:var(--color-surface);
+  box-shadow:var(--sh-2);
+  transition:transform var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
 }
-.explain-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-2)}
+.explain-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); box-shadow:var(--sh-3)}
 .explain-card .shot{
   aspect-ratio:4/5; width:100%; display:block;
   background:var(--off); border-bottom:1px solid var(--border);
@@ -1474,8 +1749,8 @@ html[data-a11y-size="3"]{font-size:118%}
 
 /* ===== Clips page: Reels + Playlist collections ===== */
 .reels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--s-5);max-width:820px;margin:0 auto}
-.reel-card{position:relative;border-radius:var(--r-md);overflow:hidden;background:#000;aspect-ratio:9/16;box-shadow:var(--sh-2);transform:translateZ(0);transition:transform var(--d-mid) var(--ease),box-shadow var(--d-mid) var(--ease)}
-.reel-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card));box-shadow:var(--sh-glow)}
+.reel-card{position:relative;border-radius:var(--r-sm);overflow:hidden;background:var(--color-border);aspect-ratio:9/16;box-shadow:var(--sh-2);transform:translateZ(0);transition:transform var(--d-mid) var(--ease),box-shadow var(--d-mid) var(--ease)}
+.reel-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card));box-shadow:var(--sh-3)}
 .reel-video{width:100%;height:100%;object-fit:cover;display:block;transition:transform var(--d-image) var(--ease)}
 .reel-card:hover .reel-video{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
 .reel-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%);pointer-events:none;transition:opacity var(--d-mid)}
@@ -1487,7 +1762,7 @@ html[data-a11y-size="3"]{font-size:118%}
    attribute flip rather than the script rebuilding the button's contents. */
 .reel-sound[data-muted="true"] .i-on{display:none}
 .reel-sound[data-muted="false"] .i-off{display:none}
-.reel-sound:hover{background:var(--accent-2)}
+.reel-sound:hover{background:var(--color-accent); color:var(--color-text)}
 
 
 /* ==========================================================================
@@ -1573,7 +1848,7 @@ html[data-a11y-size="3"]{font-size:118%}
 
 /* Text wordmark. Inherits its colour from context. */
 .brand-word{font-family:'Karantina',var(--font-display);font-weight:var(--fw-bold);letter-spacing:.005em;color:var(--text);white-space:nowrap;line-height:var(--lh-flat);display:inline-block}
-.footer-word{font-size:1.3rem;color:var(--paper)}
+.footer-word{font-size:1.35rem;color:var(--color-text)}
 
 /* ===== Skip link (WCAG 2.4.1) — first tab stop on every page ===== */
 .skip-link{

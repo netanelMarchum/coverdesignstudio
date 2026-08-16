@@ -62,7 +62,7 @@ for (const page of pages) {
 //    stylesheet as masks so their colour still comes from a token.
 const CSS = 'assets/css/style.css';
 let css = readFileSync(CSS, 'utf8');
-const masks = { '--icon-check': 'check', '--icon-arrow-left': 'arrow-left' };
+const masks = { '--icon-check': 'check', '--icon-arrow-left': 'arrow-left', '--icon-arrow-up-right': 'arrow-up-right' };
 for (const [prop, name] of Object.entries(masks)) {
   const re = new RegExp(`(  ${prop}:)[^;]*;`);
   if (!re.test(css)) throw new Error(`${CSS} has no ${prop} slot`);

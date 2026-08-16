@@ -22,7 +22,8 @@
     "build:forms": "node scripts/build-forms.mjs",
     "test:forms": "node scripts/test-forms.mjs",
     "test:endpoint": "node scripts/test-endpoint.mjs",
-    "test": "npm run test:forms && npm run test:endpoint"
+    "test": "npm run test:forms && npm run test:endpoint",
+    "build:logo": "node scripts/build-logo.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",

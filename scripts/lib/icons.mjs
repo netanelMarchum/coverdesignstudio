@@ -44,6 +44,7 @@ const ICONS = {
   'volume-on':   ['ui', () => lucide('volume-2')],
   check:         ['ui', () => lucide('check')],
   'arrow-left':  ['ui', () => lucide('arrow-left')],
+  'arrow-up-right': ['ui', () => lucide('arrow-up-right')],
 
   // Brand — Simple Icons
   pinterest: ['brand', () => brand('siPinterest')],

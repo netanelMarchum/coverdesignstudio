@@ -179,7 +179,7 @@ ${wall}
         </div>
       </div>
 
-      <form class="form" novalidate>
+      <form class="form" novalidate data-form="brief">
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="field">
           <label class="micro" for="f-name">שם</label>
@@ -190,8 +190,12 @@ ${wall}
           <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required>
         </div>
         <div class="field">
+          <label class="micro" for="f-email">אימייל</label>
+          <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required>
+        </div>
+        <div class="field">
           <label class="micro" for="f-about">על מה אתם עובדים</label>
-          <textarea id="f-about" name="about" maxlength="300" rows="4"></textarea>
+          <textarea id="f-about" name="message" maxlength="300" rows="4"></textarea>
         </div>
         <p class="form-msg micro" aria-live="polite"></p>
         <button class="btn" type="submit">פתחו וואטסאפ עם הפרטים</button>
@@ -213,6 +217,8 @@ ${wall}
   </div>
 </footer>
 
+<script src="assets/js/validate.min.js?v=13" defer></script>
+<script src="assets/js/forms.min.js?v=13" defer></script>
 <script src="assets/js/studio-v2.min.js?v=13" defer></script>
 </body>
 </html>

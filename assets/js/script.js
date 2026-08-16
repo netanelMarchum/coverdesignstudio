@@ -206,87 +206,10 @@ if (vidTabs.length) {
   });
 }
 
-// Contact form -> validates + sanitizes input, then opens WhatsApp with the
-// message prefilled. There is no backend, so this also carries the site's
-// best-effort spam protection: a honeypot field, a minimum fill-time trap,
-// and a client-side resend cooldown (real rate limiting still needs a
-// server; see production checklist notes).
-var FORM_COOLDOWN_MS = 15000;
-var FORM_MIN_FILL_MS = 2500;
-var pageLoadedAt = Date.now();
-
-function sanitizeField(v) {
-  return String(v || '')
-    .replace(/[<>]/g, '')
-    .replace(/[\r\n\t]+/g, ' ')
-    .trim()
-    .slice(0, 500);
-}
-function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-function isValidPhone(v) { return /^[0-9+()\-\s]{7,16}$/.test(v); }
-
-document.querySelectorAll('.contact-form').forEach(function (form) {
-  var isHe = form.getAttribute('data-lang') !== 'en';
-  var msgEl = form.querySelector('.form-msg');
-  var submitBtn = form.querySelector('button[type="submit"]');
-  var cooldownUntil = 0;
-
-  function setMsg(text, ok) {
-    if (!msgEl) return;
-    msgEl.textContent = text;
-    msgEl.classList.toggle('ok', !!ok);
-    msgEl.classList.toggle('err', !ok);
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    var hp = form.querySelector('.hp-field');
-    if (hp && hp.value) return; // honeypot tripped — silently drop
-
-    if (Date.now() - pageLoadedAt < FORM_MIN_FILL_MS) {
-      setMsg(isHe ? 'נא לנסות שוב בעוד רגע.' : 'Please try again in a moment.', false);
-      return;
-    }
-    if (Date.now() < cooldownUntil) {
-      setMsg(isHe ? 'ההודעה כבר נשלחה — נא להמתין קצת לפני שליחה נוספת.' : 'Already sent — please wait before sending again.', false);
-      return;
-    }
-
-    var nameField = form.querySelector('[name="name"]');
-    var phoneField = form.querySelector('[name="phone"]');
-    var emailField = form.querySelector('[name="email"]');
-    var subjectField = form.querySelector('[name="subject"]');
-
-    var name = sanitizeField(nameField && nameField.value);
-    var phone = sanitizeField(phoneField && phoneField.value);
-    var email = sanitizeField(emailField && emailField.value);
-    var subject = sanitizeField(subjectField && subjectField.value);
-
-    if (name.length < 2) {
-      setMsg(isHe ? 'נא למלא שם תקין.' : 'Please enter a valid name.', false);
-      return;
-    }
-    if (!isValidPhone(phone)) {
-      setMsg(isHe ? 'נא למלא מספר טלפון תקין.' : 'Please enter a valid phone number.', false);
-      return;
-    }
-    if (!isValidEmail(email)) {
-      setMsg(isHe ? 'נא למלא כתובת אימייל תקינה.' : 'Please enter a valid email address.', false);
-      return;
-    }
-
-    var msg = [name, phone, email, subject].filter(Boolean).join(' | ');
-    open('https://wa.me/972559383582?text=' + encodeURIComponent(msg), '_blank');
-
-    cooldownUntil = Date.now() + FORM_COOLDOWN_MS;
-    setMsg(isHe ? 'נפתח WhatsApp עם ההודעה שלכם ✓' : 'WhatsApp opened with your message ✓', true);
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      setTimeout(function () { submitBtn.disabled = false; }, FORM_COOLDOWN_MS);
-    }
-  });
-});
+// Contact forms are handled by assets/js/forms.js, which drives every form on
+// the site through one shared validator and one server endpoint. The block that
+// used to live here validated in the browser and then handed off to WhatsApp,
+// which meant nothing was ever checked anywhere a visitor could not edit.
 
 // ---------------------------------------------------------------------------
 // Page + language transitions.

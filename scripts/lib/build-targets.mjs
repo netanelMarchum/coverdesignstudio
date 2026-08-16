@@ -13,6 +13,8 @@ export const targets = [
   { in: 'assets/css/studio-v2.css', out: 'assets/css/studio-v2.min.css' },
   { in: 'assets/css/cover-experience.css', out: 'assets/css/cover-experience.min.css' },
   { in: 'assets/js/script.js', out: 'assets/js/script.min.js' },
+  { in: 'assets/js/validate.js', out: 'assets/js/validate.min.js' },
+  { in: 'assets/js/forms.js', out: 'assets/js/forms.min.js' },
   { in: 'assets/js/a11y.js', out: 'assets/js/a11y.min.js' },
   { in: 'assets/js/i18n.js', out: 'assets/js/i18n.min.js' },
   { in: 'assets/js/instagram.js', out: 'assets/js/instagram.min.js' },

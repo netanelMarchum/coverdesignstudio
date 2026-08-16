@@ -135,12 +135,12 @@
       <h2 class="section-title">בא לך לקבל את אחד מהשירותים שלנו?</h2>
       <p>מלאו פרטים ונשוב אליכם מיד.</p>
     </div>
-    <form class="contact-form reveal" data-lang="he" style="max-width:640px;margin:0 auto;" novalidate>
+    <form class="contact-form reveal" data-lang="he" style="max-width:640px;margin:0 auto;" novalidate data-form="graphics">
       <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <input type="text" name="name" placeholder="שם" autocomplete="name" maxlength="60" required>
-      <input type="tel" name="phone" placeholder="טלפון" autocomplete="tel" inputmode="tel" maxlength="20" required>
-      <input type="email" name="email" placeholder="אימייל" autocomplete="email" inputmode="email" maxlength="80" required>
-      <textarea name="subject" placeholder="נושא הפנייה, ספרו לנו קצת על הפרויקט" maxlength="300" rows="4"></textarea>
+      <input type="text" name="name" placeholder="שם" aria-label="שם מלא" autocomplete="name" maxlength="60" required>
+      <input type="tel" name="phone" placeholder="טלפון" aria-label="טלפון" autocomplete="tel" inputmode="tel" maxlength="20" required>
+      <input type="email" name="email" placeholder="אימייל" aria-label="אימייל" autocomplete="email" inputmode="email" maxlength="80" required>
+      <textarea name="message" placeholder="נושא הפנייה, ספרו לנו קצת על הפרויקט" aria-label="נושא הפנייה, ספרו לנו קצת על הפרויקט" maxlength="300" rows="4"></textarea>
       <p class="form-msg" aria-live="polite"></p>
       <button class="btn" type="submit">שליחה</button>
     </form>
@@ -212,6 +212,8 @@
 <script src="assets/js/instagram.min.js?v=13" defer></script>
 <script src="assets/js/i18n.min.js?v=13" defer></script>
 <script src="assets/js/script.min.js?v=13"></script>
+<script src="assets/js/validate.min.js?v=13" defer></script>
+<script src="assets/js/forms.min.js?v=13" defer></script>
 <script src="assets/js/a11y.min.js?v=13"></script>
 <script src="assets/js/cookie-consent.min.js?v=13" defer></script>
 </body>

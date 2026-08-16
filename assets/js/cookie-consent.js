@@ -37,17 +37,18 @@
   // orange measures 2.62:1 and fails AA at any size the button would use.
   var css = '' +
     '.cookie-consent{position:fixed;inset-inline:var(--s-4,16px);bottom:var(--s-4,16px);' +
-    'z-index:var(--z-consent,400);max-width:560px;margin-inline:auto;background:#fff;' +
-    'color:var(--text,#0A0A0A);border:1px solid var(--border,rgba(10,10,10,.1));' +
+    'z-index:var(--z-consent,400);max-width:560px;margin-inline:auto;' +
+    'background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);' +
+    'color:var(--text,#1A1A1A);border:1px solid var(--hairline,rgba(20,17,20,.11));' +
     'border-radius:var(--r-md,20px);box-shadow:var(--sh-overlay,0 24px 60px -12px rgba(0,0,0,.28));' +
     'padding:var(--s-4,16px) var(--s-5,24px);' +
     'display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-4,16px);font-family:var(--font,inherit);' +
     'font-weight:300;transform:translateY(24px);opacity:0;' +
     'transition:transform var(--d-mid,.32s) var(--ease,ease),opacity var(--d-mid,.32s) var(--ease,ease)}' +
     '.cookie-consent.show{transform:none;opacity:1}' +
-    '.cookie-consent p{margin:0;flex:1 1 240px;font-size:.92rem;line-height:1.55;color:var(--text-dim,#4B4B4B)}' +
-    '.cookie-consent a{color:var(--text,#0A0A0A);font-weight:700;text-decoration:underline}' +
-    '.cookie-consent .cc-accept{flex:0 0 auto;background:var(--accent,#F38218);color:var(--dark,#0A0A0A);border:0;' +
+    '.cookie-consent p{margin:0;flex:1 1 240px;font-size:.92rem;line-height:1.55;color:var(--text-dim,#5A5450)}' +
+    '.cookie-consent a{color:var(--text,#1A1A1A);font-weight:700;text-decoration:underline}' +
+    '.cookie-consent .cc-accept{flex:0 0 auto;background:var(--accent,#FF6D29);color:var(--text,#1A1A1A);border:0;' +
     'border-radius:var(--r-lg,9999px);padding:11px 30px;font-family:inherit;font-weight:700;font-size:.95rem;' +
     'cursor:pointer;transition:transform var(--d-fast,.18s) var(--ease,ease),box-shadow var(--d-fast,.18s) var(--ease,ease);' +
     'box-shadow:var(--sh-accent,0 14px 34px -10px rgba(243,130,24,.5))}' +

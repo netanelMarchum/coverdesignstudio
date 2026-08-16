@@ -72,41 +72,5 @@
     });
   }
 
-  // ---- the brief -----------------------------------------------------------
-  // No backend, and the page does not pretend otherwise: the button says where
-  // the details are going before anybody types them. Same guards the live site
-  // uses — a honeypot, a minimum fill time, and a cooldown.
-  var form = document.querySelector('.form');
-  if (!form) return;
-
-  var msg = form.querySelector('.form-msg');
-  var openedAt = Date.now();
-  var cooldownUntil = 0;
-
-  function say(text, ok) {
-    msg.textContent = text;
-    msg.setAttribute('data-state', ok ? 'ok' : 'err');
-  }
-  function clean(v) {
-    return String(v || '').replace(/[<>]/g, '').replace(/[\r\n\t]+/g, ' ').trim().slice(0, 500);
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    if (form.querySelector('.hp').value) return;
-    if (Date.now() - openedAt < 2500) return say('רגע אחד ונסו שוב.', false);
-    if (Date.now() < cooldownUntil) return say('כבר נשלח. המתינו רגע לפני שליחה נוספת.', false);
-
-    var name = clean(form.elements.name.value);
-    var phone = clean(form.elements.phone.value);
-    var about = clean(form.elements.about.value);
-
-    if (name.length < 2) return say('חסר שם.', false);
-    if (!/^[0-9+()\-\s]{7,16}$/.test(phone)) return say('מספר הטלפון לא תקין.', false);
-
-    open('https://wa.me/972559383582?text=' + encodeURIComponent([name, phone, about].filter(Boolean).join(' | ')), '_blank');
-    cooldownUntil = Date.now() + 15000;
-    say('וואטסאפ נפתח עם הפרטים.', true);
-  });
+  // The brief form is bound by assets/js/forms.js along with every other form.
 })();

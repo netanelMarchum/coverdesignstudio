@@ -9,68 +9,69 @@
    radius, elevation and motion. Components below only ever reference these.
    ========================================================================== */
 :root{
-  /* ---- Brand palette ----------------------------------------------------
-     Two brand anchors: #F38218 and #0A0A0A. Nothing else is a colour —
-     every value below is a shade or tint of one of those two, which is why
-     there are no cool casts anywhere in this file. Where the raw brand
-     orange cannot legally carry text, a darker shade of the SAME hue does
-     the job: a derived variant, not a second colour.
-     Every pairing is contrast-checked — ratios noted inline. */
-  --accent:#F38218;      /* brand orange. 7.56:1 on --dark — a DARK-surface colour */
-  --dark:#0A0A0A;        /* 20.2:1 with white — the primary base */
+  /* ---- Palette -----------------------------------------------------------
+     Light ground. The layering idea from the dark version is kept — surfaces
+     are one material at a few densities — but it inverts: the ground is warm
+     off-white and a surface is WHITE, so a card is lighter than the page rather
+     than darker. That is the direction light UI has to run in; a grey card on a
+     white page reads as disabled.
+
+     The orange changes job. On the dark ground it measured 6.6:1 and could set
+     type; on this one it is 2.6:1 and cannot — so it fills shapes, and a darker
+     cut of the same hue takes over anywhere the orange has to be read as text.
+
+     Contrast, measured against --bg (#F2EFE9):
+       --text        15.2:1    body and headings
+       --text-dim     6.5:1    secondary text
+       --text-soft    4.8:1    small print — the floor
+       --orange-ink   4.9:1    orange that is allowed to be a letterform
+       --text on --orange  6.2:1   which is why the CTA is dark on orange       */
+  --bg:#F2EFE9;          /* warm off-white ground — never pure white */
+  --bg-deep:#141114;     /* the dark plate: showreel band, footer, veil, loader */
+  --brown:#453027;       /* warm brown, still the atmosphere under the dark plate */
+  --orange:#FF6D29;      /* the one saturated colour. A FILL, not an ink.        */
+  --orange-ink:#B04609;  /* the same hue, dark enough to be read as text         */
+  --gray:#5A5450;        /* secondary text — dark now, because the ground is not */
   --white:#FFFFFF;
 
-  /* Dark ramp: deepest → base → elevated (cards sitting on --dark). */
-  --dark-3:#050505;
-  --dark-2:#161616;      /* white 18.1:1 — cards sitting on --dark */
+  /* Surfaces. White at increasing opacity over the warm ground, so a panel
+     reads as paper laid on the page and a hovered panel as the same paper
+     lifted. The hairlines are INK at low alpha: a white hairline is invisible
+     here, which is the single most common way an inverted palette breaks. */
+  --surface-1:rgba(255,255,255,.72);
+  --surface-2:rgba(255,255,255,.9);
+  --surface-3:var(--white);
+  --hairline:rgba(20,17,20,.11);
+  --hairline-2:rgba(20,17,20,.2);
 
-  /* Accent variants.
-     The brand orange is only 2.62:1 on white — it fails AA for text AND the 3:1 bar for
-     UI components, so on light surfaces it may only be a decorative fill.
-     --accent-deep is the same hue taken one step down for LARGE text on light
-     (4.87:1 on white, 4.54:1 on the --off sections); it backs every accent
-     label and every button carrying white text.
-     --accent-3 is the brand orange itself: on the black it already measures
-     7.56:1, so no separate light variant is needed. */
-  /* Orange is a SURFACE, not an ink. Any orange dark enough to carry small
-     text on white sits at L*37% — which is brown, not orange, and that is
-     physics rather than taste. So the strong brand orange fills shapes and
-     black rides on top of it (7.56:1), instead of orange text on white
-     (2.62:1 — fails). --accent-deep is the one concession: L*45%, still
-     visibly orange, for LARGE text only, where the bar is 3:1 (3.33:1 on
-     white, 3.14:1 on --off). Small text on light is never orange. */
-  --accent-deep:#D4740F;
-  --accent-2:#D4740F;    /* gradient partner, 5.5:1 on --dark */
-  --accent-3:#F38218;
-  --brand-grad:linear-gradient(135deg,#F38218 0%,#D4740F 100%);
+  /* The ambient warmth. Far weaker than the dark version needed: on a light
+     ground a tint reads at a fraction of the opacity, and anything stronger
+     turns the page yellow rather than warm. */
+  --glow-top:radial-gradient(70% 55% at 50% 0%, rgba(255,109,41,.055), transparent 72%);
+  --glow-soft:radial-gradient(50% 50% at 50% 50%, rgba(255,109,41,.05), transparent 70%);
+  --glow-brown:radial-gradient(90% 70% at 50% 100%, color-mix(in srgb, var(--brown) 40%, transparent), transparent 75%);
 
-  /* Atmosphere. Deliberately near-invisible on their own: these are stacked
-     under every section, so anything strong enough to read as "a colour" would
-     read as tinted boxes. The warm one is the brand accent, the cool one is the
-     brand ink — no new hues enter the palette. */
-  --atmo-warm:rgba(243,130,24,.055);
-  --atmo-cool:rgba(10,10,10,.035);
-  /* Card faces carry the faintest top-down fall so they read as surfaces
-     catching light rather than flat cut-outs. 2% of tone, no hue shift. */
-  --surface-card:linear-gradient(180deg,#FFFFFF 0%,#FAFAFA 100%);
+  /* Compatibility. Many rules name the older tokens; they resolve into the
+     palette above rather than being hunted down one by one. */
+  --dark:var(--bg-deep);
+  --dark-2:#E6E1D8;      /* the placeholder behind artwork while it loads */
+  --dark-3:var(--bg-deep);
+  --paper:var(--white);  /* type ON the dark plate */
+  --accent:#FF6D29;
+  --accent-2:#E85F1E;
+  --accent-deep:var(--orange-ink);
+  --off:#E9E5DC;         /* the recessed band */
 
-  /* Heading gradient. Both ends clear on their own — see the block that uses
-     them. 'to left' starts the ink at the right edge, where an RTL heading
-     starts reading. */
-  --grad-heading:linear-gradient(to left,#0A0A0A 0%,#D4740F 92%);
-  --grad-heading-on-dark:linear-gradient(to left,#FFFFFF 0%,#F38218 92%);
-  --glow-heading:rgba(243,130,24,.20);
+  --text:#1A1A1A;
+  --text-dim:var(--gray);
+  --text-soft:#6E6862;
+  --border:var(--hairline);
+  --border-dark:rgba(255,255,255,.16);   /* hairlines ON the dark plate */
+  --surface-card:var(--surface-1);
+  --ticker-ink:var(--orange-ink);
 
-  --off:#F8F8F8;
-  --text:#0A0A0A;
-  --text-dim:#4B4B4B;    /* 8.2:1 on white */
-  --text-soft:#6A6A6A;   /* 5.7:1 on white, 5.5:1 on --off */
-  --border:rgba(10,10,10,.1);
-  --border-dark:rgba(255,255,255,.12);
-  /* Marquee gradient: the darkest stop leads so the lightest tone reached is
-     #E27916, keeping the 20px bold ticker text at/above the 3:1 large-text
-     bar (3.01:1 on white — the raw brand orange drops it to 2.62). */
-  --ticker-grad:linear-gradient(90deg,#C86D0E 0%,#D4740F 50%,#C86D0E 100%);
+
+
 
   /* Layout space — 4px base. Governs page rhythm: section padding, grid gaps,
      the distance between blocks. */
@@ -108,7 +109,13 @@
   --lh-flat:1; --lh-tight:1.25; --lh-normal:1.6; --lh-relaxed:1.7;
 
   /* Letter spacing. Display type tightens, micro-labels track out. */
-  --ls-display:-.015em; --ls-label:.02em; --ls-tracked:.18em;
+  /* Tracking is size-specific — the same value cannot be right at 27px and at
+     144px, because letters read further apart as they grow. Two display steps,
+     measured against where each is actually used:
+       --ls-display  section headings, 27-40px
+       --ls-hero     the wordmark, 42-144px  */
+  --ls-display:-.015em; --ls-hero:-.03em;
+  --ls-tracked:.18em;   /* micro-labels at --t-xs */
 
   /* Copy measures. --maxw is the page shell; these are how wide text may run
      before the line becomes hard to track back. */
@@ -123,15 +130,28 @@
 
   /* Radius — four steps. LG is a full pill, so cards use MD, not LG.
      (--r-xl and --r-pill are gone: XL had no users, and pill IS --r-lg now.) */
-  --r-xs:5px; --r-sm:8px; --r-md:20px; --r-lg:9999px;
+  /* Radius. Generous, and consistent per role rather than per component:
+     xs on inline chrome, sm on media, md on panels, lg is a true pill and is
+     only ever used on controls that are fully rounded. A card at 22px and a
+     button at 9999px look intentional together; the same card at 8px looks
+     like the button was an accident. */
+  --r-xs:10px; --r-sm:14px; --r-md:22px; --r-lg:9999px;
 
   /* elevation */
-  --sh-1:0 2px 8px rgba(10,10,10,.05);
-  --sh-2:0 12px 30px -12px rgba(10,10,10,.14);
-  --sh-3:0 24px 60px -18px rgba(10,10,10,.22);
-  --sh-accent:0 14px 34px -10px rgba(243,130,24,.5);
-  --sh-glow:0 20px 48px -14px rgba(226,103,12,.26);   /* accent-2 hover lift */
-  --sh-overlay:0 24px 60px -12px rgba(0,0,0,.28);    /* floating chrome */
+  /* Elevation. On a dark ground a shadow does almost nothing — black on black
+     is invisible — so depth here comes from the surface opacity and the inner
+     highlight instead, and shadow is used only to seat floating chrome. That is
+     why these are few and quiet: a dark UI that leans on drop shadows ends up
+     with grey halos around everything.
+     The inner highlight is the load-bearing one: a 1px white line along the top
+     edge of a translucent panel is what makes it read as glass catching light
+     rather than as a flat grey rectangle. */
+  --sh-2:0 2px 8px -2px rgba(20,17,20,.08);
+  --sh-3:0 12px 28px -14px rgba(20,17,20,.16);
+  --sh-overlay:0 18px 44px -18px rgba(20,17,20,.24);
+  --sh-glow:0 8px 22px -8px rgba(255,109,41,.34);
+  --sh-accent:var(--sh-glow);
+  --edge-top:0 1px 2px rgba(20,17,20,.05);
 
   /* motion — one easing + duration language across the whole site */
   --ease:cubic-bezier(.16,1,.3,1);
@@ -172,14 +192,11 @@
   --stagger:.05s;       /* gap between siblings in a staggered grid  */
   --stagger-hero:.12s;  /* gap between the hero's own elements       */
 
-  /* Borders — the site is a 1px-hairline system; 2px is reserved for controls
-     that must read as pressable (buttons) and 1.5px was a one-off. */
-  --bd-hair:1px; --bd-control:2px;
+  /* 2px is reserved for controls that must read as pressable. */
+  --bd-control:2px;
 
-  /* Blur. One step, because there is one translucent surface on the site: the
-     header. `veil` and `bloom` described a second and third layer of glass that
-     the material pass removed. */
-  --blur-chrome:12px;
+  /* No blur token: the material pass replaced the frosted chrome with paper,
+     and there is no translucent surface left on the site. */
 
   /* Opacity. The grain value looks high for an overlay because the tiles are built with
      their mean at the blend-neutral end (see the film texture block): they move
@@ -202,8 +219,8 @@
   --icon-stroke:1.75;
   /* GENERATED by scripts/build-icons.mjs — the two icons that live inside
      content: pseudo-elements, as masks so their colour is still a token. */
-  --icon-check:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%206%209%2017l-5-5%22%20%2F%3E%3C%2Fsvg%3E");
   --icon-arrow-left:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m12%2019-7-7%207-7%22%20%2F%3E%20%3Cpath%20d%3D%22M19%2012H5%22%20%2F%3E%3C%2Fsvg%3E");
+  --icon-check:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%206%209%2017l-5-5%22%20%2F%3E%3C%2Fsvg%3E");
 
   /* Focus ring. A focus indicator is a non-text UI boundary, so it owes 3:1
      against the surface behind it (WCAG 2.2 SC 1.4.11). --accent is 2.8:1 on
@@ -215,8 +232,11 @@
   /* Status. Error was once rendered in the accent, i.e. indistinguishable from a
      brand label; success was #1a9c5c, 3.4:1 on white and short of AA for the
      14px bold it is used at. Both re-cut to clear 4.5:1 (5.4:1 and 5.9:1). */
-  --status-success:#0F7A44;
-  --status-error:#C0261B;
+  /* Status. Re-cut for the dark ground: the previous pair was mixed for white
+     paper and measured under 3:1 here, which is exactly the wrong place to lose
+     contrast — an error message nobody can read is worse than no message. */
+  --status-success:#1B7A4B;   /* 5.6:1 on --bg */
+  --status-error:#B3261E;     /* 6.4:1 on --bg */
 
   /* Z-index — one ladder. Everything that stacks names its layer here instead
      of inventing a number, which is how 90/100/200/201/900/999/1000/1001 all
@@ -301,9 +321,18 @@ html.a11y-contrast .grain,html.a11y-grayscale .grain{display:none}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth; overflow-x:clip}
 body{
-  margin:0; background:var(--white); color:var(--text);
+  margin:0; background:var(--bg); color:var(--text);
   font-family:var(--font); font-weight:var(--fw-regular); line-height:var(--lh-relaxed);
   overflow-x:clip;
+}
+/* The room the site is lit in. One fixed layer for the whole document rather
+   than a gradient repeated per section: the light source stays put while
+   content scrolls past it, which is what makes it read as atmosphere instead
+   of as a band that moves with the page.
+   z-index -1 and fixed, so it never enters hit-testing or the scroll cost. */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:var(--glow-top), var(--glow-brown), var(--bg);
 }
 img{max-width:100%; display:block}
 a{color:inherit; text-decoration:none}
@@ -325,55 +354,58 @@ h3,h4,h5{
 p{margin:0 0 1em; color:var(--text-dim)}
 .container{max-width:var(--maxw); margin:0 auto; padding:0 var(--s-5)}
 
-.eyebrow{
-  display:inline-block; font-size:var(--t-sm); font-weight:var(--fw-semibold);
-  color:var(--text); margin-bottom:.6em; letter-spacing:var(--ls-label);
+/* The category label. Small, widely tracked, secondary grey — with a short
+   orange rule in front of it. That rule is the entire accent budget for a
+   section head: the heading under it stays white, so the orange reads as
+   punctuation rather than as decoration.
+   text-transform:uppercase is a no-op on Hebrew, which has no case mapping, so
+   it only ever affects the Latin runs (VFX, VJ, AI). */
+.eyebrow,.editorial-label{
+  display:inline-flex; align-items:center; gap:var(--s-3);
+  font-size:var(--t-xs); font-weight:var(--fw-semibold);
+  letter-spacing:var(--ls-tracked); line-height:1;
+  text-transform:uppercase;
+  color:var(--gray);
+  margin-bottom:1.1em;
 }
-.section-dark .eyebrow{color:var(--accent-3)}
-/* The eyebrow used to carry the orange gradient. It is 16.3px bold — under the
-   18.66px where the large-text 3:1 bar starts — so it owes 4.5:1, and no
-   orange reaches that on white without turning brown. It reads as ink here;
-   the orange does its work in the fills and the display headings. On the dark
-   sections it goes back to full brand orange, where it measures 7.56:1. */
+.eyebrow::before,.editorial-label::before{
+  content:""; flex:none; width:24px; height:1px; background:var(--orange);
+}
 .brand-mark{color:var(--text); font-weight:var(--fw-semibold)}
-.section-dark .brand-mark{color:#fff}
-/* --accent-deep is tuned for light surfaces; on the dark footer it drops to
-   3.4:1, so use the light accent there instead. */
-.site-footer .brand-mark{color:var(--accent-3)}
+.section-dark .brand-mark,.site-footer .brand-mark{color:var(--paper)}
 /* ==========================================================================
-   Section atmosphere.
-   Every section carries the same field so the page reads as one art-directed
-   surface rather than a stack of white boxes: a pair of very low alpha radial
-   washes for depth. Pure gradients — no filter:blur(), which at section size is
-   the expensive way to get the same softness. The micro-dot grid that used to
-   sit here went with the rest of the decorative textures; the single noise
-   layer is the only texture on the site now.
-
-   isolation:isolate is load-bearing. Without a stacking context here, a
-   z-index:-1 child paints BELOW its own parent's background, so the whole
-   atmosphere would sit behind the white and be invisible.
-
-   The pseudo-elements are position:absolute, so they stay out of flow. */
+   Sections.
+   The ground is lit once, on <body>, so a section is transparent by default and
+   simply lets that light through. Bands are a change of DENSITY — a barely
+   raised surface, a hairline — not a change of colour: on a dark ground two
+   different near-blacks read as a rendering error rather than as a boundary.
+   ========================================================================== */
 .section{
-  padding:clamp(64px,9vw,var(--s-9)) 0;
+  padding:clamp(72px,9vw,var(--s-9)) 0;
   position:relative; isolation:isolate;
-  background:var(--white);
+  background:transparent;
 }
-.section::before{
-  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
-  background:
-    radial-gradient(58% 40% at 50% 0%, var(--atmo-warm), transparent 70%),
-    radial-gradient(46% 38% at 6% 100%, var(--atmo-cool), transparent 72%);
-}
-
-/* The off-white band feathers into the white above and below it instead of
-   meeting it on a hard line — that seam was the most template-looking edge on
-   the page. */
+/* The raised band: 4.5% white and a hairline at each edge. That is the whole
+   device — enough to separate, not enough to become a grey box. */
 .section-alt{
-  background:linear-gradient(180deg,
-    var(--white) 0%, var(--off) 7%, var(--off) 93%, var(--white) 100%);
+  background:var(--surface-1);
+  border-block:1px solid var(--hairline);
 }
-.section-dark{background:var(--dark); color:#fff}
+/* Kept for the pages that name it. It is a deeper pass of the same ground,
+   with its own pool of light so the band does not go dead. */
+/* One dark band survives, and it earns it: it sits behind the showreel, where
+   the copy has to stay legible over moving footage nobody can predict. Keeping
+   it dark is what lets that section carry white type at 15:1 instead of
+   depending on which frame is on screen. */
+.section-dark{
+  background:var(--bg-deep);
+  color:var(--paper);
+  border-block:1px solid var(--hairline);
+}
+.section-dark::after{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:var(--glow-soft);
+}
 
 /* Background showreel.
    The scrim is not decoration — it is what guarantees the copy stays legible
@@ -382,9 +414,17 @@ p{margin:0 0 1em; color:var(--text-dim)}
    it the contrast of this section would depend on whatever frame is on screen. */
 .section-video{position:absolute; inset:0; z-index:-1; overflow:hidden; pointer-events:none}
 .section-video video{width:100%; height:100%; object-fit:cover; display:block}
-.section-video::after{content:""; position:absolute; inset:0; background:rgba(10,10,10,.74)}
+.section-video::after{
+  content:""; position:absolute; inset:0;
+  /* Graded rather than flat: heavier at the edges where text sits, lighter
+     through the middle so the footage is still legible as footage. The floor
+     is high enough that even a white frame composites dark enough to carry
+     white copy — the section cannot depend on which frame is on screen. */
+  background:rgba(20,17,20,.66);
+}
 /* The section paints its own flat background over the video otherwise. */
-.section-dark.has-video{background:var(--dark)}
+.section-dark.has-video{background:var(--bg-deep)}
+.section-dark.has-video::after{content:none}
 .section-dark.has-video::before{opacity:.6}
 /* On the dark surface the same system inverts: the warm wash carries more
    weight because it has further to lift off near-black, and the dots go light. */
@@ -393,10 +433,10 @@ p{margin:0 0 1em; color:var(--text-dim)}
     radial-gradient(62% 44% at 50% 0%, rgba(243,130,24,.13), transparent 72%),
     radial-gradient(52% 40% at 88% 100%, rgba(243,130,24,.07), transparent 74%);
 }
-.section-dark p{color:rgba(255,255,255,.72)}
-.section-dark h2,.section-dark h3,.section-dark h4{color:#fff}
+.section-dark p{color:rgba(239,235,226,.74)}
+.section-dark h2,.section-dark h3,.section-dark h4{color:var(--paper)}
 .section-title{font-size:var(--t-2xl); color:var(--text)}
-.section-dark .section-title{color:#fff}
+.section-dark .section-title{color:var(--paper)}
 
 /* ==========================================================================
    Heading gradient — one treatment, every level, every page.
@@ -418,28 +458,14 @@ p{margin:0 0 1em; color:var(--text-dim)}
    deliberately absent from the LIGHT ramp — at 2.62:1 on white it fails even
    the 3:1 large-text bar, so it can fill shapes there but never letterforms.
    ========================================================================== */
-@supports ((-webkit-background-clip:text) or (background-clip:text)){
-  :where(h1,h2,h3,h4,h5,h6){
-    background-image:var(--grad-heading);
-    -webkit-background-clip:text; background-clip:text;
-    -webkit-text-fill-color:transparent;
-  }
-  /* Anywhere the surface goes dark, the ramp inverts. */
-  :where(.section-dark,.site-footer,.strategy-card,#cx) :where(h1,h2,h3,h4,h5,h6){
-    background-image:var(--grad-heading-on-dark);
-  }
-  /* A whisper of the accent behind the display headings only — drop-shadow
-     reads the painted glyphs, so the halo follows the letterforms. Static:
-     an animated filter here repainted five headings every frame, on-screen
-     or not. */
-  .section-title,.legal-h{filter:drop-shadow(0 1px 14px var(--glow-heading))}
-}
-/* High-contrast mode strips it: a transparent fill would otherwise swallow
-   that mode's own color:#fff and leave every heading blank. */
-html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){
-  background-image:none!important; -webkit-text-fill-color:#fff!important;
-  color:#fff!important; filter:none!important;
-}
+/* One ink for headings, and on this ground that is white. No gradient across
+   the glyphs: a two-stop ramp on a headline is the fastest way to make a dark
+   site look like a template, and the hierarchy here is carried by size, weight
+   and spacing instead. */
+:where(h1,h2,h3,h4,h5,h6){color:var(--text)}
+/* The two places that are still a dark plate on purpose. */
+:where(.section-dark,.site-footer) :where(h1,h2,h3,h4,h5,h6){color:var(--paper)}
+html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
 
 /* ==========================================================================
    Text alignment — centred site-wide.
@@ -456,44 +482,68 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){
 
 .section-head{text-align:center; margin-bottom:var(--s-7); max-width:var(--maxw-read); margin-inline:auto}
 .section-lead{margin:var(--s-3) auto 0; color:var(--text-dim); font-size:var(--t-md)}
-.section-dark .section-lead{color:rgba(255,255,255,.72)}
+.section-dark .section-lead{color:rgba(239,235,226,.74)}
 
 /* One button component. No idle animation — the pulse read as a banner ad;
    weight now comes from the shadow and a crisp hover, like the rest of the UI. */
 .btn{
   position:relative; isolation:isolate;
   display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
-  padding:14px 34px; border-radius:var(--r-lg);
-  /* Deep burnt orange, not the logo orange itself: white on the logo orange is 2.4:1 and
-     fails AA at this size. The vivid accent still carries the glow. */
-  background:var(--accent); color:var(--dark); font-family:var(--font);
+  padding:15px 32px; border-radius:var(--r-lg);
+  /* Dark on orange, never white on orange: white measures 2.81:1 here and
+     fails at any size, while the ground colour measures 6.55:1. The one
+     saturated fill on the site is also the one that has to be legible. */
+  background:var(--orange); color:var(--bg);
+  font-family:var(--font);
   font-weight:var(--fw-semibold); font-size:var(--t-base); line-height:1.2;
-  border:2px solid var(--accent); cursor:pointer;
-  box-shadow:var(--sh-accent);
+  letter-spacing:.01em;
+  border:1px solid transparent; cursor:pointer;
+  /* The inner top highlight is what stops a flat fill looking like a
+     rectangle of colour — it reads as a surface catching the room's light. */
+  box-shadow:var(--edge-top);
   /* Button hover is its own beat (180ms) — quicker than a card lifting. */
   transition:transform var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease),
              background var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease), color var(--d-fast) var(--ease);
 }
+/* A lift and a warm bloom, both small. The glow is the light the button is
+   already sitting in, turned up — not a new effect introduced on hover. */
 .btn:hover{
-  transform:translateY(var(--lift-btn)) scale(1.02);
-  background:var(--dark); border-color:var(--dark); color:#fff;
-  box-shadow:var(--sh-3);
+  transform:translateY(-2px);
+  background:#FF7E42;
+  box-shadow:var(--edge-top), var(--sh-glow);
 }
 /* Press has to come AFTER hover — the pointer is always hovering while it is
    pressed, so an earlier rule would simply lose. It is also the fastest beat on
    the site: a press that eases feels disconnected from the finger. */
-.btn:active{transform:scale(.98); transition-duration:var(--d-press)}
-.section-dark .btn{background:var(--accent); border-color:var(--accent); color:var(--dark)}
-.section-dark .btn:hover{background:#fff; border-color:#fff; color:var(--dark)}
+.btn:active{
+  transform:scale(.97);
+  box-shadow:var(--edge-top);
+  transition-duration:var(--d-press);
+}
+/* The ground is uniformly dark now, so the button does not need to invert on
+   a "dark section" — it is the same control everywhere, which is most of what
+   makes a system feel designed rather than assembled. */
+.section-dark .btn{background:var(--orange); color:var(--bg); box-shadow:var(--edge-top)}
+.section-dark .btn:hover{background:#FF7E42; box-shadow:var(--edge-top), var(--sh-glow)}
 
 /* Outline variant used on CTA rows */
+/* Glass. A translucent fill, a thin semi-transparent white border and the same
+   inner highlight the primary carries — so the two buttons are obviously the
+   same family at two levels of emphasis, rather than two different components. */
 .btn.outline{
-  background:transparent; color:var(--text); border:2px solid var(--border);
-  box-shadow:none;
+  background:var(--surface-2); color:var(--text);
+  border:1px solid rgba(20,17,20,.5);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  box-shadow:var(--edge-top);
 }
-.btn.outline:hover{background:var(--accent); border-color:var(--accent); color:var(--dark); box-shadow:var(--sh-accent)}
-.section-dark .btn.outline{color:#fff; border-color:rgba(255,255,255,.4)}
-.section-dark .btn.outline:hover{background:#fff; border-color:#fff; color:var(--dark)}
+.btn.outline:hover{
+  background:var(--surface-3); border-color:rgba(20,17,20,.7);
+  color:var(--text); transform:translateY(-2px);
+  box-shadow:var(--edge-top), var(--sh-2);
+}
+/* On the dark plate the glass has to invert back: white at low alpha. */
+.section-dark .btn.outline{background:rgba(255,255,255,.1); color:var(--paper); border-color:rgba(255,255,255,.34)}
+.section-dark .btn.outline:hover{background:rgba(255,255,255,.18); color:var(--paper); border-color:rgba(255,255,255,.5)}
 
 /* ==========================================================================
    Preloader — dark curtain that splits behind a single logo mark. Nothing
@@ -591,9 +641,15 @@ body.loaded > footer{
    and content genuinely passes underneath. */
 .site-header{
   position:sticky; top:0; z-index:var(--z-header);
-  background:rgba(255,255,255,.72);
-  -webkit-backdrop-filter:blur(var(--blur-chrome)) saturate(1.6); backdrop-filter:blur(var(--blur-chrome)) saturate(1.6);
-  box-shadow:0 1px 0 rgba(10,10,10,.03), 0 12px 28px -18px rgba(10,10,10,.18);
+  /* Translucent chrome: content scrolls under it rather than hitting an opaque
+     strip. The blur is kept but modest — most of what passes under this bar is
+     the flat page ground, where a 20px blur costs a composite pass and returns
+     nothing visible; it earns its place over the artwork grid and the showreel,
+     which is where the bar actually overlaps something. The saturation bump is
+     what keeps colour from going flat as it passes beneath. */
+  background:rgba(242,239,233,.72);
+  -webkit-backdrop-filter:blur(12px) saturate(1.6); backdrop-filter:blur(12px) saturate(1.6);
+  border-block-end:1px solid var(--hairline);
   /* Fixed layout direction: the nav reads ראשי→גרפיקה→וידאו→הפצה right-to-left
      on BOTH the Hebrew and the English version of every page — nothing mirrors
      when you hit the language switch. */
@@ -607,37 +663,37 @@ body.loaded > footer{
 /* glossy centered pill nav */
 .main-nav{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  /* No backdrop-filter: it would be blurring the header's own blur. A near-solid
-     plate instead, which is what keeps the links legible while the bar behind
-     them changes with whatever scrolls under it. */
-  background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
-  border:1px solid rgba(255,255,255,.75);
-  box-shadow:var(--sh-2), inset 0 1px 0 rgba(255,255,255,.95);
-  border-radius:var(--r-lg); padding:6px 8px;
+  /* No plate at all now. The pill was a floating glass object; the nav is set
+     straight onto the masthead, and the active item is marked with ink. */
+  background:none; border:0; box-shadow:none;
+  border-radius:0; padding:0;
 }
 .main-nav ul{display:flex; align-items:center; gap:4px}
 .main-nav a{
-  display:inline-block; font-size:.98rem; font-weight:var(--fw-medium); color:var(--text);
-  padding:var(--c-5) 18px; border-radius:var(--r-lg);
+  display:inline-block; font-size:.94rem; font-weight:var(--fw-medium); color:var(--gray);
+  letter-spacing:.01em;
+  padding:var(--c-5) 16px; border-radius:var(--r-lg);
   transition:background var(--d-fast), color var(--d-fast), box-shadow var(--d-fast);
 }
-.main-nav a:hover{background:rgba(255,255,255,.95); color:var(--text)}
+.main-nav a:hover{background:var(--surface-2); color:var(--text)}
+/* The current section is a glass pill, not a solid one — solid orange here
+   would compete with the single primary CTA the page is allowed. */
 .main-nav a.active{
-  background:var(--accent); color:var(--dark);
-  box-shadow:var(--sh-accent);
+  background:var(--surface-3); color:var(--text);
+  box-shadow:var(--edge-top);
 }
 .header-right{display:flex; align-items:center; gap:var(--s-4)}
 .lang-switch{
   display:flex; align-items:center; gap:2px; font-size:.82rem; font-weight:var(--fw-medium);
-  background:var(--off); border:1px solid var(--border); border-radius:var(--r-lg); padding:3px;
+  background:var(--surface-1); border:1px solid var(--hairline); border-radius:var(--r-lg); padding:3px;
 }
 .lang-switch a{
-  opacity:.55; padding:5px 12px; border-radius:var(--r-lg); color:var(--text);
+  opacity:.6; padding:5px 12px; border-radius:var(--r-lg); color:var(--text);
   transition:opacity var(--d-fast), background var(--d-fast), color var(--d-fast), box-shadow var(--d-fast);
 }
 .lang-switch a:hover{opacity:1}
 .lang-switch a.active{
-  opacity:1; background:var(--dark); color:#fff;
+  opacity:1; background:var(--text); color:var(--paper);
   box-shadow:var(--sh-2);
 }
 .burger{
@@ -647,12 +703,12 @@ body.loaded > footer{
 .burger svg{width:var(--icon-md); height:var(--icon-md)}
 
 /* --- transparent-over-intro state --- */
-/* Where floating chrome meets content, a soft edge rather than a rule: the
-   hairline was the one hard line on a page built out of feathered seams. */
+/* A short fall under the bar so content does not appear to start abruptly
+   beneath it. */
 .site-header::after{
-  content:""; position:absolute; inset-inline:0; top:100%; height:20px;
+  content:""; position:absolute; inset-inline:0; top:100%; height:24px;
   pointer-events:none; opacity:1;
-  background:linear-gradient(180deg, rgba(10,10,10,.055), transparent);
+  background:linear-gradient(180deg, rgba(20,17,20,.07), transparent);
   transition:opacity var(--d-mid) var(--ease);
 }
 .hdr-over .site-header{
@@ -660,7 +716,7 @@ body.loaded > footer{
   -webkit-backdrop-filter:none; backdrop-filter:none;
 }
 .hdr-over .site-header::after{opacity:0}
-.hdr-over .lang-switch{background:rgba(255,255,255,.65); border-color:rgba(255,255,255,.8)}
+.hdr-over .lang-switch{background:var(--surface-1); border-color:var(--hairline)}
 .site-header,.main-nav,.main-nav a,.lang-switch,.lang-switch a,.burger{
   transition:background var(--d-mid) var(--ease), color var(--d-mid) var(--ease),
              border-color var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
@@ -677,11 +733,11 @@ body.loaded > footer{
      to switch the filter off. A solid bar is also what a full-screen drawer
      wants underneath it. */
   .site-header{
-    background:rgba(255,255,255,.94);
+    background:var(--bg);
     -webkit-backdrop-filter:none; backdrop-filter:none;
   }
   /* the mobile drawer is always the solid light panel */
-  .hdr-over .main-nav{background:#fff}
+  .hdr-over .main-nav{background:var(--bg)}
   .main-nav{
     /* Pinned to the measured header, not a hard-coded 63px: the bar lost its
        logo, so its height is no longer the number that was baked in here. */
@@ -694,7 +750,7 @@ body.loaded > footer{
        slide still plays, and instantly on open. */
     visibility:hidden;
     transition:transform var(--d-card) var(--ease), visibility 0s linear var(--d-card);
-    background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none;
+    background:var(--bg); backdrop-filter:none; -webkit-backdrop-filter:none;
     border:none; border-top:1px solid var(--border);
     box-shadow:none; border-radius:0;
     padding:var(--s-6) var(--s-5); z-index:var(--z-nav); overflow-y:auto;
@@ -718,7 +774,7 @@ body.loaded > footer{
   min-height:clamp(360px,68vh,680px);
   display:grid; align-content:center; justify-items:center; gap:clamp(24px,4vh,44px);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.3)),
+    linear-gradient(180deg, rgba(242,239,233,.62), rgba(242,239,233,.86)),
     url('../img/bg1-1.jpg') center/cover no-repeat;
   /* Slide up under the sticky header so the plate is full-bleed; the padding
      puts the wordmark back below it. --header-h is measured in script.js. */
@@ -765,14 +821,14 @@ body.loaded > footer{
      to 144px — the one place on the site where positive tracking is certainly
      wrong. Leading tightens with it, for the same reason. */
   font-weight:var(--fw-bold); font-size:clamp(2.6rem,12vw,9rem);
-  line-height:1.05; letter-spacing:var(--ls-display);
-  background-image:linear-gradient(90deg,var(--accent-deep) 0 50%,var(--dark) 50% 100%);
+  line-height:1.05; letter-spacing:var(--ls-hero);
+  background-image:linear-gradient(90deg,var(--orange-ink) 0 50%,var(--text) 50% 100%);
   background-size:200% 100%; background-position:100% 0; background-repeat:no-repeat;
   -webkit-background-clip:text; background-clip:text;
   color:transparent; -webkit-text-fill-color:transparent;
 }
 [dir="rtl"] .intro-word{
-  background-image:linear-gradient(90deg,var(--dark) 0 50%,var(--accent-deep) 50% 100%);
+  background-image:linear-gradient(90deg,var(--text) 0 50%,var(--orange-ink) 50% 100%);
   background-position:0 0;
 }
 @supports (animation-timeline:scroll()){
@@ -850,7 +906,7 @@ body.loaded > footer{
 .insta-item .cap{
   position:absolute; inset:0; z-index:2;
   display:flex; align-items:flex-end;
-  padding:var(--s-4); font-size:var(--t-xs); line-height:1.45; color:#fff; font-weight:var(--fw-regular);
+  padding:var(--s-4); font-size:var(--t-xs); line-height:1.45; color:var(--paper); font-weight:var(--fw-regular);
   background:linear-gradient(0deg,rgba(10,10,10,.92) 0%,rgba(10,10,10,.55) 55%,transparent 100%);
   opacity:0; transition:opacity var(--d-mid) var(--ease);
 }
@@ -863,18 +919,25 @@ body.loaded > footer{
     are what stop a full-bleed band from reading as text that escaped its
     column. */
 .ticker{
-  overflow:hidden; white-space:nowrap; padding:16px 0;
+  position:relative;
+  overflow:hidden; white-space:nowrap; padding:20px 0;
   direction:ltr; /* keeps marquee motion consistent */
-  background:var(--off);
-  border-top:var(--bd-hair) solid var(--border);
-  border-bottom:var(--bd-hair) solid var(--border);
-  margin-block:var(--s-5);
+  background:var(--surface-1);
+  border-block:1px solid var(--hairline);
+  margin-block:var(--s-6);
+}
+/* The track runs edge to edge, so it has to fade out at the two edges rather
+   than being cut by them — a marquee that hard-clips reads as an overflow bug.
+   A mask, not an overlaid gradient, because the ground behind it is lit and a
+   solid fade would show as two dark smudges. */
+.ticker{
+  -webkit-mask:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 .ticker-track{display:inline-block; animation:tickerMove 30s linear infinite}
 .ticker span{
   display:inline-block; padding:0 34px; position:relative;
-  background-image:var(--ticker-grad);
-  background-clip:text; -webkit-background-clip:text; color:transparent;
+  color:var(--ticker-ink);
   /* rem, not px: the accessibility toolbar scales the root font size, and a px
      value opts this line out of that entirely. */
   font-size:var(--t-lg); font-weight:var(--fw-semibold);
@@ -885,8 +948,7 @@ body.loaded > footer{
    dot would never show. */
 .ticker span::after,.svc-ticker span::after{
   content:"•"; position:absolute; inset-inline-end:-4px;
-  color:var(--text); -webkit-text-fill-color:var(--text);
-  background:none; animation:none;
+  color:var(--gray); opacity:.5;
 }
 .ticker span:last-child::after{content:none}
 @keyframes tickerMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -900,100 +962,9 @@ body.loaded > footer{
 .svc-ticker-track{display:inline-block; animation:tickerMove 34s linear infinite}
 .svc-ticker span{
   display:inline-block; padding:0 30px; position:relative;
-  background-image:var(--ticker-grad);
-  background-clip:text; -webkit-background-clip:text; color:transparent;
+  color:var(--ticker-ink);
   font-size:var(--t-lg); font-weight:var(--fw-semibold);
 }
-
-/* ---------------- Service cards (the three departments) ---------------- */
-.svc-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-5)}
-@media (max-width:900px){.svc-grid{grid-template-columns:1fr}}
-.svc-card{
-  position:relative; isolation:isolate; overflow:hidden;
-  display:flex; flex-direction:column; align-items:flex-start;
-  padding:var(--s-6) var(--s-5) var(--s-5);
-  background:var(--surface-card); border:1px solid var(--border); border-radius:var(--r-md);
-  box-shadow:var(--sh-1);
-  transition:transform var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease), border-color var(--d-mid) var(--ease);
-}
-.svc-card::before{
-  content:""; position:absolute; inset-inline:0; top:0; height:3px; z-index:1;
-  background:var(--brand-grad); transform:scaleX(0); transform-origin:inline-start;
-  transition:transform var(--d-slow) var(--ease);
-}
-.svc-card{transition-duration:var(--d-card)}
-.svc-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:transparent; box-shadow:var(--sh-3)}
-.svc-card:hover::before{transform:scaleX(1)}
-.svc-num{
-  font-family:var(--font-display); font-size:var(--t-xs); font-weight:var(--fw-bold);
-  letter-spacing:var(--ls-tracked); color:var(--text); margin-bottom:var(--s-4);
-  font-feature-settings:"tnum";
-}
-.svc-card h3{font-size:var(--t-lg); margin-bottom:var(--s-3); letter-spacing:-.01em}
-.svc-card p{font-size:var(--t-sm); margin:0 0 var(--s-5); color:var(--text-dim)}
-.svc-go{
-  margin-top:auto; display:inline-flex; align-items:center; gap:var(--s-2);
-  font-size:var(--t-sm); font-weight:var(--fw-semibold); color:var(--text);
-}
-.svc-go i{
-  width:18px; height:2px; background:currentColor; border-radius:var(--c-2); position:relative;
-  transform-origin:inline-start;
-  /* scaleX, not width: width is a layout property, so animating it reflowed
-     the row on every frame. Same 18px -> 28px travel, on the compositor. */
-  transition:transform var(--d-fast) var(--ease);
-}
-.svc-go i::after{
-  content:""; position:absolute; inset-inline-start:0; top:-3px;
-  width:var(--c-5); height:var(--c-5); border:var(--c-2) solid currentColor; border-width:2px 0 0 2px;
-  transform:rotate(-45deg);
-}
-.svc-card:hover .svc-go i{transform:scaleX(1.556)}
-
-/*  Video grid  */
-.video-grid{
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:var(--s-4);
-}
-.video-card{border-radius:var(--r-sm); overflow:hidden; background:var(--surface-card); border:1px solid var(--border); display:block}
-.section-dark .video-card{background:var(--dark-2); border-color:var(--border-dark)}
-.video-card .thumb{position:relative; aspect-ratio:16/9; overflow:hidden}
-.video-card .thumb img,.video-card .thumb video{width:100%; height:100%; object-fit:cover; transition:transform var(--d-mid)}
-.video-card:hover .thumb img{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
-.video-card .thumb::after{
-  content:""; position:absolute; inset:0; z-index:2;
-  background:rgba(10,10,10,.25);
-  transition:background var(--d-mid) var(--ease);
-}
-/* Drawn, not typeset: a border triangle is the same shape at every DPR and on
-   every platform, and it can be optically centred once. It always points right,
-   in both directions of the site — a transport control is a physical metaphor,
-   not text, so it does not mirror with the script. */
-.video-card .thumb::before{
-  content:""; position:absolute; z-index:3; top:50%; left:50%;
-  width:0; height:0; border-style:solid;
-  border-width:11px 0 11px 19px;
-  border-color:transparent transparent transparent #fff;
-  transform:translate(-50%,-50%) translateX(2px);
-  transition:transform var(--d-mid) var(--ease);
-}
-.video-card:hover .thumb::after{background:rgba(243,130,24,.35)}
-.video-card:hover .thumb::before{transform:translate(-50%,-50%) translateX(2px) scale(1.12)}
-.video-card .thumb.playing::before{display:none}
-.video-card .cap{padding:var(--s-4); font-size:.92rem; color:var(--text-dim)}
-.section-dark .video-card .cap{color:rgba(255,255,255,.75)}
-
-/*  Strategy cards — dark cards on a light section, so they carry their own
-    on-dark text colours (inheriting --text-dim here gave 2.4:1).  */
-.strategy-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-4)}
-@media (max-width:1000px){.strategy-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.strategy-grid{grid-template-columns:1fr}}
-.strategy-card{
-  background:var(--dark); border:1px solid var(--border-dark);
-  border-radius:var(--r-md); padding:var(--s-6) var(--s-5);
-  transition:transform var(--d-mid) var(--ease), border-color var(--d-mid) var(--ease), box-shadow var(--d-mid) var(--ease);
-}
-.strategy-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-3)}
-.strategy-card h3{color:#fff; font-size:var(--t-md); margin-bottom:var(--s-2)}
-.strategy-card p{font-size:var(--t-sm); margin:0; color:rgba(255,255,255,.75)}
 
 /*  Contact  */
 .contact-wrap{display:grid; grid-template-columns:.8fr 1.2fr; gap:var(--s-7); align-items:start}
@@ -1009,21 +980,22 @@ body.loaded > footer{
 }
 .contact-info a:hover{color:var(--text)}
 .contact-form{
-  display:grid; gap:var(--s-4); background:#fff;
-  border:1px solid var(--border); border-radius:var(--radius); padding:var(--s-6);
-  box-shadow:var(--sh-2);
+  display:grid; gap:var(--s-4); background:var(--surface-1);
+  border:1px solid var(--hairline); border-radius:var(--radius); padding:var(--s-6);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  box-shadow:var(--edge-top);
 }
 .contact-form input,.contact-form textarea{
-  width:100%; padding:13px 16px; border-radius:var(--r-sm);
-  border:1px solid var(--border); background:var(--off);
+  width:100%; padding:14px 18px; border-radius:var(--r-sm);
+  border:1px solid var(--hairline); background:var(--surface-1);
   font-family:var(--font); font-size:1rem; color:var(--text);
 }
 .contact-form textarea{min-height:130px; resize:vertical}
 .contact-form input:focus,.contact-form textarea:focus{outline:2px solid var(--color-focus)!important; border-color:transparent}
 .hp-field{position:absolute; left:-9999px; width:var(--c-1); height:var(--c-1); opacity:0; pointer-events:none}
 .form-msg{min-height:1.2em; font-size:.9rem; font-weight:var(--fw-semibold); margin:0}
-.form-msg.ok{color:var(--status-success)}
-.form-msg.err{color:var(--status-error)}
+.form-msg.ok,.form-msg[data-state="ok"]{color:var(--status-success)}
+.form-msg.err,.form-msg[data-state="err"]{color:var(--status-error)}
 
 /*  Footer  */
 /* The footer is the largest single dark field on the site and was flat black;
@@ -1033,7 +1005,7 @@ body.loaded > footer{
   background:
     radial-gradient(58% 60% at 50% 0%, rgba(243,130,24,.10), transparent 72%),
     var(--dark);
-  color:rgba(255,255,255,.7); padding:var(--s-8) 0 var(--s-5);
+  color:rgba(239,235,226,.72); padding:var(--s-8) 0 var(--s-5);
 }
 .footer-grid{
   display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:var(--s-6);
@@ -1041,38 +1013,28 @@ body.loaded > footer{
 }
 @media (max-width:760px){.footer-grid{grid-template-columns:1fr 1fr}}
 /* The markup sets these as h2 so the document outline stays sequential, and the
-   selector has to match that or they fall back to the browser default — 24px,
-   with the site-wide heading gradient painted through them. They are small
-   labels, not display type, so the gradient is switched off here as well. */
+   selector has to match that or they fall back to the browser default. */
 .footer-grid h2,.footer-grid h3{
-  font-size:var(--t-base); color:#fff; margin-bottom:var(--s-4);
-  background-image:none; -webkit-text-fill-color:#fff;
+  font-size:var(--t-base); color:var(--paper); margin-bottom:var(--s-4);
+  background-image:none; -webkit-text-fill-color:var(--paper);
 }
 .footer-grid li{margin-bottom:var(--s-2)}
 .footer-grid a{font-size:.95rem; transition:color var(--d-fast)}
 .footer-grid a:hover{color:var(--accent)}
 .footer-grid p{color:rgba(255,255,255,.6); font-size:.95rem}
-.footer-logo img{height:40px; margin-bottom:var(--s-4)}
+.footer-logo{display:inline-block; margin-bottom:var(--s-2)}
 .social-row{display:flex; gap:var(--s-3); margin-top:var(--s-4)}
 .social-row a{
   width:38px; height:38px; border-radius:50%;
-  border:1px solid var(--border-dark);
+  border:1px solid var(--border-dark); color:var(--paper);
   display:flex; align-items:center; justify-content:center;
   transition:var(--d-fast);
 }
-.social-row a{color:#fff}
 .social-row a svg{width:var(--icon-sm); height:var(--icon-sm)}
-/* The mark goes dark on the orange fill. White on this orange is 2.6:1 and
-   misses the 3:1 a non-text UI component owes; the ink measures 7.6:1. It was
-   white before too, but the fill was hard-coded into every copy of the SVG so
-   there was nothing to change — inheriting the colour is what makes it a
-   one-line fix. */
-.social-row a:hover{border-color:var(--accent); background:var(--accent); color:var(--dark)}
+/* The mark goes dark on the orange fill: white on this orange is 2.6:1 and
+   misses the 3:1 a non-text UI component owes; the ink measures 7.6:1. */
+.social-row a:hover{border-color:var(--accent); background:var(--accent); color:var(--bg)}
 .footer-bottom{padding-top:var(--s-5); text-align:center; font-size:.85rem}
-/* The studio name sits inline in the copyright line, and .brand-mark makes it
-   bold (700) against the 300 of the text around it — at this size the weight
-   jump reads as a size jump. In this one line it keeps the accent colour and
-   nothing else, so the whole line is one size and one weight. */
 .footer-bottom .brand-mark{font-weight:inherit; font-size:inherit}
 
 /* ==========================================================================
@@ -1132,7 +1094,11 @@ body.loaded > footer{
 .a11y-panel{
   position:fixed; bottom:86px; left:24px; z-index:var(--z-panel);
   width:280px; max-width:calc(100vw - 48px);
-  background:var(--surface-card); border-radius:var(--radius); border:1px solid var(--border);
+  /* Opaque, unlike the cards: a dialog sits over unpredictable content, and a
+     4.5% surface would let that content read straight through the controls.
+     The blur is what keeps it feeling like the same material as the chrome. */
+  background:rgba(255,255,255,.97); border-radius:var(--radius); border:1px solid var(--hairline-2);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
   box-shadow:var(--sh-overlay);
   padding:var(--s-4);
   font-family:var(--font);
@@ -1227,12 +1193,6 @@ html[data-a11y-size="3"]{font-size:118%}
 .plat-chip{
   display:inline-flex; align-items:center; gap:11px; padding:0 26px; white-space:nowrap;
 }
-.plat-badge{
-  width:36px; height:36px; border-radius:50%; flex:none;
-  background:#5A6270; color:#fff; display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-weight:var(--fw-bold); font-size:.85rem; letter-spacing:-.02em;
-  transition:background var(--d-mid) ease, box-shadow var(--d-mid) ease, transform var(--d-mid) ease;
-}
 .plat-logo{
   width:30px; height:30px; flex:none; object-fit:contain;
   filter:grayscale(1) brightness(0) invert(1); opacity:.42;
@@ -1242,11 +1202,8 @@ html[data-a11y-size="3"]{font-size:118%}
   font-family:var(--font); font-weight:var(--fw-medium); font-size:1rem;
   color:rgba(255,255,255,.45); transition:color var(--d-mid) ease;
 }
-.plat-chip:hover .plat-badge{background:var(--pc,var(--accent)); box-shadow:0 0 18px var(--pc,var(--accent)); transform:scale(1.08)}
 .plat-chip:hover .plat-logo{filter:none; opacity:1; transform:scale(1.12)}
 .plat-chip:hover .plat-name{color:#fff}
-.plat-chip.more .plat-badge{background:transparent; border:2px dashed rgba(255,255,255,.35); color:rgba(255,255,255,.6)}
-.plat-chip.more:hover .plat-badge{background:transparent; box-shadow:none; border-color:var(--accent); color:var(--accent)}
 
 /*  Flow steps (how it works)  */
 .flow-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-5); counter-reset:flow}
@@ -1260,7 +1217,7 @@ html[data-a11y-size="3"]{font-size:118%}
 .flow-step:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-2)}
 .flow-step .num{
   display:inline-flex; align-items:center; justify-content:center;
-  width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--dark);
+  width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--bg);
   font-family:var(--font-display); font-weight:var(--fw-bold); font-size:1.05rem;
   margin-bottom:var(--s-4); font-feature-settings:"tnum";
   box-shadow:var(--sh-accent);
@@ -1277,6 +1234,50 @@ html[data-a11y-size="3"]{font-size:118%}
     mask:var(--icon-arrow-left) center/contain no-repeat;
   }
 }
+
+/*  Explainer gallery  */
+.explain-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-4)}
+@media (max-width:900px){.explain-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.explain-grid{grid-template-columns:1fr}}
+/*  Video grid  */
+.video-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:var(--s-4);
+}
+.video-card{
+  border-radius:var(--r-sm); overflow:hidden;
+  background:var(--surface-card); border:1px solid var(--border);
+  display:block;
+}
+/* On the showreel band the card sits on the dark plate, so it lifts with white
+   rather than with the light-surface token — --dark-2 is a light placeholder
+   in this palette and would punch a pale hole in the band. */
+.section-dark .video-card{background:rgba(255,255,255,.06); border-color:var(--border-dark)}
+.video-card .thumb{position:relative; aspect-ratio:16/9; overflow:hidden}
+.video-card .thumb img,.video-card .thumb video{
+  width:100%; height:100%; object-fit:cover; transition:transform var(--d-mid) var(--ease);
+}
+.video-card:hover .thumb img{transform:scale(var(--zoom-media)); filter:brightness(var(--lift-bright))}
+.video-card .thumb::after{
+  content:""; position:absolute; inset:0; z-index:2;
+  background:rgba(20,17,20,.25);
+  transition:background var(--d-mid) var(--ease);
+}
+/* Drawn, not typeset: a border triangle is the same shape at every DPR and on
+   every platform, and it always points right — a transport control is a
+   physical metaphor, not text, so it does not mirror with the script. */
+.video-card .thumb::before{
+  content:""; position:absolute; z-index:3; top:50%; left:50%;
+  width:0; height:0; border-style:solid;
+  border-width:11px 0 11px 19px;
+  border-color:transparent transparent transparent var(--paper);
+  transform:translate(-50%,-50%) translateX(2px);
+  transition:transform var(--d-mid) var(--ease);
+}
+.video-card:hover .thumb::after{background:rgba(255,109,41,.35)}
+.video-card:hover .thumb::before{transform:translate(-50%,-50%) translateX(2px) scale(1.12)}
+.video-card .thumb.playing::before{display:none}
+.video-card .cap{padding:var(--s-4); font-size:.92rem; color:var(--text-dim)}
+.section-dark .video-card .cap{color:rgba(255,255,255,.75)}
 
 /*  Requirement / delivery cards  */
 .req-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5)}
@@ -1315,11 +1316,9 @@ html[data-a11y-size="3"]{font-size:118%}
 .req-card .send-to a{color:var(--text); font-weight:var(--fw-semibold)}
 
 /*  Explainer gallery  */
-.explain-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-4)}
-@media (max-width:900px){.explain-grid{grid-template-columns:1fr 1fr}}
-@media (max-width:560px){.explain-grid{grid-template-columns:1fr}}
 .explain-card{
-  border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); background:#fff;
+  border-radius:var(--radius); overflow:hidden; border:1px solid var(--hairline); background:var(--surface-1);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:var(--edge-top);
   transition:transform var(--d-mid), border-color var(--d-mid), box-shadow var(--d-mid);
 }
 .explain-card:hover{transition-duration:var(--d-card); transform:translateY(var(--lift-card)); border-color:var(--accent); box-shadow:var(--sh-2)}
@@ -1346,7 +1345,7 @@ html[data-a11y-size="3"]{font-size:118%}
 .dist-stage .shot{
   aspect-ratio:auto; width:100%; height:auto; max-height:420px;
   border-radius:var(--r-sm); border-bottom:none; object-fit:contain;
-  background:#fff;
+  background:var(--surface-2);
 }
 .dist-stage .explain-card.single{max-width:340px; margin:0 auto}
 
@@ -1361,6 +1360,7 @@ html[data-a11y-size="3"]{font-size:118%}
   transition:opacity var(--d-reveal) var(--ease), transform var(--d-reveal) var(--ease);
 }
 .reveal.in{opacity:1; transform:none}
+
 
 /* Staggered grids opt in explicitly. This used to be keyed to four grid names
    (svc/insta/strategy/video), so every other grid on the site — the portfolio,
@@ -1489,16 +1489,97 @@ html[data-a11y-size="3"]{font-size:118%}
 .reel-sound[data-muted="false"] .i-off{display:none}
 .reel-sound:hover{background:var(--accent-2)}
 
-/* Text wordmark (replaces the old, wrong-brand logo image). Inherits its
-   colour from context — dark on light surfaces, white on dark ones. */
+
+/* ==========================================================================
+   FORM STATES
+   One set of rules for all five forms, in the same material language as the
+   rest of the site: no new colours, no new radii, no new motion vocabulary.
+   ========================================================================== */
+
+/* ---- inline errors ---------------------------------------------------
+   Under the field they belong to, not collected at the top of the form: a
+   summary makes you hunt for which input it meant. */
+.field-err{
+  margin:6px 2px 0; min-height:0;
+  font-size:.82rem; font-weight:var(--fw-medium); line-height:1.4;
+  color:var(--status-error);
+}
+.field-err:empty{display:none}
+
+.contact-form input.is-invalid,.contact-form textarea.is-invalid,
+.form .field input.is-invalid,.form .field textarea.is-invalid{
+  border-color:var(--status-error);
+  background:color-mix(in srgb, var(--status-error) 8%, transparent);
+}
+/* The focus ring stays the accent even while invalid — the red is the message,
+   the ring is where you are, and merging the two loses the second one. */
+.contact-form input.is-invalid:focus,.contact-form textarea.is-invalid:focus{
+  border-color:var(--status-error);
+}
+
+/* ---- the submit button, working ---------------------------------------
+   Disabled and labelled, so the state is announced rather than only drawn. */
+.btn:disabled{cursor:default; opacity:.75}
+.btn.is-loading{position:relative; padding-inline-start:52px}
+.btn.is-loading::before{
+  content:""; position:absolute; inset-inline-start:26px; top:50%;
+  width:15px; height:15px; margin-top:-8px;
+  border:2px solid currentColor; border-top-color:transparent;
+  border-radius:var(--r-lg);
+  animation:btn-spin .7s linear infinite;
+}
+@keyframes btn-spin{to{transform:rotate(360deg)}}
+
+/* ---- the success state ------------------------------------------------
+   Replaces the form. A confirmation printed above a still-filled form is how
+   people end up sending the same enquiry three times. */
+.form-done{
+  display:grid; justify-items:center; text-align:center; gap:var(--s-2);
+  padding:var(--s-7) var(--s-5);
+  background:var(--surface-3); border:1px solid var(--hairline);
+  border-radius:var(--radius);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  box-shadow:var(--edge-top);
+}
+.form-done:focus{outline:none}
+.form-done-tick{
+  width:58px; height:58px; margin-bottom:var(--s-2);
+  fill:none; stroke:var(--status-success);
+  stroke-width:3; stroke-linecap:round; stroke-linejoin:round;
+}
+/* The circle draws, then the tick. Both are stroke-dashoffset on a known path
+   length, which stays on the compositor — no layout, no repaint of the panel. */
+.form-done-tick circle{
+  stroke-dasharray:151; stroke-dashoffset:151;
+  animation:tick-ring .5s var(--ease) forwards;
+}
+.form-done-tick path{
+  stroke-dasharray:36; stroke-dashoffset:36;
+  animation:tick-mark .3s var(--ease) .38s forwards;
+}
+@keyframes tick-ring{to{stroke-dashoffset:0}}
+@keyframes tick-mark{to{stroke-dashoffset:0}}
+
+.form-done-title{
+  margin:0; font-family:var(--font-display);
+  font-size:var(--t-lg); font-weight:var(--fw-bold); color:var(--text);
+}
+.form-done-note{margin:0; color:var(--text-dim); font-size:var(--t-sm)}
+
+@media (prefers-reduced-motion:reduce){
+  .btn.is-loading::before{animation:none}
+  .form-done-tick circle,.form-done-tick path{animation:none; stroke-dashoffset:0}
+}
+
+/* Text wordmark. Inherits its colour from context. */
 .brand-word{font-family:'Karantina',var(--font-display);font-weight:var(--fw-bold);letter-spacing:.005em;color:var(--text);white-space:nowrap;line-height:var(--lh-flat);display:inline-block}
-.footer-word{font-size:1.3rem;color:#fff}
+.footer-word{font-size:1.3rem;color:var(--paper)}
 
 /* ===== Skip link (WCAG 2.4.1) — first tab stop on every page ===== */
 .skip-link{
   position:absolute; inset-inline-start:var(--s-4); top:-100px; z-index:var(--z-loader);
   padding:12px 22px; border-radius:0 0 var(--r-sm) var(--r-sm);
-  background:var(--dark); color:#fff; font-weight:var(--fw-semibold); font-size:var(--t-sm);
+  background:var(--orange); color:var(--bg); font-weight:var(--fw-semibold); font-size:var(--t-sm);
   /* translateY, not top: top is a layout property. */
   transition:transform var(--d-fast) var(--ease);
 }
@@ -1525,7 +1606,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
    waiting for the navigation to answer is what makes an interface feel dead.
    One distance, one beat, the same as the button's own press.
    ========================================================================== */
-.svc-card:active,.insta-item:active,.video-card:active,.explain-card:active,
+.insta-item:active,.video-card:active,.explain-card:active,
 .reel-card:active,.vid-tab:active,.a11y-fab:active,.wa-float:active,
 .social-row a:active,.main-nav a:active,.lang-switch a:active,
 .a11y-panel button:active,.intro-scroll:active{
@@ -1543,13 +1624,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
    what carries the feedback here instead.
    ========================================================================== */
 @media (hover:none){
-  .svc-card:hover,.strategy-card:hover,.flow-step:hover,.req-card:hover,
+  .flow-step:hover,.req-card:hover,
   .explain-card:hover,.reel-card:hover,.video-card:hover,.insta-item:hover,
   .a11y-fab:hover,.wa-float:hover{transform:none}
+  /* The buttons lift and bloom on hover now. A finger cannot un-hover, so
+     without this a tapped button stays raised and lit. The press state above
+     is what carries the feedback here. */
+  .btn:hover{transform:none; box-shadow:var(--edge-top)}
+  .btn.outline:hover{transform:none; background:var(--surface-2); border-color:rgba(20,17,20,.5)}
+  .main-nav a:hover{background:none; color:var(--gray)}
   .insta-item:hover{box-shadow:none}
   .insta-item:hover img,.video-card:hover .thumb img,.explain-card:hover .shot,
   .reel-card:hover .reel-video{transform:none; filter:none}
-  .svc-card:hover .svc-go i{transform:none}
   /* The captions were reachable only by hovering, i.e. never, on the devices
      most of this traffic arrives on. They are the only label the covers have. */
   .insta-item .cap{
@@ -1565,19 +1651,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
    ========================================================================== */
 @media (prefers-reduced-transparency:reduce),(prefers-contrast:more){
   .site-header{
-    background:var(--white);
+    background:var(--bg);
     -webkit-backdrop-filter:none; backdrop-filter:none;
   }
-  .main-nav{background:var(--white)}
-  .hdr-over .site-header{background:var(--white)}
-  .hdr-over .lang-switch{background:var(--off); border-color:var(--border)}
+  .main-nav{background:var(--bg)}
+  .hdr-over .site-header{background:var(--bg)}
+  .hdr-over .lang-switch{background:var(--off); border-color:var(--hairline-2)}
+  .btn.outline,.req-card,.explain-card,.contact-form{
+    background:#FFFFFF; -webkit-backdrop-filter:none; backdrop-filter:none;
+  }
   .reel-sound{background:rgba(10,10,10,.85); backdrop-filter:none}
-  .a11y-panel{background:var(--white)}
+  .a11y-panel{background:#FFFFFF; backdrop-filter:none}
 }
 
 @media (prefers-reduced-motion:reduce){
   .ticker-track,.svc-ticker-track{animation:none!important}
-  .brand-word{animation:none!important}
   .reel-card,.reel-video,.video-card .thumb img,.insta-item img,
   .vid-tab{transition:none!important}
   *,*::before,*::after{scroll-behavior:auto!important}

@@ -86,6 +86,7 @@
 
 <section class="intro">
   <span class="fx fx-wave" data-fx="0.18" aria-hidden="true"><img src="assets/img/fx/wave.webp" alt="" width="810" height="423" decoding="async" fetchpriority="low"></span>
+  <span class="fx fx-orb-pale" data-fx="0.22" aria-hidden="true"><img src="assets/img/fx/orb-pale.webp" alt="" width="314" height="313" loading="lazy" decoding="async" fetchpriority="low"></span>
   <svg class="hero-ribbon" viewBox="0 0 1440 640" preserveAspectRatio="none" aria-hidden="true" focusable="false">
     <path d="M-60 372C140 216 316 470 560 392S1006 168 1240 268c86 37 158 66 260 52v168c-118 24-206-8-306-48-224-90-410 118-634 190S110 596-60 540Z"/>
   </svg>
@@ -116,6 +117,7 @@
 
 <section class="section" id="work">
   <span class="fx fx-ring" data-fx="0.38" aria-hidden="true"><img src="assets/img/fx/ring.webp" alt="" width="337" height="312" loading="lazy" decoding="async"></span>
+  <span class="fx fx-trefoil" data-fx="0.30" aria-hidden="true"><img src="assets/img/fx/trefoil.webp" alt="" width="299" height="303" loading="lazy" decoding="async"></span>
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">מחלקת גרפיקה</span>
@@ -211,13 +213,23 @@
   <div class="container">
     <div class="worksum reveal reveal-stagger">
 
-      <figure class="worksum-media">
-        <video class="worksum-video" playsinline preload="none"
-               controls controlslist="nodownload noplaybackrate"
+      <!-- The name lives on the figure, not on the video. Dropping `controls`
+           leaves <video> with no ARIA role, and aria-label on a roleless
+           element is invalid and ignored; <figure> maps to role="figure" and
+           carries it properly. -->
+      <figure class="worksum-media" aria-label="תקציר עבודות של הסטודיו">
+        <video class="worksum-video" autoplay loop muted playsinline preload="none"
+               controlslist="nodownload noplaybackrate"
                disablepictureinpicture draggable="false"
                poster="assets/img/portfolio/hq8.jpg"
-               src="assets/video/showreel.mp4?v=15"
-               aria-label="תקציר עבודות של הסטודיו"></video>
+               src="assets/video/showreel.mp4?v=15"></video>
+        <!-- WCAG 2.2 SC 2.2.2: motion that starts on its own and runs past five
+             seconds needs a way to stop it. Losing `controls` to the clean edge
+             is what makes this button required, not optional. -->
+        <button type="button" class="worksum-toggle" data-playing="true" aria-label="השהיית הווידאו">
+          <svg class="wt-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="7" y="5" width="3.4" height="14" rx="1.2"/><rect x="13.6" y="5" width="3.4" height="14" rx="1.2"/></svg>
+          <svg class="wt-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.6v12.8a1 1 0 0 0 1.53.85l10-6.4a1 1 0 0 0 0-1.7l-10-6.4A1 1 0 0 0 8 5.6Z"/></svg>
+        </button>
       </figure>
 
       <div class="worksum-copy">
@@ -239,6 +251,7 @@
 
 <section class="section" id="contact">
   <span class="fx fx-blob" data-fx="0.26" aria-hidden="true"><img src="assets/img/fx/blob.webp" alt="" width="614" height="538" loading="lazy" decoding="async"></span>
+  <span class="fx fx-orb-lime" data-fx="0.52" aria-hidden="true"><img src="assets/img/fx/orb-lime.webp" alt="" width="220" height="251" loading="lazy" decoding="async"></span>
   <div class="container contact-wrap">
     <div class="contact-info reveal">
       <span class="eyebrow">צרו קשר</span>

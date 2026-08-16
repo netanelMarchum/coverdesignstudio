@@ -403,4 +403,54 @@ window.pageTransition = (function () {
   if (!v) return;
   v.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   v.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+  /* ---- autoplay, but gated on the viewport --------------------------------
+     showreel.mp4 is 65 MB. `autoplay` in the markup is what the browser needs
+     to see to allow a muted start at all, but paired with preload="none" it
+     fetches nothing until something asks it to play — and the only thing that
+     asks is the observer below, one viewport out. A visitor who never reaches
+     this section never spends the 65 MB, and one who does has it already
+     running by the time it is on screen. Same pattern as the reel cards above.
+
+     Muted is not decoration here: an unmuted autoplay is blocked outright by
+     every current browser, so `muted` is what makes `autoplay` mean anything. */
+  var toggle = document.querySelector('.worksum-toggle');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  // Set by the button. Once the visitor has paused deliberately, scrolling
+  // away and back must not start it again — that would make the control feel
+  // broken, and it is the control WCAG 2.2.2 requires to work.
+  var held = false;
+
+  function paint(playing) {
+    if (!toggle) return;
+    toggle.setAttribute('data-playing', String(playing));
+    toggle.setAttribute('aria-label', playing ? 'השהיית הווידאו' : 'הפעלת הווידאו');
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      held = !v.paused;
+      if (held) { v.pause(); } else { v.play().catch(function () {}); }
+      paint(!held);
+    });
+  }
+
+  /* Reduced motion: the poster frame stays and nothing ever starts on its own.
+     The button still works, so the video is available — it is just never
+     something that begins moving without being asked. */
+  if (reduce) { v.removeAttribute('autoplay'); held = true; paint(false); return; }
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          if (held) return;
+          if (v.preload === 'none') v.preload = 'auto';
+          v.play().then(function () { paint(true); }).catch(function () {});
+        } else if (!v.paused) {
+          v.pause();                       // off screen is not worth a decode
+        }
+      });
+    }, { threshold: 0.25 }).observe(v);
+  }
 })();

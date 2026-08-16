@@ -404,6 +404,12 @@ html{scroll-behavior:auto; overflow-x:clip}
    failure, not a depth cue. */
 .fx-front{z-index:1}
 
+/* No perspective, no preserve-3d, no backface-visibility anywhere in this set.
+   Every rotation is flat — Z only — so a 3D context would establish compositor
+   layers and a perspective matrix that nothing ever uses. Depth is carried by
+   parallax rate, scale and opacity instead, which is how the rest of the
+   composition already reads and costs nothing per frame. */
+
 .fx img{
   width:100%; height:auto; display:block;
   animation:fxDrift var(--fx-dur,12s) ease-in-out infinite alternate;
@@ -469,6 +475,41 @@ html{scroll-behavior:auto; overflow-x:clip}
   inset-block-end:5%; inset-inline-start:-15%;
 }
 
+/* Contact, the other half of the pair. The note above describes "a small
+   bright orb high on the other" side — the composition was drawn for it and
+   then shipped without it, so the end side of this section has been empty
+   since. Lime against the lavender mass, small and near: the only object on
+   the page that is a saturated brand colour at full strength, which is what
+   lets 220px of it balance 400px of pale mass across the form. */
+.fx-orb-lime{
+  --fx-w:132px; --fx-o:.82;
+  --fx-rot:8deg; --fx-spin:-2deg; --fx-dy:-11px; --fx-dx:4px; --fx-dur:11s; --fx-delay:-5s;
+  inset-block-start:12%; inset-inline-end:7%;
+}
+
+/* Hero, the second object. Pale and large and high on the far side of the
+   wave, so the hero reads as having a horizon rather than one weighted corner.
+   Deliberately the lowest-contrast thing on the page: the wordmark and the
+   lead sit in the middle of this band and nothing may compete with them. */
+.fx-orb-pale{
+  --fx-w:min(230px,26vw); --fx-o:.3;
+  --fx-rot:0deg; --fx-spin:2deg; --fx-dy:-13px; --fx-dx:-5px; --fx-dur:16s; --fx-delay:-7s;
+  inset-block-start:14%; inset-inline-end:-4%;
+}
+
+/* Work: the faller. It starts above the covers grid on the side the section
+   head leaves empty, and the scroll timeline carries it down past the grid and
+   out. The inset is where it sits at the MIDDLE of the fall — fx-objects.js
+   offsets it half the travel up at the top of the section and half down at the
+   bottom — so this number is the resting centre, not the start.
+   The only trefoil in the set. It is here because it is the one form whose
+   orientation you can read, which is the whole requirement for a tumble. */
+.fx-trefoil{
+  --fx-w:186px; --fx-o:.5;
+  --fx-rot:-12deg; --fx-spin:3deg; --fx-dy:-6px; --fx-dx:6px; --fx-dur:14s; --fx-delay:-1s;
+  inset-block-start:38%; inset-inline-start:5%;
+}
+
 /* ── tablet ─────────────────────────────────────────────────────────────
    Scale and inset both come in. Shrinking alone would leave every object at
    the same distance from its edge, which is what makes a scaled-down desktop
@@ -479,6 +520,9 @@ html{scroll-behavior:auto; overflow-x:clip}
   .fx-blob{--fx-w:min(280px,46vw)}
   .fx-ring{--fx-w:170px}
   .fx-wire{--fx-w:190px}
+  .fx-orb-lime{--fx-w:96px; inset-inline-end:4%}
+  .fx-orb-pale{--fx-w:min(160px,22vw); inset-block-start:10%}
+  .fx-trefoil{--fx-w:132px; --fx-o:.42; inset-inline-start:2%}
 }
 
 /* ── mobile ─────────────────────────────────────────────────────────────
@@ -488,7 +532,13 @@ html{scroll-behavior:auto; overflow-x:clip}
    contact orb go entirely; there is no version of them at this size that is
    not either invisible or in the way. */
 @media (max-width:720px){
-  .fx-ring,.fx-wire{display:none}
+  /* The trefoil and the pale orb go with them. At this width the content
+     column is the full screen: the trefoil's fall would cross the covers grid,
+     and the pale orb would sit behind the wordmark. The lime orb stays — it is
+     small, it is anchored to a corner the contact form never reaches, and it
+     is the only thing keeping that section from being one mass on one side. */
+  .fx-ring,.fx-wire,.fx-trefoil,.fx-orb-pale{display:none}
+  .fx-orb-lime{--fx-w:64px; --fx-o:.7; inset-block-start:7%; inset-inline-end:5%}
   .fx-wave{--fx-w:74vw; --fx-o:.24; inset-block-end:-4%; inset-inline-start:-24%}
   .fx-ribbon{--fx-w:78vw; --fx-o:.2; inset-block-end:-6%; inset-inline-start:-20%}
   .fx-blob{--fx-w:56vw; --fx-o:.3; inset-block-end:0; inset-inline-start:-16%}
@@ -1629,15 +1679,71 @@ body.loaded > footer{
    wide. Height is set by the composition, not by the file's aspect ratio. */
 .worksum-media{
   position:relative; overflow:hidden;
-  border-radius:var(--r-md) 0 0 var(--r-md);
-  background:var(--bg-deep);
   min-height:clamp(460px,64vh,720px);
   margin-inline-end:calc(-1 * ((100vw - min(100vw, var(--maxw))) / 2 + var(--s-5)));
+
+  /* THE INNER EDGE IS A FADE, NOT A BORDER.
+     The panel dissolves into the page on the side that faces the copy, so
+     there is no line for the eye to catch between the two halves of the
+     composition. Three consequences, all deliberate:
+
+     · no border-radius. A rounded corner and a fade cannot occupy the same
+       edge — the fade eats the corner before it is ever drawn. The radius
+       comes back at the breakpoint below, where the panel has real edges.
+     · no background. --bg-deep was the letterbox plate; behind a fade it
+       would read as a dark bar bleeding out of the video instead of the page
+       showing through. The poster covers the load window.
+     · no box-shadow here for the same reason a border would not work: a
+       shadow is an edge, and the whole point of this edge is that there
+       isn't one.
+
+     Five stops rather than two. A straight linear ramp in alpha has a visible
+     shoulder where it meets full opacity — the eye reads it as a band. These
+     approximate an ease curve, so the blend has no detectable start or end. */
+  -webkit-mask:linear-gradient(to right,
+    rgba(0,0,0,0) 0%, rgba(0,0,0,.14) 6%, rgba(0,0,0,.48) 13%,
+    rgba(0,0,0,.85) 21%, rgba(0,0,0,1) 30%);
+          mask:linear-gradient(to right,
+    rgba(0,0,0,0) 0%, rgba(0,0,0,.14) 6%, rgba(0,0,0,.48) 13%,
+    rgba(0,0,0,.85) 21%, rgba(0,0,0,1) 30%);
 }
 .worksum-video{
   position:absolute; inset:0;
   display:block; width:100%; height:100%;
-  object-fit:cover;
+  /* cover, so the frame is filled at any panel height without ever stretching
+     the picture — the aspect ratio is the file's, the box is the composition's
+     and object-fit is what keeps those two from having to agree. */
+  object-fit:cover; object-position:center;
+}
+
+/* The pause control. Sits in the corner furthest from both the copy and the
+   fade, so it is never over the blend and never over the type. Visible on
+   hover and whenever it has focus — but ALWAYS visible once the video is
+   paused, or the only way back is to find an invisible button. */
+.worksum-toggle{
+  position:absolute; z-index:2;
+  inset-block-end:var(--s-4); inset-inline-end:var(--s-4);
+  display:grid; place-items:center;
+  width:40px; height:40px; padding:0;
+  border:0; border-radius:var(--r-pill,999px);
+  background:color-mix(in srgb, var(--color-text) 62%, transparent);
+  color:#fff; cursor:pointer;
+  opacity:0; transform:scale(.9);
+  transition:opacity var(--d-mid) var(--ease), transform var(--d-mid) var(--ease),
+             background var(--d-mid) var(--ease);
+}
+.worksum-media:hover .worksum-toggle,
+.worksum-toggle:focus-visible,
+.worksum-toggle[data-playing="false"]{opacity:1; transform:none}
+.worksum-toggle:hover{background:var(--color-text)}
+.worksum-toggle svg{width:19px; height:19px; fill:currentColor; display:block}
+/* Both glyphs ship in the markup and CSS states which one shows, so the
+   button's drawing and its accessible name cannot drift apart. */
+.worksum-toggle .wt-play{display:none}
+.worksum-toggle[data-playing="false"] .wt-pause{display:none}
+.worksum-toggle[data-playing="false"] .wt-play{display:block}
+@media (prefers-reduced-motion:reduce){
+  .worksum-toggle{transition:none; opacity:1; transform:none}
 }
 
 /* ── the copy ──────────────────────────────────────────────────────────── */
@@ -1681,7 +1787,18 @@ body.loaded > footer{
    full-width editorial block rather than being squeezed into a narrow track. */
 @media (max-width:1024px){
   .worksum{grid-template-columns:minmax(0,1fr); row-gap:var(--s-5)}
-  .worksum-media{grid-column:1; grid-row:1; min-height:clamp(380px,48vh,520px)}
+  /* One column: nothing sits beside the video any more, so there is no inner
+     edge to dissolve into. The fade would just be a pale strip down one side of
+     a full-width panel. Off it goes, and the panel gets the edge treatment that
+     suits a real edge instead — corner radius, plate, and a soft shadow to lift
+     it off the ground. */
+  .worksum-media{
+    grid-column:1; grid-row:1; min-height:clamp(380px,48vh,520px);
+    -webkit-mask:none; mask:none;
+    border-radius:var(--r-md);
+    background:var(--bg-deep);
+    box-shadow:var(--sh-3);
+  }
   .worksum-copy{grid-column:1; grid-row:2; padding-block-end:0}
   .worksum-index{grid-column:1; grid-row:3}
   .worksum-lead{max-width:52ch}
@@ -1701,6 +1818,9 @@ body.loaded > footer{
   .worksum-media{
     min-height:0; aspect-ratio:4/5;
     border-radius:0;
+    /* Edge to edge: there is no corner left to round and no ground left beside
+       the panel for a shadow to fall on. */
+    box-shadow:none;
     margin-inline:calc(-1 * var(--s-5));
   }
   .worksum-cta{margin-top:var(--s-5)}

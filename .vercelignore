@@ -31,7 +31,39 @@ assets/js/instagram.js
 assets/js/lightbox.js
 assets/js/motion.js
 assets/js/script.js
+assets/js/cursor-trail.js
+assets/js/forms.js
+assets/js/lang-boot.js
+assets/js/scroll-rail.js
+assets/js/validate.js
+assets/js/velocity-carousel.js
 
-# 3D source cut-outs. assets/img/fx/*.webp are built from these (225K total);
-# the 1.9MB of source PNGs stay in the repo but never ship.
+# 3D source cut-outs. assets/img/fx/*.webp and assets/img/intro/*.webp are built
+# from these; the 1.9MB of source PNGs stay in the repo but never ship.
 assets/img/asset bk
+
+# Unreferenced files sitting at the web root. Nothing in any page links to any
+# of them, and anything deployed to the root is publicly fetchable at a short,
+# guessable path — so this is the whole of the "accidental public files"
+# problem in one block. The .mp4 is the 65MB showreel master: a second, full
+# quality copy of assets/video/showreel.mp4 that was one URL away from anyone.
+bubble5.png
+logo full v4.png
+תקציר עבודות -אתר.mp4
+
+# Raw TTF font masters. The site loads the subsetted woff2 in assets/fonts/;
+# these are the complete originals and shipping them redistributes the whole
+# family to anyone who guesses the folder.
+font/
+
+# Apache config. This deploys to Vercel, where it does nothing at all except
+# describe the server layout to whoever fetches it.
+.htaccess
+
+# Unlinked work-in-progress page. Not in the sitemap, not linked from anywhere,
+# but a plain file at the root is served to anyone who asks for it by name.
+index-v2.html
+assets/css/studio-v2.css
+assets/css/studio-v2.min.css
+assets/js/studio-v2.js
+assets/js/studio-v2.min.js

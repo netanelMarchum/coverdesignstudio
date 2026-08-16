@@ -79,7 +79,14 @@
     'fx-ribbon':   { type: 'drift'  },
     'fx-blob':     { type: 'drift'  },
     'fx-orb-pale': { type: 'drift'  },
-    'fx-orb-lime': { type: 'drift'  },
+    /* The lime sphere travels. It is the one object small and bright enough to
+       carry real movement without becoming the subject of its section, so it
+       climbs and recedes with the scroll instead of only drifting.
+       rotation is 0 on purpose: a glossy sphere turned any number of degrees
+       is the same picture with the highlight moved, so spending a rotation on
+       it would be a tween nobody can see. The travel and the scale taper are
+       what read. */
+    'fx-orb-lime': { type: 'rise', lift: 300, rotation: 0, scale: 0.88 },
     /* A ring and a thin line: the two forms in the set with a readable axis.
        A quarter-turn IN THE PLANE across a whole section — flat rotation only.
        Nothing tips toward or away from the viewer: these are cut-out PNGs with

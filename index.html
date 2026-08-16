@@ -54,6 +54,20 @@
 <div class="grain" aria-hidden="true"></div>
 
 <div id="loader-wrapper">
+  <div class="loader-objects" aria-hidden="true">
+    <span class="lo lo-wave" style="--lo-x:12%;--lo-y:16%;--lo-from:-74vh;--lo-r0:-16deg;--lo-delay:0.00s"><img src="assets/img/intro/wave.webp" alt="" width="400" height="209" decoding="async"></span>
+    <span class="lo lo-blob" style="--lo-x:78%;--lo-y:12%;--lo-from:-80vh;--lo-r0:14deg;--lo-delay:0.06s"><img src="assets/img/intro/blob.webp" alt="" width="300" height="263" decoding="async"></span>
+    <span class="lo lo-ribbon" style="--lo-x:74%;--lo-y:76%;--lo-from:-92vh;--lo-r0:11deg;--lo-delay:0.13s"><img src="assets/img/intro/ribbon.webp" alt="" width="380" height="180" decoding="async"></span>
+    <span class="lo lo-swoosh" style="--lo-x:9%;--lo-y:78%;--lo-from:-88vh;--lo-r0:-13deg;--lo-delay:0.19s"><img src="assets/img/intro/swoosh.webp" alt="" width="360" height="166" decoding="async"></span>
+    <span class="lo lo-ring" style="--lo-x:4%;--lo-y:46%;--lo-from:-70vh;--lo-r0:18deg;--lo-delay:0.09s"><img src="assets/img/intro/ring.webp" alt="" width="240" height="222" decoding="async"></span>
+    <span class="lo lo-trefoil" style="--lo-x:88%;--lo-y:48%;--lo-from:-76vh;--lo-r0:-19deg;--lo-delay:0.23s"><img src="assets/img/intro/trefoil.webp" alt="" width="220" height="223" decoding="async"></span>
+    <span class="lo lo-wire" style="--lo-x:30%;--lo-y:6%;--lo-from:-64vh;--lo-r0:22deg;--lo-delay:0.16s"><img src="assets/img/intro/wire.webp" alt="" width="260" height="192" decoding="async"></span>
+    <span class="lo lo-pale" style="--lo-x:66%;--lo-y:4%;--lo-from:-58vh;--lo-r0:0deg;--lo-delay:0.27s"><img src="assets/img/intro/orb-pale.webp" alt="" width="180" height="179" decoding="async"></span>
+    <span class="lo lo-lime" style="--lo-x:58%;--lo-y:86%;--lo-from:-96vh;--lo-r0:0deg;--lo-delay:0.31s"><img src="assets/img/intro/orb-lime.webp" alt="" width="128" height="146" decoding="async"></span>
+    <span class="lo lo-rim" style="--lo-x:20%;--lo-y:62%;--lo-from:-68vh;--lo-r0:0deg;--lo-delay:0.35s"><img src="assets/img/intro/orb-rim.webp" alt="" width="108" height="107" decoding="async"></span>
+    <span class="lo lo-dot" style="--lo-x:44%;--lo-y:14%;--lo-from:-54vh;--lo-r0:0deg;--lo-delay:0.39s"><img src="assets/img/intro/orb-dot.webp" alt="" width="80" height="63" decoding="async"></span>
+    <span class="lo lo-mini" style="--lo-x:33%;--lo-y:88%;--lo-from:-84vh;--lo-r0:0deg;--lo-delay:0.43s"><img src="assets/img/intro/orb-mini.webp" alt="" width="60" height="67" decoding="async"></span>
+  </div>
   <div id="loader">
     <img class="loader-mark" src="assets/img/logo-mark.webp" alt="" width="512" height="512" fetchpriority="high" decoding="async">
   </div>
@@ -64,7 +78,7 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="hdr-shell">
-    <a class="hdr-logo" href="index.html" aria-label="עיצוב עטיפה סטודיו — לעמוד הבית"><img src="assets/img/logo-mark-v4.webp?v=15" alt="" width="256" height="256" decoding="async"></a>
+    <a class="hdr-logo" href="index.html" aria-label="עיצוב עטיפה סטודיו, לעמוד הבית"><img src="assets/img/logo-mark-v4.webp?v=15" alt="" width="256" height="256" decoding="async"></a>
     <nav class="main-nav">
       <ul>
         <li><a href="index.html" class="active">ראשי</a></li>
@@ -208,6 +222,61 @@
 
 
 
+<!--  Digital distribution. Third of the three departments, so it sits after
+      graphics (#work) and video (.section-brand) and completes the run before
+      the summary picks all three up again.
+      Built entirely from parts that already exist: .section-head, the
+      .explain-card the distribution page uses for this same screenshot, and
+      the platform marquee from that page. No new component, one new rule. -->
+<section class="section" id="distribution">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">הפצה דיגיטלית</span>
+      <h2 class="section-title">רוצים שהסאונד שלכם יהיה זמין בכל מקום?</h2>
+      <p class="section-lead">אנחנו מעלים את השיר לספוטיפיי, לאפל מיוזיק, ליוטיוב מיוזיק ולשאר הפלטפורמות, פותחים לכם פרופיל אמן מאומת ודואגים שהעטיפה תיראה נכון בכל אחת מהן.</p>
+    </div>
+    <figure class="dist-shot explain-card reveal">
+      <img class="shot" src="assets/img/distribution/spotify-streams-stats.jpg" alt="כרטיס סטטיסטיקות השמעות של אמן בספוטיפיי, עם מספר ההשמעות, המאזינים החודשיים והמדינות המובילות" width="1000" height="1443" loading="lazy" decoding="async">
+    </figure>
+  </div>
+
+  <!-- Full-bleed, and aria-hidden: the names are decoration here, the section
+       already says in words where the music lands. -->
+  <div class="logo-ticker-wrap" aria-hidden="true">
+    <div class="logo-ticker-track">
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/spotify.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Spotify</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/apple-music.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Apple Music</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/itunes.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">iTunes</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/amazon-music.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Amazon Music</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/youtube-music.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">YouTube Music</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/youtube.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">YouTube</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/tiktok.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">TikTok</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/instagram.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Instagram</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/deezer.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Deezer</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/soundcloud.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">SoundCloud</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/tidal.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Tidal</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/shazam.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Shazam</span></span>
+      <!-- duplicate set, so the -50% loop has somewhere to come back from -->
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/spotify.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Spotify</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/apple-music.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Apple Music</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/itunes.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">iTunes</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/amazon-music.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Amazon Music</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/youtube-music.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">YouTube Music</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/youtube.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">YouTube</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/tiktok.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">TikTok</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/instagram.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Instagram</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/deezer.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Deezer</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/soundcloud.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">SoundCloud</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/tidal.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Tidal</span></span>
+      <span class="plat-chip"><img class="plat-logo" src="assets/img/platforms/shazam.svg" alt="" width="30" height="30" loading="lazy" decoding="async"><span class="plat-name">Shazam</span></span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="load-more reveal"><a class="btn" href="distribution.html">עוד על ההפצה</a></div>
+  </div>
+</section>
+
 <section class="section worksum-section" id="worksum" aria-labelledby="worksum-title">
   <span class="fx fx-wire fx-front" data-fx="0.64" aria-hidden="true"><img src="assets/img/fx/wire.webp" alt="" width="498" height="368" loading="lazy" decoding="async"></span>
   <div class="container">
@@ -235,7 +304,16 @@
       <div class="worksum-copy">
         <span class="eyebrow">תקציר עבודות</span>
         <h2 class="section-title" id="worksum-title">בואו נכיר</h2>
-        <p class="worksum-lead">הבית לעיצוב עטיפות בתעשיית המוזיקה — מיתוג ויזואלי לאמנים, קליפים ואנימציה, והפצה לכל פלטפורמות הסטרימינג.</p>
+        <div class="worksum-lead">
+          <p>הבית לעיצוב עטיפות בתעשיית המוזיקה סטודיו המתמחה בעיצוב עטיפות אלבומים, סינגלים ועטיפות מוזיקה לאמנים וזמרים.</p>
+          <p>אנחנו יוצרים מיתוג ויזואלי מקצועי ומדויק שמחבר בין הסגנון המוזיקלי, האמן והסיפור שמאחורי היצירה.</p>
+          <p>מעיצוב עטיפות אלבום וסינגל ועד אנימציות, קליפים למילים, ויזואליזרים ותוכן ויזואלי למוזיקה.</p>
+          <p>כל עיצוב נבנה בהתאמה אישית כדי ליצור נראות ייחודית, בולטת וזכירה בכל פלטפורמה.</p>
+          <p>אנחנו מתאימים את העיצובים להפצה דיגיטלית ולשימוש בפלטפורמות המוזיקה והרשתות החברתיות.</p>
+          <p>המטרה שלנו היא לתת לכל שיר, סינגל ואלבום זהות ויזואלית שמרגישה מקצועית ומספרת את הסיפור שלו.</p>
+          <p>יצירתיות, איכות, דיוק והתאמה אישית במחירים נגישים לאמנים בכל שלב בקריירה.</p>
+          <p>כי המוזיקה שלך ראויה לעטיפה שלא רק נראית טוב, אלא הופכת לחלק מהחוויה של המוזיקה.</p>
+        </div>
         <div class="worksum-cta"><a class="btn" href="graphics.html">מידע נוסף</a></div>
       </div>
 

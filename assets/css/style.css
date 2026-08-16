@@ -57,7 +57,6 @@
   --orange-ink:var(--color-text);
   --gray:var(--color-muted);
   --dark:var(--bg-deep);
-  --dark-3:var(--bg-deep);
   --paper:var(--color-surface);
   --accent:var(--color-accent);
   --accent-deep:var(--color-text);
@@ -71,7 +70,16 @@
   --text-dim:var(--color-muted);
   --text-soft:var(--color-muted);
   --border:var(--color-border);
-  --ticker-ink:var(--color-text);
+  /* Brand colour that can carry LETTERFORMS. The raw lavender is 1.68:1 on
+     white — below even the 3:1 large-text bar, which is exactly why the sheet
+     already says brand colour may fill shapes but never type. Mixed 55% into
+     the ink it lands at 4.82:1, clears AA for body text, and still reads
+     unmistakably purple. The lime gets the same treatment for the same reason:
+     raw it is 1.15:1, invisible; at 75% it is 2.04:1, which is precisely the
+     visibility the grey dots had before, so nothing on the page got fainter. */
+  --color-lavender-deep:color-mix(in srgb, var(--color-lavender) 55%, var(--color-text));
+  --color-accent-deep:color-mix(in srgb, var(--color-accent) 75%, var(--color-text));
+  --ticker-ink:var(--color-lavender-deep);
 
   /* The atmosphere. Two soft lavender masses, well under the strength that
      would read as "a coloured background" — they have to sit behind artwork
@@ -483,7 +491,11 @@ html{scroll-behavior:auto; overflow-x:clip}
    lets 220px of it balance 400px of pale mass across the form. */
 .fx-orb-lime{
   --fx-w:132px; --fx-o:.82;
-  --fx-rot:8deg; --fx-spin:-2deg; --fx-dy:-11px; --fx-dx:4px; --fx-dur:11s; --fx-delay:-5s;
+  /* The most visibly alive object in the set, and deliberately so: it is the
+     smallest and the nearest, and near things are the ones you expect to move.
+     Roughly double the idle travel of the drifters and a much shorter cycle,
+     so it reads as buoyant rather than as a sticker. */
+  --fx-rot:8deg; --fx-spin:-4deg; --fx-dy:-22px; --fx-dx:9px; --fx-dur:6.5s; --fx-delay:-5s;
   inset-block-start:12%; inset-inline-end:7%;
 }
 
@@ -1007,15 +1019,42 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
 }
 
 /* ==========================================================================
-   Preloader — dark curtain that splits behind a single logo mark. Nothing
-   else: no wordmark, no progress bar, no percentage counter.
+   Preloader — the twelve forms fall onto a white ground and the mark draws
+   itself in the space they leave.
+
+   WHY WHITE
+   The curtain used to be --bg-deep, and the reason given was that the veil and
+   the curtain had to share one colour so the entry sequence read as one
+   system. That reason still holds; the colour it pointed at no longer does.
+   This is a light site — the ground is --color-bg — so a dark curtain made
+   every visitor's first frame a colour the site never shows again, and the
+   lift was a hard cut from black to paper. On --color-bg the curtain and the
+   page are the same field: what leaves is the objects and the mark, not the
+   ground. The page-veil moved with it, so the pair still match.
+
+   THE FALL
+   Twelve objects — the complete set the artwork was cut from — arriving from
+   above under something that behaves like gravity: accelerating in, passing
+   BELOW where they belong, then rising back to it and settling. That
+   overshoot is the whole difference between something falling and something
+   sliding down. A form that stops dead on its mark has no weight.
+
+   Each object owns four numbers in the markup and nothing else: where it
+   sits, how far above it starts, how far it is turned when it lets go, and
+   when it lets go. Deterministic — the composition is identical on every
+   load, so it can be art-directed rather than merely generated.
+
+   PURE CSS, ON PURPOSE
+   Not GSAP. GSAP is a CDN script at the very bottom of the body; this has to
+   be moving in the first painted frame and has to still work if that script
+   is blocked or slow. Keyframes cost nothing and cannot fail to arrive.
    ========================================================================== */
 #loader-wrapper{
   position:fixed; inset:0; z-index:var(--z-loader);
   display:flex; align-items:center; justify-content:center; text-align:center;
 }
 #loader{
-  position:relative; z-index:calc(var(--z-loader) + 1); width:min(340px,70vw);
+  position:relative; z-index:calc(var(--z-loader) + 2); width:min(340px,70vw);
   display:flex; flex-direction:column; align-items:center; gap:var(--s-5);
 }
 /* The mark rises into itself: it is uncovered from its own baseline upward
@@ -1030,8 +1069,12 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
    The uncover gets --ease-wipe; the lift and fade keep the house curve. */
 .loader-mark{
   width:min(148px,32vw); height:auto;
-  animation:loaderReveal .85s var(--ease-wipe) both,
-            loaderSettle 1.15s var(--ease) both;
+  /* Delayed, so the mark draws itself INTO the composition rather than being
+     there first and waiting to be decorated. The last form lets go at .43s and
+     lands at 1.35s; the wipe runs .45s to 1.30s. The two finish together,
+     which is what makes the reveal read as one event instead of two. */
+  animation:loaderReveal .85s .45s var(--ease-wipe) both,
+            loaderSettle 1.15s .45s var(--ease) both;
 }
 @keyframes loaderReveal{
   from{clip-path:inset(100% 0 0 0)}
@@ -1046,11 +1089,110 @@ html.a11y-contrast :where(h1,h2,h3,h4,h5,h6){color:#fff!important}
    flat field that simply fades, so the only movement on screen at that moment
    is the page itself rising. */
 #loader-wrapper .loader-section{
-  background:var(--dark-3);
+  background:var(--color-bg);
   position:fixed; inset:0; width:100%; height:100%; z-index:var(--z-loader);
 }
+
+/* -- the falling forms --------------------------------------------------
+   Placed with left/top and moved with transform only. Position is static and
+   never animates, so twelve objects arriving at once cannot cost a single
+   layout: the only thing changing per frame is a composited transform. */
+.loader-objects{
+  position:fixed; inset:0; z-index:calc(var(--z-loader) + 1);
+  pointer-events:none; overflow:hidden;
+}
+.lo{
+  position:absolute;
+  left:var(--lo-x); top:var(--lo-y);
+  width:var(--lo-w,120px);
+  line-height:0;
+  /* Visible by default, hidden by the keyframe's first stop. That order
+     matters: prefers-reduced-motion kills the animation outright, and an
+     element whose only opacity came from the keyframes would stay at zero
+     forever. The composition survives; only the fall goes. */
+  opacity:1;
+  animation:loaderDrop .92s var(--lo-delay,0s) both;
+  will-change:transform;
+}
+.lo img{
+  width:100%; height:auto; display:block;
+  /* Hands off to the same idle drift the page's fx objects use, so the forms
+     do not freeze the instant they land: they keep breathing until the
+     curtain lifts, in a motion language the site already speaks. Delayed past
+     the fall so the two never write transform on one element at once. */
+  animation:fxDrift var(--lo-float,9s) ease-in-out infinite alternate;
+  animation-delay:calc(var(--lo-delay,0s) + .92s);
+  --fx-dy:-7px; --fx-dx:4px; --fx-spin:2deg;
+}
+
+/* Fall, overshoot, rise, settle. Four stops and three curves, because one
+   curve cannot describe both a drop and a landing: the entry has to speed up
+   the way a dropped thing does, and everything after it has to slow down.
+   A single ease-in-out across the whole run reads as a lift on a string,
+   which is the exact thing this is not.
+
+   All three curves are the system's own, and that is not a compromise:
+     --ease-wipe  is flat for the first 60% of its x, so it accelerates hard.
+                  It was cut for a reveal you are meant to watch, and a fall
+                  is the same event with a different subject.
+     --ease-out   catches the overshoot and lifts back out of it.
+     --ease       easeOutExpo, long tail, no overshoot of its own — the house
+                  curve for something settling, used here for the last pixels.
+   A fourth hand-written bezier would have bought a marginally springier
+   landing and cost the site its one easing language. */
+@keyframes loaderDrop{
+  0%{
+    opacity:0;
+    transform:translate3d(0,var(--lo-from,-70vh),0) rotate(var(--lo-r0,0deg)) scale(.86);
+    animation-timing-function:var(--ease-wipe);
+  }
+  9%{
+    opacity:1;
+    animation-timing-function:var(--ease-wipe);
+  }
+  54%{
+    opacity:1;
+    transform:translate3d(0,var(--lo-over,26px),0) rotate(calc(var(--lo-r0,0deg) * .16)) scale(1.035);
+    animation-timing-function:var(--ease-out);
+  }
+  77%{
+    transform:translate3d(0,calc(var(--lo-over,26px) * -.34),0) rotate(calc(var(--lo-r0,0deg) * -.05)) scale(.994);
+    animation-timing-function:var(--ease);
+  }
+  100%{
+    opacity:1;
+    transform:translate3d(0,0,0) rotate(0deg) scale(1);
+  }
+}
+
+/* Size is the depth cue, exactly as it is for the .fx set on the page: the
+   big soft masses take the corners and the small dense orbs come forward.
+   Nothing is placed within reach of the centre — the mark draws itself there,
+   and an object crossing it would compete with the one thing the curtain
+   exists to show. */
+.lo-wave{--lo-w:200px}   .lo-blob{--lo-w:150px}
+.lo-ribbon{--lo-w:190px} .lo-swoosh{--lo-w:180px}
+.lo-ring{--lo-w:120px}   .lo-trefoil{--lo-w:110px}
+.lo-wire{--lo-w:130px}   .lo-pale{--lo-w:90px}
+.lo-lime{--lo-w:64px}    .lo-rim{--lo-w:54px}
+.lo-dot{--lo-w:40px}     .lo-mini{--lo-w:30px}
+
+/* Tablet: the composition tightens toward the mark rather than scaling with
+   the screen, or the corner objects walk off the edges. */
+@media (max-width:1024px){
+  .lo{width:calc(var(--lo-w,120px) * .78)}
+}
+/* Phone: five objects, not twelve. At this width the mark takes most of the
+   screen and the rest is margin — twelve forms in that margin is a texture,
+   not a composition. The five that stay are the ones nearest the corners, and
+   they fall a shorter distance because the screen is shorter. */
+@media (max-width:720px){
+  .lo{width:calc(var(--lo-w,120px) * .62); --lo-from:-46vh; --lo-over:16px}
+  .lo-wire,.lo-pale,.lo-rim,.lo-dot,.lo-mini,.lo-trefoil,.lo-ring{display:none}
+}
 .loaded #loader-wrapper .loader-section{opacity:0; transition:opacity var(--d-loader-out) var(--ease)}
-.loaded #loader{opacity:0; transition:opacity var(--d-loader-out) var(--ease)}
+.loaded #loader,
+.loaded .loader-objects{opacity:0; transition:opacity var(--d-loader-out) var(--ease)}
 .loaded #loader-wrapper{
   visibility:hidden; pointer-events:none;
   transition:visibility 0s var(--d-loader-out);
@@ -1463,7 +1605,19 @@ body.loaded > footer{
      keep the container width — only this wrapper breaks out. */
   width:100vw;
   margin-inline:calc(50% - 50vw);
-  margin-block:var(--s-5) 0;
+  /* One line, always. The track is a nowrap flex row, so this is belt and
+     braces — but a stray inline-block or a future change to the track's
+     display must not be able to wrap a card onto a second line. */
+  white-space:nowrap;
+  /* Vertical room INSIDE the clip. overflow:hidden clips at the padding edge,
+     and without padding that edge sat exactly on the cards: --sh-2 reaches 8px
+     below a resting card and the hover state's --sh-3 reaches about 30px, so
+     every shadow in the row was being sliced off flat. A card with its shadow
+     cut square across the bottom reads as a cropped image, which is what this
+     looked like. The negative bottom margin gives the padding back to the
+     layout, so the section keeps the exact rhythm it had. */
+  padding-block:var(--s-3) var(--s-6);
+  margin-block:calc(var(--s-5) - var(--s-3)) calc(-1 * var(--s-6));
   overflow:hidden;
   /* Fades at the two edges so cards enter and leave instead of being clipped.
      A mask, not an overlay: the ground behind it is lit and a solid fade would
@@ -1472,12 +1626,19 @@ body.loaded > footer{
           mask:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
 .insta-grid.is-carousel{
-  display:flex; width:max-content;
+  display:flex; flex-wrap:nowrap; width:max-content;
   direction:ltr;   /* the track is physical; the cards inside keep the page direction */
   grid-template-columns:none;
-  /* Generous. At 12px the cards read as a strip; the space between them is
-     what makes each one an object rather than a frame in a filmstrip. */
-  gap:var(--s-5);
+  /* NO `gap` HERE, AND THAT IS THE FIX.
+     `gap` falls BETWEEN items and never after the last one, so a track of 2n
+     cards is 2n*card + (2n-1)*gap. Half of that is half a gap short of the
+     real repeat distance, n*(card+gap) — so a -50% loop slipped 12px every
+     lap and the seam walked across the row until it opened into a hole.
+     The spacing is a trailing margin on each card instead (below). Every card
+     then occupies card+margin, the track is exactly 2n*(card+margin), and
+     -50% lands exactly one period along. Same visual rhythm, and the seam is
+     spaced identically to every other pair because the last card carries its
+     margin too. */
   will-change:transform;
 }
 .insta-grid.is-carousel > *,
@@ -1486,6 +1647,15 @@ body.loaded > footer{
    five on a very wide one, and never smaller than the artwork deserves. */
 .insta-grid.is-carousel > *{
   flex:0 0 clamp(280px, 26vw, 360px);
+  /* The spacing, as a trailing margin rather than a gap — see the note above.
+     Generous on purpose: at 12px the cards read as a strip, and the space
+     between them is what makes each one an object rather than a frame in a
+     filmstrip. */
+  margin-inline-end:var(--s-5);
+  /* The wrapper sets white-space:nowrap to keep the track on one line, and that
+     inherits straight into the caption text. Released here: the cards must stay
+     on the line, the sentences inside them must not. */
+  white-space:normal;
 }
 /* Touch: a real scrollable row. No transform, no clone loop, no animation to
    fight a finger that is already dragging it. */
@@ -1618,7 +1788,10 @@ body.loaded > footer{
    dot would never show. */
 .ticker span::after,.svc-ticker span::after{
   content:"•"; position:absolute; inset-inline-end:-4px;
-  color:var(--gray); opacity:.5;
+  /* Full opacity, not .5. The old grey needed halving to sit quietly behind
+     the type; this yellow is already tuned to that exact weight, so dimming it
+     again would only make it disappear. */
+  color:var(--color-accent-deep);
 }
 .ticker span:last-child::after{content:none}
 @keyframes tickerMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -1660,16 +1833,27 @@ body.loaded > footer{
   grid-template-columns:minmax(0,.78fr) minmax(0,1.32fr);
   column-gap:clamp(28px,4vw,var(--s-7));
   row-gap:var(--s-6);
-  align-items:end;
+  /* stretch, so the two columns are exactly the same height: whichever is
+     taller sets the row and the other fills it. `start` (and `end` before it)
+     sized each column to its own content, which is what left one side short
+     against the other.
+
+     This also keeps the top alignment asked for earlier, for free. .worksum-copy
+     is a column flexbox, so when its box is stretched taller than its text the
+     text still sits at the top — the box grows downward, the content does not
+     move. Stretch is strictly better than start here: identical where the copy
+     is shorter, correct where it is taller. */
+  align-items:stretch;
 }
 .worksum-media{grid-column:2; grid-row:1; margin:0}
 .worksum-copy{
   grid-column:1; grid-row:1;
   direction:rtl; text-align:right;
   display:flex; flex-direction:column; align-items:flex-start;
-  /* Hangs low against the video rather than centring — the copy meets the
-     lower two thirds of the mass, which is where the eye lands after it. */
-  padding-block-end:clamp(8px,3vh,var(--s-6));
+  /* No block padding. The eyebrow is a pill with line-height:1, so its box top
+     is also its visual top — with the grid starting both columns together, the
+     first thing in the copy lines up with the first pixel of the video and
+     needs no optical correction. */
 }
 .worksum-index{grid-column:1 / -1; grid-row:2}
 
@@ -1751,8 +1935,18 @@ body.loaded > footer{
 .worksum-lead{
   margin:0; color:var(--color-muted);
   font-size:var(--t-md); line-height:var(--lh-normal);
-  max-width:30ch;          /* a deliberate measure, not the column width */
+  /* Was 30ch, set when this was a single sentence. The copy is eight
+     paragraphs now and 30ch would have stacked it into a column roughly twice
+     the height of the video beside it. 44ch is still a measure — comfortably
+     inside the grid track, and short enough that the eye finds the next line
+     without hunting. */
+  max-width:44ch;
 }
+/* Paragraph rhythm, not <br>. Each line is its own claim, so each is its own
+   block — which is also what lets the i18n dictionary key them one at a time
+   instead of as one 700-character string. */
+.worksum-lead p{margin:0 0 .75em}
+.worksum-lead p:last-child{margin-bottom:0}
 .worksum-cta{margin-top:var(--s-6)}
 
 /* ── the index: the second half of the same idea ───────────────────────── */
@@ -1799,7 +1993,7 @@ body.loaded > footer{
     background:var(--bg-deep);
     box-shadow:var(--sh-3);
   }
-  .worksum-copy{grid-column:1; grid-row:2; padding-block-end:0}
+  .worksum-copy{grid-column:1; grid-row:2}
   .worksum-index{grid-column:1; grid-row:3}
   .worksum-lead{max-width:52ch}
 }
@@ -1873,9 +2067,14 @@ body.loaded > footer{
   color:var(--color-muted);
   padding:var(--s-6) 0 var(--s-5);
 }
+/* The footer was a white card with black type on a white page: correct, and
+   completely colourless at the one point the eye leaves the site. It gets the
+   brand instead of a fourth neutral — a lavender wash far too faint to affect
+   the contrast of anything sitting on it, and a border tinted to match so the
+   card edge belongs to the same family. */
 .site-footer .container{
-  background:var(--color-surface);
-  border:1px solid var(--color-border);
+  background:color-mix(in srgb, var(--color-lavender) 7%, var(--color-surface));
+  border:1px solid color-mix(in srgb, var(--color-lavender) 34%, var(--color-border));
   border-radius:var(--r-md);
   box-shadow:var(--sh-2);
   padding:clamp(28px,4vw,var(--s-7)) clamp(20px,3vw,var(--s-6));
@@ -1890,14 +2089,17 @@ body.loaded > footer{
 /* The markup sets these as h2 so the document outline stays sequential, and
    the selector has to match that or they fall back to the browser default. */
 .footer-grid h2,.footer-grid h3{
-  font-size:var(--t-sm); color:var(--color-text); margin-bottom:var(--s-4);
+  font-size:var(--t-sm); color:var(--color-lavender-deep); margin-bottom:var(--s-4);
   letter-spacing:var(--ls-tracked); text-transform:uppercase;
   font-weight:var(--fw-semibold);
-  background-image:none; -webkit-text-fill-color:var(--color-text);
+  /* -webkit-text-fill-color has to move with the colour: these are h2/h3, and
+     the heading rules paint through background-clip, so a fill left on the old
+     value would win and the column titles would stay black. */
+  background-image:none; -webkit-text-fill-color:var(--color-lavender-deep);
 }
 .footer-grid li{margin-bottom:var(--s-2)}
 .footer-grid a{font-size:.92rem; color:var(--color-muted); transition:color var(--d-fast) var(--ease)}
-.footer-grid a:hover{color:var(--color-text)}
+.footer-grid a:hover{color:var(--color-lavender-deep)}
 .footer-grid p{color:var(--color-muted); font-size:.92rem}
 .footer-logo{display:inline-block; margin-bottom:var(--s-2)}
 
@@ -1920,7 +2122,7 @@ body.loaded > footer{
   padding-top:var(--s-5); text-align:center;
   font-size:.82rem; color:var(--color-muted);
 }
-.footer-bottom .brand-mark{font-weight:inherit; font-size:inherit; color:var(--color-text)}
+.footer-bottom .brand-mark{font-weight:inherit; font-size:inherit; color:var(--color-lavender-deep)}
 
 /* ==========================================================================
    Icon system.
@@ -2247,6 +2449,11 @@ html[data-a11y-size="3"]{font-size:118%}
 .req-card .send-to a{color:var(--text); font-weight:var(--fw-semibold)}
 
 /*  Explainer gallery  */
+/* The homepage distribution shot. .explain-card already draws the frame; the
+   only thing this adds is a measure, because a 4:5 portrait run across the full
+   container would dwarf everything else in the section. */
+.dist-shot{max-width:340px; margin:var(--s-6) auto 0}
+
 .explain-card{
   border-radius:var(--r-sm); overflow:hidden;
   border:1px solid var(--color-border); background:var(--color-surface);
@@ -2353,8 +2560,8 @@ html[data-a11y-size="3"]{font-size:118%}
    Why a single dark colour rather than matching each page's own background:
    the outgoing veil is painted by the OLD document and the incoming one by the
    NEW document. If the two differ the visitor sees a colour jump between them —
-   which is the flash we're removing. --dark-3 also matches the preloader
-   curtain, so the whole entry sequence reads as one system.
+   which is the flash we're removing. This matches the preloader curtain, so
+   the whole entry sequence reads as one system.
 
    Why the element lives in the markup instead of being created by JS: it has to
    be opaque in the very first painted frame. A JS-injected node can only appear
@@ -2368,7 +2575,10 @@ html[data-a11y-size="3"]{font-size:118%}
    ========================================================================== */
 .page-veil{
   position:fixed; inset:0; z-index:var(--z-veil);
-  background:var(--dark-3);
+  /* Moved with the curtain. The rule the note above sets out — one colour for
+     both, or the visitor sees a jump between the outgoing and the incoming
+     document — is why this changed, not a reason it could not. */
+  background:var(--color-bg);
   opacity:0; pointer-events:none;
   /* entry (first paint only) is an animation; every later move is a
      transition, so nothing depends on re-triggering a keyframe animation */

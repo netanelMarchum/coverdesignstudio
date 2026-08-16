@@ -29,9 +29,16 @@
   var COPY = {
     he: {
       label: 'עוגיות',
-      text: 'אנו משתמשים בקובצי Cookies כדי לשפר את חוויית הגלישה באתר, לנתח את השימוש באתר ולהתאים את התוכן והשירותים שלנו. המשך השימוש באתר מהווה הסכמה לשימוש ב-Cookies בהתאם למדיניות הפרטיות שלנו.',
-      accept: 'אישור',
-      settings: 'הגדרות',
+      /* The old copy promised analytics, personalisation and "continued use
+         means consent". None of the three is true here: nothing on this site
+         measures you, and consent is a button, not an inference from you
+         still being on the page. Claiming a category you do not have is the
+         kind of thing a regulator reads as a misrepresentation, and it is
+         also just wrong. This names exactly what gets stored. */
+      text: 'האתר שומר במכשיר שלך רק את מה שנדרש כדי שיעבוד: בחירת השפה, ההסכמה הזו ומטמון תרגום מקומי. אין אנליטיקס, אין פרסום ואין מעקב של צד שלישי.',
+      accept: 'אישור הכול',
+      reject: 'רק ההכרחיות',
+      settings: 'ניהול העדפות',
       policy: 'מדיניות פרטיות',
       region: 'הודעת עוגיות',
       essential: 'הכרחיות',
@@ -44,9 +51,10 @@
     },
     en: {
       label: 'Cookies',
-      text: 'We use cookies to improve your browsing experience, analyze website usage, and personalize our content and services. By continuing to use this website, you agree to our use of cookies in accordance with our Privacy Policy.',
-      accept: 'Accept',
-      settings: 'Settings',
+      text: 'This site stores only what it needs to work: your language choice, this consent, and a local translation cache. No analytics, no advertising, no third-party tracking.',
+      accept: 'Accept all',
+      reject: 'Essential only',
+      settings: 'Manage preferences',
       policy: 'Privacy Policy',
       region: 'Cookie notice',
       essential: 'Essential',
@@ -77,6 +85,11 @@
       '<p class="cc-text"></p>' +
       '<div class="cc-actions">' +
         '<button type="button" class="btn cc-accept"></button>' +
+        /* Rejecting has to be exactly as cheap as accepting — same component,
+           same size, same row, one click. Burying it behind the settings
+           panel (which is where it used to be: open, untick, save) is the
+           dark pattern the GDPR guidance names explicitly. */
+        '<button type="button" class="btn outline cc-reject"></button>' +
         '<button type="button" class="btn outline cc-settings" aria-expanded="false" aria-controls="cc-panel"></button>' +
         '<a class="cc-link" href="privacy.html"></a>' +
       '</div>' +
@@ -96,11 +109,18 @@
 
     el.bar = bar;
     ['eyebrow', 'cc-text', 'cc-accept', 'cc-settings', 'cc-link', 'cc-panel', 'cc-state',
-     'cc-note', 'cc-save', 'cc-essential-name', 'cc-essential-text',
+     'cc-note', 'cc-save', 'cc-reject', 'cc-essential-name', 'cc-essential-text',
      'cc-functional-name', 'cc-functional-text', 'cc-functional']
       .forEach(function (c) { el[c] = bar.querySelector('.' + c); });
 
     el['cc-accept'].addEventListener('click', function () { close('all'); });
+
+    // Drops the translation cache on the way out, so "essential only" actually
+    // removes what was already stored rather than only refusing more.
+    el['cc-reject'].addEventListener('click', function () {
+      clearCache();
+      close('essential');
+    });
 
     el['cc-save'].addEventListener('click', function () {
       var keep = el['cc-functional'].checked;
@@ -132,6 +152,7 @@
     var t = COPY[lang()];
     el.bar.setAttribute('aria-label', t.region);
     el.eyebrow.textContent = t.label;
+    el['cc-reject'].textContent = t.reject;
     el['cc-text'].textContent = t.text;
     el['cc-accept'].textContent = t.accept;
     el['cc-settings'].textContent = t.settings;

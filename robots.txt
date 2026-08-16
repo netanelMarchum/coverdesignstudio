@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /404.html
 Disallow: /500.html
+Disallow: /index-v2.html
 
 Sitemap: https://studiocoverdesign.com/sitemap.xml

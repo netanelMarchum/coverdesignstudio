@@ -1,13 +1,28 @@
 // Site behavior
 
-// Preloader: the full curtain + logo-reveal animation plays once per
-// browser session. After that, switching pages (including the HE/EN
-// language toggle) never re-triggers it — the loader is just hidden
-// instantly so navigation feels immediate.
+// Preloader: the curtain, the twelve falling forms and the logo reveal.
+//
+// It plays once per browser session, so moving between pages (including the
+// HE/EN toggle) never re-triggers it and navigation stays immediate.
+//
+// A RELOAD IS NOT NAVIGATION.
+// The session flag alone meant refreshing the page — the one action where a
+// visitor is deliberately asking to see the page arrive again — was the one
+// case that skipped the entrance entirely. The Navigation Timing type
+// separates the two: `reload` always plays, `navigate` and `back_forward`
+// respect the flag. No storage to clear and nothing to special-case in dev.
 document.addEventListener('DOMContentLoaded', function () {
   var wrap = document.getElementById('loader-wrapper');
   var seen = false;
   try { seen = sessionStorage.getItem('cds-intro-seen') === '1'; } catch (e) {}
+
+  var reloaded = false;
+  try {
+    var nav = performance.getEntriesByType('navigation')[0];
+    reloaded = nav ? nav.type === 'reload'
+                   : performance.navigation && performance.navigation.type === 1;
+  } catch (e) {}
+  if (reloaded) seen = false;
 
   if (seen || !wrap) {
     document.body.classList.add('loaded');
@@ -65,10 +80,39 @@ if (burger && nav) {
 
   // The panel covers the viewport, so the page behind it must not scroll: a
   // menu that scrolls the content underneath it reads as two surfaces fighting.
+  /* The panel's slide stays in CSS — it already handles the asymmetric
+     open/close timing and the visibility flip that keeps the links out of the
+     tab order while closed, and none of that is worth moving.
+     What GSAP adds is the one thing CSS cannot do cleanly here: the links
+     arriving one after another instead of as a single block. Transform and
+     opacity only, cleared the moment it finishes so the panel's own styles own
+     the element again and a second open does not inherit a stale inline value. */
+  var navLinks = nav.querySelectorAll('a');
+  function staggerLinks() {
+    if (!window.gsap || !navLinks.length) return;
+    if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    if (!window.matchMedia('(max-width: 900px)').matches) return;   // drawer only
+    gsap.killTweensOf(navLinks);
+    gsap.fromTo(navLinks,
+      { y: 14, autoAlpha: 0 },
+      {
+        y: 0, autoAlpha: 1, duration: 0.42, stagger: 0.055,
+        ease: 'expo.out', delay: 0.08, overwrite: true,
+        clearProps: 'transform,opacity,visibility',
+      });
+  }
+
   function setOpen(open, restoreFocus) {
     nav.classList.toggle('open', open);
     burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     document.body.style.overflow = open ? 'hidden' : '';
+    if (open) staggerLinks();
+    else if (window.gsap) {
+      // Closing is the CSS slide alone. Any half-finished stagger is killed and
+      // wiped, or a link can be left at opacity 0 for the next open.
+      gsap.killTweensOf(navLinks);
+      gsap.set(navLinks, { clearProps: 'transform,opacity,visibility' });
+    }
     if (open) {
       var first = nav.querySelector('a');
       if (first) first.focus();

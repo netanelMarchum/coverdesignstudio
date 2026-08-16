@@ -62,7 +62,12 @@
           // to start hidden and be released on the next frame, or the browser
           // computes the final style straight away and there is nothing to
           // transition from.
-          if (from > 0) {
+          // Not in carousel mode. This entrance starts each new card at
+          // opacity 0 and releases it two frames later with a stagger — in a
+          // grid that is a nice arrival, but in a row that is already moving
+          // it is a hole travelling across the screen. The ticker's whole
+          // contract is that it is never empty.
+          if (from > 0 && !grid.classList.contains('is-carousel')) {
             fresh.forEach(function (el, i) {
               el.style.opacity = '0';
               el.style.transform = 'translate3d(0,var(--rise-item),0)';

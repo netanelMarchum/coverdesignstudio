@@ -64,27 +64,40 @@
      A small parallax on the hero tiles, scrubbed to scroll. Different depths
      per tile so the field has dimension rather than moving as one plane.
      transform only — nothing here touches layout. */
+  /* The hero parallax, through gsap.matchMedia().
+     It used to run one set of pixel amounts at every width: 18-62px of tile
+     travel and 60px of ribbon on a 1440 monitor is depth, and the identical
+     amount on a 390px phone is six covers sliding around inside a band barely
+     taller than they are. matchMedia also reverts everything it built when a
+     query stops matching, so dragging a window across a breakpoint cannot
+     leave a second set of ScrollTriggers behind the first. */
   if (window.ScrollTrigger) {
-    var tiles = document.querySelectorAll('.orbit-tile');
-    if (tiles.length) {
-      tiles.forEach(function (tile, i) {
-        var depth = 18 + (i % 3) * 22;
+    var heroMM = gsap.matchMedia();
+    heroMM.add({
+      desktop: '(min-width: 1025px)',
+      tablet: '(min-width: 721px) and (max-width: 1024px)',
+      mobile: '(max-width: 720px)',
+    }, function (ctx) {
+      var k = ctx.conditions.desktop ? 1 : ctx.conditions.tablet ? 0.62 : 0.3;
+
+      document.querySelectorAll('.orbit-tile').forEach(function (tile, i) {
+        // Three depths, so the field has dimension rather than moving as one plane.
         gsap.to(tile, {
-          y: depth,
+          y: (18 + (i % 3) * 22) * k,
           ease: 'none',
           scrollTrigger: { trigger: '.intro', start: 'top top', end: 'bottom top', scrub: 0.6 },
         });
       });
-    }
 
-    // The ribbon drifts slower than the tiles, which is what puts it behind them.
-    var ribbon = document.querySelector('.hero-ribbon');
-    if (ribbon) {
-      gsap.to(ribbon, {
-        y: 60, ease: 'none',
-        scrollTrigger: { trigger: '.intro', start: 'top top', end: 'bottom top', scrub: 0.8 },
-      });
-    }
+      // The ribbon drifts slower than the tiles, which is what puts it behind them.
+      var ribbon = document.querySelector('.hero-ribbon');
+      if (ribbon) {
+        gsap.to(ribbon, {
+          y: 60 * k, ease: 'none',
+          scrollTrigger: { trigger: '.intro', start: 'top top', end: 'bottom top', scrub: 0.8 },
+        });
+      }
+    });
   }
 
   /* ---- work summary: the choreographed entrance ------------------------

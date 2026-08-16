@@ -1,25 +1,47 @@
 /* ==========================================================================
    Velocity carousel — the cover row in "חדש באוויר".
    --------------------------------------------------------------------------
-   A horizontal marquee that drifts on its own and takes its speed from how
-   fast you are scrolling the page: scroll hard and the row accelerates and
-   skews slightly, stop and it eases back to a slow base drift. Scrolling up
-   reverses it.
+   A horizontal marquee: the covers travel left, leave at the left edge and
+   come back in from the right, forever, with the same gap between every pair.
 
-   Built on GSAP + the page's existing Lenis rather than imported: the Framer
-   module this is modelled on is a React component (it imports React and
-   framer-motion), this site ships neither, and the site's CSP only allows
-   scripts from itself and cdnjs — a framer.com module would be blocked in
-   production before any of that mattered.
+   THE SHAPE OF IT
+   The track holds TWO identical halves. One tween moves it from 0 to -50% of
+   its own width with ease:"none" and repeat:-1. At -50% the second half sits
+   exactly where the first half started, so the restart is invisible and the
+   loop is seamless. That is the whole mechanism — no per-frame bookkeeping, no
+   wrap function, no accumulator to drift.
+
+   WHY -50% NEEDS THE GAP GONE — the bug that made this look broken
+   The obvious way to space a flex row is `gap`, and with `gap` the -50% recipe
+   is WRONG. A row of 2n items is 2n*item + (2n-1)*gap wide, because a gap
+   falls BETWEEN items and there is no trailing one. Half of that is
+   n*item + (n-1)*gap + gap/2 — but the distance from one item to the same item
+   in the next half is n*(item+gap). The two differ by half a gap, so every lap
+   slipped by 12px and the seam walked across the row until it read as a hole.
+
+   So the spacing is margin-inline-end on every card instead, trailing one
+   included. Each card's box is then item+margin, the track is exactly
+   2n*(item+margin), and -50% is exactly n*(item+margin) — the true period, to
+   the pixel, with no arithmetic anywhere to get wrong.
+
+   HOW MANY COPIES
+   Two halves are only enough if ONE half already covers the viewport. Eight
+   cards do that on a laptop and do not on a wide monitor, which is the other
+   way this used to run out of images. The originals are repeated until one
+   half is at least a viewport wide, and only then is the half duplicated.
+
+   THE ROW IS NOT PART OF THE REVEAL SYSTEM
+   .insta-grid ships with `reveal reveal-stagger`, which start the row and every
+   card at opacity:0 translated down. In a ticker that is an eight-card hole
+   travelling across the screen, and the downward shift was being clipped by
+   the wrapper's overflow:hidden — the "covers cut off at the bottom". The
+   classes come off here, before anything is measured. They stay in the markup
+   so that if this script never runs the row is a plain grid that still needs
+   its entrance.
 
    PROGRESSIVE ENHANCEMENT
-   The markup is untouched: .insta-grid stays a grid of links in the DOM and is
-   still a perfectly good grid with this file absent. The carousel is applied on
-   top, and only where it makes sense:
-     · fine pointer + motion allowed  → the velocity marquee
-     · touch, or reduced motion       → a native swipeable row, no auto-drift
-   A row of links that never stops moving is hard to click, so it pauses on
-   hover and on keyboard focus.
+   Touch and reduced-motion get a real swipeable row instead: same content, no
+   clones, no animation to fight a finger that is already dragging it.
    ========================================================================== */
 (function () {
   'use strict';
@@ -27,129 +49,105 @@
   var grid = document.querySelector('.insta-grid');
   if (!grid || !window.gsap) return;
 
+  var gsap = window.gsap;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
 
+  // See "THE ROW IS NOT PART OF THE REVEAL SYSTEM" above. Before anything else.
+  grid.classList.remove('reveal', 'reveal-stagger', 'in');
+
   /* The row gets its OWN wrapper. Reaching for grid.parentNode grabbed the
      section's .container — so the full-bleed margin, the overflow clip and the
-     edge mask were being applied to the heading and the button as well as to
-     the covers, which is what pushed the section off to one side. */
+     edge mask were applied to the heading and the button as well as to the
+     covers, which is what pushed the section off to one side. */
   var viewport = document.createElement('div');
   viewport.className = 'vel-viewport';
   grid.parentNode.insertBefore(viewport, grid);
   viewport.appendChild(grid);
 
-  /* Touch and reduced-motion get a real scrollable row instead. It is the same
-     content, swipeable, with no animation to fight. */
   if (reduce || !fine) {
     grid.classList.add('is-swipe');
     return;
   }
-
   grid.classList.add('is-carousel');
 
-  var gsap = window.gsap;
-  var wrapX = null;
-  var half = 0;
-  var x = 0;
-  var boost = 0;      // added by scroll velocity, decays to 0
-  var target = 1;     // 1 = running, 0 = held
-  var scale = 1;      // eased toward target, so nothing ever stops dead
-  var BASE = 0.4;     // px per frame at rest — a drift, not a slide
+  var SPEED = 46;        // px per second — a drift, not a slide
+  var tween = null;
 
-  /* Park the track and take the loop off the ticker. Used whenever the row has
-     nothing to loop — most often the frame the feed script blanks it — so the
-     content that IS there is always at x:0 and visible, never translated into
-     the clip. The loop restarts by itself on the next successful build(). */
-  function stop() {
-    wrapX = null;
-    x = 0;
-    gsap.set(grid, { x: 0, skewX: 0 });
+  function clones() {
+    return Array.prototype.slice.call(grid.querySelectorAll('[data-vel-clone]'));
   }
 
-  /* The loop is made by repeating the row. Clones are inert: aria-hidden and
-     removed from the tab order, so the same covers are not announced or tabbed
-     through twice.
-
-     TWO THINGS THIS HAS TO GET EXACTLY RIGHT, and the first version got both
-     wrong the same way — by guessing the wrap distance instead of measuring it.
-
-     1. HOW FAR TO WRAP. It is one set PLUS the gap separating it from the next
-        set. scrollWidth/2 is not that: a track has one fewer gap than cards, so
-        half of it lands half a gap short and every wrap jumped backwards by
-        that much. At a 24px gap that is a 12px seam, every lap.
-
-     2. HOW MANY COPIES. Two sets are only enough when one set is already wider
-        than the viewport. When it is not, the row runs out and you get the
-        empty stretch before the next card arrives. Enough copies are made to
-        cover twice the viewport, whatever the card count and screen width. */
-  function build() {
-    Array.prototype.slice.call(grid.querySelectorAll('[data-vel-clone]')).forEach(function (n) {
-      n.remove();
+  /** Inert copies: not announced, not tabbable, not counted as real cards. */
+  function copy(nodes) {
+    nodes.forEach(function (node) {
+      var k = node.cloneNode(true);
+      k.setAttribute('data-vel-clone', '');
+      k.setAttribute('aria-hidden', 'true');
+      k.setAttribute('tabindex', '-1');
+      grid.appendChild(k);
     });
-    var originals = Array.prototype.slice.call(grid.children);
-
-    /* The feed script empties this row (grid.innerHTML = '') before it appends
-       the live cards. If that lands while the track is translated a full set to
-       the left, the row is parked off-screen and the section reads as EMPTY.
-       So an empty or unmeasurable row parks the track back at zero and stops
-       the loop until there is something to loop again. */
-    if (!originals.length) { stop(); return; }
-
-    /* Measured with the transform neutralised: getBoundingClientRect reports
-       the RENDERED box, so a translated — and especially a skewed — track
-       measures wider than it is, and the wrap distance comes out long. That is
-       the gap. offsetWidth would dodge the transform but rounds to whole
-       pixels, and a fraction of a pixel lost per lap is a seam that walks. */
-    gsap.set(grid, { x: 0, skewX: 0 });
-    var setW = grid.getBoundingClientRect().width;
-    var gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
-    var step = setW + gap;                     // the exact wrap distance
-    if (step <= 0) { stop(); return; }
-
-    /* How many extra sets it takes to keep the viewport covered at every point
-       in the cycle. The track spans [x, x + total] with x anywhere in
-       [-step, 0], so the worst case is x = -step and the requirement is
-       total - step >= viewport. Solved for the copy count that is
-       ceil((viewport + gap) / step), plus one whole spare set — clone cost is
-       one <img> the browser has already decoded, and running one short is an
-       empty stretch of section. Measured off the wrapper, not innerWidth: the
-       wrapper is what actually has to stay covered. */
-    var viewW = viewport.getBoundingClientRect().width || innerWidth;
-    var copies = Math.ceil((viewW + gap) / step) + 1;
-    for (var c = 0; c < copies; c++) {
-      originals.forEach(function (node) {
-        var k = node.cloneNode(true);
-        k.setAttribute('data-vel-clone', '');
-        k.setAttribute('aria-hidden', 'true');
-        k.setAttribute('tabindex', '-1');
-        // the reveal system staggers children; a clone must not wait its turn
-        k.style.opacity = '1';
-        k.style.transform = 'none';
-        grid.appendChild(k);
-      });
-    }
-
-    half = step;
-    wrapX = gsap.utils.wrap(-half, 0);
   }
 
-  function measure() { build(); }
+  function build() {
+    var progress = tween ? tween.progress() : 0;
+    if (tween) { tween.kill(); tween = null; }
+    clones().forEach(function (n) { n.remove(); });
+
+    var originals = Array.prototype.slice.call(grid.children);
+    /* The feed script empties this row before it appends the live cards. Park
+       the track rather than animating nothing, or it sits translated off to
+       the left holding an empty box. */
+    if (!originals.length) { gsap.set(grid, { xPercent: 0 }); return; }
+
+    // Measured untransformed: getBoundingClientRect reports the rendered box,
+    // and a translated track measures from wherever it currently sits.
+    gsap.set(grid, { xPercent: 0 });
+    var one = grid.getBoundingClientRect().width;
+    var viewW = viewport.getBoundingClientRect().width || innerWidth;
+    if (one <= 0) return;
+
+    // Repeat the originals until ONE half covers the viewport, then duplicate
+    // that half. Two halves of a too-narrow set is the classic empty marquee.
+    /* floor+1, not ceil. With ceil, a viewport that is an exact multiple of one
+       set makes the half EXACTLY the viewport width — zero slack — and the
+       content then ends precisely on the right edge at the end of the lap. Card
+       widths come from 26vw and are routinely fractional, so "precisely" is one
+       rounding error away from a hairline of empty ground. floor+1 guarantees
+       the half is strictly wider than the viewport, and costs at most one extra
+       set of already-decoded images. */
+    var repeats = Math.floor(viewW / one) + 1;
+    for (var r = 1; r < repeats; r++) copy(originals);
+
+    var half = Array.prototype.slice.call(grid.children);
+    copy(half);                       // <- the duplicate that -50% relies on
+
+    /* Duration from width, so the covers travel at one speed whatever the
+       screen is doing. A fixed duration would make a wide monitor a slideshow
+       and a laptop a blur. */
+    var halfW = one * repeats;
+    tween = gsap.to(grid, {
+      xPercent: -50,
+      ease: 'none',
+      duration: halfW / SPEED,
+      repeat: -1,
+    });
+    tween.progress(progress);         // resize should not restart the lap
+  }
 
   build();
 
-  /* Images arrive after the markup, and the track width is the sum of their
-     widths — measuring before they land gives a wrap point that is wrong. */
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-  Array.prototype.slice.call(grid.querySelectorAll('img')).forEach(function (img) {
-    if (img.complete) return;
-    img.addEventListener('load', measure, { once: true });
-  });
-  addEventListener('resize', gsap.utils.debounce ? gsap.utils.debounce(measure, 150) : measure, { passive: true });
+  /* Card width is set by flex-basis, not by the image, so the track does not
+     change width when artwork lands — but fonts and a resize both do. */
+  var remeasure = gsap.utils.debounce ? gsap.utils.debounce(build, 150) : build;
+  addEventListener('resize', remeasure, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
 
-  /* The feed script replaces and appends cards ("הצג עוד"), so the loop has to
-     be rebuilt when the row's contents change — otherwise the clones are stale
-     and the wrap point is measured against the wrong width. */
+  /* The feed script replaces and appends cards ("הצג עוד"), so the loop is
+     rebuilt when the row's real contents change. Synchronously: a
+     MutationObserver callback runs before the next paint, so no frame is drawn
+     with new content against the old geometry. build() only ever adds clones
+     and the filter ignores those, so it cannot recurse. */
   if (window.MutationObserver) {
     var rebuilding = false;
     new MutationObserver(function (records) {
@@ -160,66 +158,37 @@
         });
       });
       if (!real) return;
-      /* Synchronously, NOT in a rAF. MutationObserver callbacks run as a
-         microtask after the mutating task and before the next paint, so
-         rebuilding here means no frame is ever painted with new content
-         against the old wrap distance — which is the flash of empty row.
-         build() only ever adds clones, and the filter above ignores those, so
-         this cannot recurse. */
       rebuilding = true;
       build();
       rebuilding = false;
     }).observe(grid, { childList: true });
   }
 
-  /* Scroll velocity. ScrollTrigger reports px/second; it is scaled down hard
-     and clamped, because the point is that the row reacts to the gesture, not
-     that it launches across the screen. */
+  /* A moving row of links is hard to click, so it eases to a stop while the
+     pointer is inside it or a card has keyboard focus. timeScale rather than
+     pause(): a marquee that halts on the exact frame the pointer crossed the
+     edge reads as a bug. */
+  function ease(to) {
+    if (tween) gsap.to(tween, { timeScale: to, duration: 0.4, ease: 'power2.out' });
+  }
+  viewport.addEventListener('pointerenter', function () { ease(0); });
+  viewport.addEventListener('pointerleave', function () { ease(1); });
+  viewport.addEventListener('focusin', function () { ease(0); });
+  viewport.addEventListener('focusout', function () { ease(1); });
+
+  /* Scroll velocity nudges the SPEED and nothing else. It cannot open a gap,
+     because it never touches geometry — only how fast the same loop runs. */
   if (window.ScrollTrigger) {
     window.ScrollTrigger.create({
       trigger: viewport,
       start: 'top bottom',
       end: 'bottom top',
-      /* Scroll SPEED only. This used to flip the row's direction on the sign
-         of the velocity, so scrolling up ran the covers backwards — and every
-         change of direction is a moment where the eye loses the thread of a
-         loop. One direction, always: cards leave at the left edge and come
-         back in from the right, whatever the page is doing. */
       onUpdate: function (self) {
-        boost = gsap.utils.clamp(0, 26, Math.abs(self.getVelocity()) / 140);
+        if (!tween || tween.timeScale() === 0) return;
+        var boost = gsap.utils.clamp(1, 3.2, 1 + Math.abs(self.getVelocity()) / 900);
+        gsap.to(tween, { timeScale: boost, duration: 0.3, overwrite: true });
+        gsap.to(tween, { timeScale: 1, duration: 1.1, delay: 0.3, overwrite: false });
       },
     });
   }
-
-  /* A moving row of links is hard to click, so the row holds while the pointer
-     is in it — but it EASES to a hold rather than stopping on the frame the
-     pointer crossed the edge. A marquee that halts instantly reads as a bug,
-     and it also snapped the skew flat, which looked like a glitch. */
-  viewport.addEventListener('pointerenter', function () { target = 0; });
-  viewport.addEventListener('pointerleave', function () { target = 1; });
-  viewport.addEventListener('focusin', function () { target = 0; });
-  viewport.addEventListener('focusout', function () { target = 1; });
-
-  gsap.ticker.add(function () {
-    if (!wrapX) return;
-    // The boost always decays toward zero, so the row settles the moment the
-    // page stops moving rather than coasting.
-    boost *= 0.94;
-    if (boost < 0.01) boost = 0;
-    scale += (target - scale) * 0.09;
-    if (scale < 0.001) scale = 0;
-
-    x -= (BASE + boost) * scale;      // always negative: always leftward
-    gsap.set(grid, {
-      x: wrapX(x),
-      /* A whisper of skew in the direction of travel — it reads as speed. Any
-         more and the covers look bent, which is the opposite of the point.
-         Multiplied by the same scale as the movement, so the shear is always a
-         property of how fast the row is ACTUALLY going. That is what stops a
-         hovered card from sitting at an angle while the row is standing still,
-         and it means the lift on that card is read against a square frame. */
-      skewX: gsap.utils.clamp(-4, 0, -boost * 0.16 * scale),
-      force3D: true,
-    });
-  });
 })();

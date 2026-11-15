@@ -5,7 +5,7 @@
   "description": "Static marketing site for Studio Cover Design (studiocoverdesign.com).",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-forms.mjs && node scripts/build-responsive-images.mjs && node scripts/build.mjs",
+    "build": "node scripts/build-forms.mjs && node scripts/build-responsive-images.mjs && node scripts/build.mjs && node scripts/build-static.mjs",
     "build:textures": "node scripts/build-textures.mjs",
     "dev": "node scripts/dev.mjs",
     "fetch:instagram": "node scripts/fetch-instagram.mjs",

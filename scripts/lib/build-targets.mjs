@@ -33,7 +33,5 @@ export const targets = [
   { in: 'assets/js/studio-v2.js', out: 'assets/js/studio-v2.min.js' },
 ];
 
-/** Cache-busting token appended to every asset URL in the HTML.
- *  vercel.json serves /assets/* as immutable for a year, so this MUST be bumped
- *  whenever a bundled file changes or returning visitors keep the stale copy. */
-export const ASSET_VERSION = 15;
+/** HTML asset token. Mutable asset URLs revalidate via vercel.json. */
+export const ASSET_VERSION = 16;

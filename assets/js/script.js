@@ -1,77 +1,10 @@
-// Site behavior
-
-// Preloader: the curtain, the twelve falling forms and the logo reveal.
-//
-// It plays once per browser session, so moving between pages (including the
-// HE/EN toggle) never re-triggers it and navigation stays immediate.
-//
-// A RELOAD IS NOT NAVIGATION.
-// The session flag alone meant refreshing the page — the one action where a
-// visitor is deliberately asking to see the page arrive again — was the one
-// case that skipped the entrance entirely. The Navigation Timing type
-// separates the two: `reload` always plays, `navigate` and `back_forward`
-// respect the flag. No storage to clear and nothing to special-case in dev.
+// Reveal usable content as soon as the DOM is ready. Decorative assets must
+// never hold navigation or text behind a loading curtain.
 document.addEventListener('DOMContentLoaded', function () {
   var wrap = document.getElementById('loader-wrapper');
-  var seen = false;
-  try { seen = sessionStorage.getItem('cds-intro-seen') === '1'; } catch (e) {}
-
-  var reloaded = false;
-  try {
-    var nav = performance.getEntriesByType('navigation')[0];
-    reloaded = nav ? nav.type === 'reload'
-                   : performance.navigation && performance.navigation.type === 1;
-  } catch (e) {}
-  if (reloaded) seen = false;
-
-  if (seen || !wrap) {
-    document.body.classList.add('loaded');
-    document.dispatchEvent(new CustomEvent('cds:loaded'));
-    if (wrap) wrap.style.display = 'none';
-    return;
-  }
-
-  // Nothing to drive: the curtain holds the logo mark while its CSS reveal
-  // plays, then lifts. The progress bar and percentage counter that used to be
-  // built here are gone with the rest of the loader's furniture.
-  var revealed = false;
-  var loaded = false;
-  var mark = wrap.querySelector('.loader-mark');
-
-  // Reduced motion kills the keyframes outright, so animationend never fires
-  // and waiting on it would hold the curtain until the safety cap.
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var swept = !mark || reduce;
-
-  function reveal() {
-    if (revealed) return; revealed = true;
-    document.body.classList.add('loaded');
-    // The hero timeline in hero.js starts on this. An event rather than a
-    // fixed delay, so the two can never drift apart when either is retimed.
-    document.dispatchEvent(new CustomEvent('cds:loaded'));
-    try { sessionStorage.setItem('cds-intro-seen', '1'); } catch (e) {}
-  }
-  // Both conditions have to be true: the page is ready AND the mark has
-  // finished drawing. Either one arriving last is what lifts the curtain.
-  function maybeReveal() { if (loaded && swept) reveal(); }
-
-  // The reveal runs ~0.85s. On a warm cache `load` fires well inside that, so a
-  // fixed delay would split the curtain with the logo half-drawn.
-  if (mark && !reduce) {
-    mark.addEventListener('animationend', function (e) {
-      if (e.animationName === 'loaderReveal') { swept = true; maybeReveal(); }
-    });
-  }
-
-  function finish() { loaded = true; maybeReveal(); }
-
-  if (document.readyState === 'complete') finish();
-  else window.addEventListener('load', finish);
-  // Safety cap: forces the curtain up even if `load` or animationend never
-  // land (a stalled asset, a throttled background tab, a blocked animation).
-  // 2.5s, not 4.5: the cap is the worst case a real visitor sits through, and
-  // four and a half seconds of black is longer than anyone waits.
-  setTimeout(reveal, 2500);
+  if (wrap) wrap.style.display = 'none';
+  document.body.classList.add('loaded');
+  document.dispatchEvent(new CustomEvent('cds:loaded'));
 });
 
 // Burger menu
@@ -174,7 +107,7 @@ if (burger && nav) {
       gsap.set(navLinks, { clearProps: 'transform,opacity,visibility' });
     }
     if (open) {
-      var first = nav.querySelector('a');
+      var first = closeBtn;
       if (first) first.focus();
     } else if (restoreFocus) {
       burger.focus();
@@ -185,12 +118,21 @@ if (burger && nav) {
     setOpen(!nav.classList.contains('open'), false);
   });
   nav.addEventListener('click', function (e) {
-    if (e.target.tagName === 'A') setOpen(false, false);
+    if (e.target.closest('a')) setOpen(false, false);
   });
   // Escape is the way out of every overlay on the platform; a drawer that only
   // closes by finding the same small button again is a trap on a phone.
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && nav.classList.contains('open')) setOpen(false, true);
+    if (!nav.classList.contains('open')) return;
+    if (e.key === 'Escape') setOpen(false, true);
+    if (e.key === 'Tab') {
+      var links = Array.prototype.filter.call(nav.querySelectorAll('a, button'), function (el) {
+        return el.getClientRects().length && !el.disabled && el.tabIndex >= 0;
+      });
+      var first = links[0], last = links[links.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
   });
   // Leaving the breakpoint with the drawer open would strand overflow:hidden on
   // the body while the nav is back to being a pill in the header.
@@ -478,13 +420,13 @@ window.pageTransition = (function () {
 (function () {
   var reels = document.querySelectorAll('.reel-video');
   if (!reels.length) return;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  var reducedReels = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-  if ('IntersectionObserver' in window) {
+  if (!reducedReels && 'IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         var v = entry.target;
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && !document.hidden) {
           if (v.preload === 'none') v.preload = 'auto';
           v.play().catch(function () {});
         } else {
@@ -494,6 +436,12 @@ window.pageTransition = (function () {
     }, { threshold: 0.5 });
     reels.forEach(function (v) { io.observe(v); });
   }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) reels.forEach(function (v) { v.pause(); });
+    // Re-observing gives a fresh intersection entry on return to the tab.
+    else if (io) reels.forEach(function (v) { io.unobserve(v); io.observe(v); });
+  });
 
   document.querySelectorAll('.reel-sound').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -573,7 +521,7 @@ window.pageTransition = (function () {
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !document.hidden) {
           if (held) return;
           if (v.preload === 'none') v.preload = 'auto';
           v.play().then(function () { paint(true); }).catch(function () {});

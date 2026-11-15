@@ -42,7 +42,9 @@ export async function syncStaticGallery(items) {
     '\n' +
     items.slice(0, GRID_COUNT).map((m) => {
       const cap = esc(m.caption);
-      return `      <a class="insta-item" href="${esc(m.link)}" target="_blank" rel="noopener"><img src="${esc(m.image)}" alt="${cap}" loading="lazy" decoding="async" width="800" height="800">\n` +
+      const local = m.image.match(/^assets\/img\/insta\/(i\d+)\.jpg$/);
+      const responsive = local ? ` srcset="assets/img/insta/responsive/${local[1]}-400.webp 400w, assets/img/insta/responsive/${local[1]}-800.webp 800w" sizes="(max-width: 720px) 80vw, 360px"` : '';
+      return `      <a class="insta-item" href="${esc(m.link)}" target="_blank" rel="noopener"><img${responsive} src="${esc(m.image)}" alt="${cap}" loading="lazy" decoding="async" width="800" height="800">\n` +
              `        <div class="cap">${cap}</div>\n      </a>`;
     }).join('\n') +
     '\n    ';

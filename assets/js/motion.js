@@ -17,48 +17,11 @@
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) return;
 
-  /* ---- smooth scroll ----------------------------------------------------
-     Lenis, not scroll hijacking: it smooths the wheel-to-scroll response and
-     leaves the scrollbar, keyboard, anchor jumps and native scrolling intact.
-     lerp is deliberately high — the brief asks for smooth, and a low value
-     produces the floaty lag that makes a page feel unresponsive. */
-  var lenis = null;
-  if (window.Lenis && !window.__cdsLenis) {
-    lenis = new window.Lenis({ lerp: 0.12, wheelMultiplier: 1, smoothWheel: true });
-    // Published so the pinned cover experience uses THIS instance rather than
-    // creating a second one. Two Lenis instances driving the same scroll is the
-    // classic way a pinned section starts fighting itself.
-    window.__cdsLenis = lenis;
-
-    // ScrollTrigger drives the pinned cover experience and has to be told
-    // where the page actually is, or the pin drifts against the smoothed scroll.
-    if (window.ScrollTrigger) {
-      // A phone hides and shows its address bar on scroll, which fires resize and
-      // makes ScrollTrigger recalculate a pin mid-gesture — the section jumps.
-      window.ScrollTrigger.config({ ignoreMobileResize: true });
-      lenis.on('scroll', window.ScrollTrigger.update);
-      window.gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
-      window.gsap.ticker.lagSmoothing(0);
-    } else {
-      requestAnimationFrame(function raf(t) { lenis.raf(t); requestAnimationFrame(raf); });
-    }
-
-    // The scroll cue and any in-page anchor go through Lenis so the jump is
-    // smoothed rather than fighting it.
-    document.addEventListener('click', function (e) {
-      var a = e.target.closest && e.target.closest('a[href^="#"]');
-      if (!a) return;
-      var id = a.getAttribute('href');
-      if (!id || id === '#') return;
-      var target = document.querySelector(id);
-      if (!target) return;
-      e.preventDefault();
-      lenis.scrollTo(target, { offset: -90 });
-    });
-  }
+  // Keep native wheel, touch, keyboard and history scrolling.
 
   if (!window.gsap) return;
   var gsap = window.gsap;
+  if (window.ScrollTrigger) window.ScrollTrigger.config({ ignoreMobileResize: true });
 
   /* ---- the orbiting covers drift ---------------------------------------
      A small parallax on the hero tiles, scrubbed to scroll. Different depths

@@ -122,5 +122,8 @@ mkdirSync('assets/data', { recursive: true });
 writeFileSync(OUT, JSON.stringify({ updated: new Date().toISOString(), account: 'cover_design.studio', source: 'composio', items }, null, 2) + '\n');
 console.log(`Wrote ${items.length} items to ${OUT} (images self-hosted in ${IMG_DIR}).`);
 
+// Rebuild the responsive variants after replacing the source images.
+await import('./build-responsive-images.mjs');
+
 // Keep the no-JS fallback markup identical to the feed it mirrors.
 await syncStaticGallery(items);

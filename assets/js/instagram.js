@@ -19,8 +19,12 @@
   function card(m) {
     if (!m.img) return '';
     var cap = esc(String(m.caption).slice(0, 120));
+    var local = m.img.match(/^assets\/img\/insta\/(i\d+)\.jpg$/);
+    var responsive = local ? ' srcset="assets/img/insta/responsive/' + local[1] +
+      '-400.webp 400w, assets/img/insta/responsive/' + local[1] +
+      '-800.webp 800w" sizes="(max-width: 720px) 80vw, 360px"' : '';
     return '<a class="insta-item" href="' + esc(m.link) + '" target="_blank" rel="noopener">' +
-      '<img src="' + esc(m.img) + '" alt="' + (cap || 'עטיפה בעיצוב עיצוב עטיפה סטודיו') +
+      '<img' + responsive + ' src="' + esc(m.img) + '" alt="' + (cap || 'עטיפה בעיצוב עיצוב עטיפה סטודיו') +
       '" loading="lazy" decoding="async" width="800" height="800">' +
       // aria-hidden: the caption is already the image's alt text, so without it
       // a screen reader reads every cover twice.

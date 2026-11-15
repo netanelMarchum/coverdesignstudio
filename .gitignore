@@ -23,3 +23,6 @@ _archive/
 # Rebuild those with: npm run build:textures
 Film-Grain-Textures-FREE-Pack-8K/
 Film-Dust-Textures/
+
+# Generated from preserved gallery originals during the production build.
+assets/img/insta/responsive/

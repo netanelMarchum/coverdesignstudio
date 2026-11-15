@@ -73,6 +73,28 @@
 
   var SPEED = 46;        // px per second — a drift, not a slide
   var tween = null;
+  var userPaused = false, hovered = false, focused = false, visible = false;
+  var pause = document.createElement('button');
+  pause.type = 'button';
+  pause.className = 'btn btn-ghost vel-pause';
+  pause.textContent = document.documentElement.lang.indexOf('en') === 0 ? 'Pause covers' : 'השהיית עטיפות';
+  pause.setAttribute('aria-pressed', 'false');
+  viewport.parentNode.insertBefore(pause, viewport);
+  function syncPlayback() {
+    if (tween) tween.timeScale(userPaused || hovered || focused || !visible || document.hidden ? 0 : 1);
+  }
+  pause.addEventListener('click', function () {
+    userPaused = !userPaused;
+    pause.setAttribute('aria-pressed', String(userPaused));
+    syncPlayback();
+  });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      syncPlayback();
+    }).observe(viewport);
+  } else visible = true;
+  document.addEventListener('visibilitychange', syncPlayback);
 
   function clones() {
     return Array.prototype.slice.call(grid.querySelectorAll('[data-vel-clone]'));
@@ -85,6 +107,7 @@
       k.setAttribute('data-vel-clone', '');
       k.setAttribute('aria-hidden', 'true');
       k.setAttribute('tabindex', '-1');
+      k.setAttribute('inert', '');
       grid.appendChild(k);
     });
   }
@@ -132,6 +155,7 @@
       duration: halfW / SPEED,
       repeat: -1,
     });
+    syncPlayback();
     tween.progress(progress);         // resize should not restart the lap
   }
 
@@ -139,7 +163,8 @@
 
   /* Card width is set by flex-basis, not by the image, so the track does not
      change width when artwork lands — but fonts and a resize both do. */
-  var remeasure = gsap.utils.debounce ? gsap.utils.debounce(build, 150) : build;
+  var resizeTimer;
+  function remeasure() { clearTimeout(resizeTimer); resizeTimer = setTimeout(build, 150); }
   addEventListener('resize', remeasure, { passive: true });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
 
@@ -168,27 +193,11 @@
      pointer is inside it or a card has keyboard focus. timeScale rather than
      pause(): a marquee that halts on the exact frame the pointer crossed the
      edge reads as a bug. */
-  function ease(to) {
-    if (tween) gsap.to(tween, { timeScale: to, duration: 0.4, ease: 'power2.out' });
-  }
-  viewport.addEventListener('pointerenter', function () { ease(0); });
-  viewport.addEventListener('pointerleave', function () { ease(1); });
-  viewport.addEventListener('focusin', function () { ease(0); });
-  viewport.addEventListener('focusout', function () { ease(1); });
-
-  /* Scroll velocity nudges the SPEED and nothing else. It cannot open a gap,
-     because it never touches geometry — only how fast the same loop runs. */
-  if (window.ScrollTrigger) {
-    window.ScrollTrigger.create({
-      trigger: viewport,
-      start: 'top bottom',
-      end: 'bottom top',
-      onUpdate: function (self) {
-        if (!tween || tween.timeScale() === 0) return;
-        var boost = gsap.utils.clamp(1, 3.2, 1 + Math.abs(self.getVelocity()) / 900);
-        gsap.to(tween, { timeScale: boost, duration: 0.3, overwrite: true });
-        gsap.to(tween, { timeScale: 1, duration: 1.1, delay: 0.3, overwrite: false });
-      },
-    });
-  }
+  viewport.addEventListener('pointerenter', function () { hovered = true; syncPlayback(); });
+  viewport.addEventListener('pointerleave', function () { hovered = false; syncPlayback(); });
+  viewport.addEventListener('focusin', function () { focused = true; syncPlayback(); });
+  viewport.addEventListener('focusout', function (e) {
+    focused = viewport.contains(e.relatedTarget);
+    syncPlayback();
+  });
 })();

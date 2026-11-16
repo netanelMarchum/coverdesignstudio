@@ -1,0 +1,69 @@
+/* Editorial art direction / homepage only
+   Visual composition informed by editorial creative portfolio conventions,
+   including Framer Outtake and Quint; no third-party template code copied.
+   Source artwork, typography, semantics and interactions remain native.
+*/
+.editorial-hero{isolation:isolate; overflow:hidden; min-height:0; display:block; margin-top:calc(var(--header-h,66px) * -1); padding:calc(var(--header-h,66px) + clamp(54px,7vw,112px)) max(24px,calc((100vw - 1320px)/2)) clamp(80px,9vw,140px); background:#f2efe9; color:#181715; text-align:start}
+.editorial-hero:before,.editorial-hero:after{display:none}
+.editorial-hero__layout{display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); gap:clamp(40px,6vw,110px); align-items:center; max-width:1320px; margin-inline:auto}
+.editorial-hero__copy{position:relative; z-index:2; min-width:0; padding-block:clamp(20px,4vw,60px)}
+.editorial-hero__kicker{margin:0 0 clamp(22px,3vw,48px); color:#625b53; font-size:clamp(.78rem,.86vw,.92rem); font-weight:600; letter-spacing:.02em}
+.editorial-hero__title{margin:0; max-width:12ch; font-family:'Google Sans',var(--font); font-size:clamp(3.25rem,5.6vw,6.85rem); font-weight:700; line-height:1.06; letter-spacing:-.045em; color:#181715; text-wrap:balance}
+.editorial-hero__title em{font-style:normal; color:#b04609}
+.editorial-hero__description{max-width:36ch; margin:clamp(26px,3vw,46px) 0 0; font-size:clamp(1rem,1.2vw,1.18rem); line-height:1.75; color:#49413b}
+.editorial-hero__actions{display:flex; gap:clamp(14px,2.6vw,36px); align-items:center; flex-wrap:wrap; margin-top:32px}
+.editorial-hero__actions a{font-weight:600; text-decoration:none; line-height:1.4; transition:opacity .2s ease-out}
+.editorial-hero__actions a:hover{opacity:.75}
+.editorial-hero__primary{padding:14px 20px; color:#181715; background:#ff9d64; border:1px solid #ff9d64}
+.editorial-hero__secondary{padding-block:12px; color:#181715; border-block-end:1px solid currentColor}
+.editorial-hero__folio{display:block; margin-top:clamp(50px,8vw,110px); direction:ltr; text-align:start; font-size:.66rem; letter-spacing:.16em; color:#756e67}
+.editorial-hero__gallery{position:relative; min-width:0; height:clamp(460px,48vw,720px)}
+.editorial-hero__art{position:absolute; margin:0; overflow:hidden; background:#ded8cf; box-shadow:0 28px 65px rgba(25,19,14,.12)}
+.editorial-hero__art img{display:block; width:100%; height:100%; object-fit:cover}
+.editorial-hero__art--main{inset-block-start:4%; inset-inline-start:5%; width:74%; aspect-ratio:1; z-index:1}
+.editorial-hero__art--secondary{inset-block-end:3%; inset-inline-end:0; width:47%; aspect-ratio:1; z-index:2}
+.editorial-hero__art--detail{inset-block-start:0; inset-inline-end:0; width:22%; aspect-ratio:1; z-index:3}
+.editorial-hero__index{position:absolute; inset-block-end:0; inset-inline-start:5%; direction:ltr; font-size:.67rem; letter-spacing:.14em; color:#625b53}
+[dir="ltr"] .editorial-hero__title{letter-spacing:-.055em}
+#work{padding-block:clamp(68px,8vw,140px)}
+#work .section-head{text-align:start; max-width:none; margin-inline:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,.7fr); column-gap:clamp(24px,5vw,90px); align-items:end}
+#work .section-head .eyebrow{grid-column:1/-1; justify-self:start; border-radius:0; padding:0; background:transparent; color:#8b4317; letter-spacing:.08em; font-size:.78rem}
+#work .section-head .section-title{font-size:clamp(3.4rem,6.8vw,7.5rem); letter-spacing:-.02em; line-height:1; text-align:start}
+#work .section-head .section-lead{margin:0; max-width:34ch; justify-self:end; line-height:1.65; text-align:start}
+#work .insta-grid:not(.is-carousel):not(.is-swipe){grid-template-columns:repeat(12,minmax(0,1fr)); gap:clamp(12px,2vw,28px); align-items:start}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item{grid-column:span 3}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(1){grid-column:span 6}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(2){grid-column:span 3; margin-top:13%}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(3){grid-column:span 3; margin-top:29%}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(4){grid-column:span 4}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(5){grid-column:span 4; margin-top:10%}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(6){grid-column:span 4}
+#work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item:nth-child(n+7){grid-column:span 3}
+#work .insta-item{border:0; border-radius:0; background:transparent; box-shadow:none; padding:0; overflow:visible}
+#work .insta-item img{display:block; width:100%; aspect-ratio:1; border-radius:0; box-shadow:0 12px 30px rgba(20,17,14,.09)}
+#work .insta-item .cap{padding:14px 0 0; font-size:clamp(.8rem,.95vw,.95rem); color:#49413b; font-weight:500}
+#work .insta-item .cap::after{display:none}
+#work .load-more{text-align:start}
+@media(max-width:960px){.editorial-hero__layout{gap:30px}.editorial-hero__title{font-size:clamp(2.9rem,5.6vw,5rem)}.editorial-hero__gallery{height:clamp(350px,48vw,520px)}}
+@media(max-width:700px){
+ .editorial-hero{padding:calc(var(--header-h,66px) + 34px) 22px 65px}
+ .editorial-hero__layout{display:block}
+ .editorial-hero__copy{padding-block:0}
+ .editorial-hero__kicker{margin-bottom:22px}
+ .editorial-hero__title{max-width:none; font-size:clamp(3.05rem,10.6vw,5.2rem); letter-spacing:-.035em}
+ .editorial-hero__description{margin-top:22px; font-size:1rem; max-width:35ch}
+ .editorial-hero__actions{margin-top:22px; gap:18px}
+ .editorial-hero__folio{display:none}
+ .editorial-hero__gallery{height:auto; aspect-ratio:1.12; margin-top:28px}
+ .editorial-hero__art--main{width:69%; inset-inline-start:0; inset-block-start:4%}
+ .editorial-hero__art--secondary{width:43%; inset-inline-end:0; inset-block-end:8%}
+ .editorial-hero__art--detail{width:22%; inset-block-start:0; inset-inline-end:0}
+ .editorial-hero__index{inset-block-end:0; inset-inline-start:0}
+ #work .section-head{display:block}
+ #work .section-head .section-title{font-size:clamp(3rem,10vw,5.8rem)}
+ #work .section-head .section-lead{margin-top:16px; max-width:38ch}
+ #work .insta-grid:not(.is-carousel):not(.is-swipe){grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 12px}
+ #work .insta-grid:not(.is-carousel):not(.is-swipe) .insta-item{grid-column:auto!important; margin-top:0!important}
+ #work .insta-item .cap{font-size:.76rem}
+}
+@media(prefers-reduced-motion:reduce){.editorial-hero__actions a{transition:none}}

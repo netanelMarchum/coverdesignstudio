@@ -1,0 +1,28 @@
+/* Independent, gentle floating of decorative 3D objects across all pages.
+   Animation is time-based and never connected to scroll position. */
+@keyframes studioObjectFloat{
+  0%{transform:translate3d(0,12px,0) rotate(var(--fx-rot,0deg))}
+  50%{transform:translate3d(0,-15px,0) rotate(calc(var(--fx-rot,0deg) + 1deg))}
+  100%{transform:translate3d(0,12px,0) rotate(var(--fx-rot,0deg))}
+}
+.fx>img{
+  animation-name:studioObjectFloat!important;
+  animation-duration:var(--float-duration,7s)!important;
+  animation-timing-function:ease-in-out!important;
+  animation-iteration-count:infinite!important;
+  animation-direction:normal!important;
+  animation-play-state:running!important;
+  animation-delay:var(--float-delay,0s)!important;
+  will-change:transform;
+}
+.fx:nth-of-type(3n+1){--float-duration:7.4s;--float-delay:-2.3s}
+.fx:nth-of-type(3n+2){--float-duration:8.6s;--float-delay:-4.1s}
+.fx:nth-of-type(3n){--float-duration:6.8s;--float-delay:-1.5s}
+@media(max-width:720px){
+  @keyframes studioObjectFloat{
+    0%{transform:translate3d(0,7px,0) rotate(var(--fx-rot,0deg))}
+    50%{transform:translate3d(0,-9px,0) rotate(var(--fx-rot,0deg))}
+    100%{transform:translate3d(0,7px,0) rotate(var(--fx-rot,0deg))}
+  }
+}
+@media(prefers-reduced-motion:reduce){.fx>img{animation:none!important;will-change:auto}}

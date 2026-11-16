@@ -8,7 +8,7 @@
 @media(max-width:520px){.cookie-consent{width:calc(100vw - 28px);inset-inline:14px;inset-block-end:14px;padding:16px;border-radius:14px;gap:10px;max-height:min(75dvh,580px);overflow-y:auto}.cookie-consent .cc-actions{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}.cookie-consent .cc-actions .btn{width:auto;flex:1 1 auto;min-width:0;padding:9px 12px}.cookie-consent .cc-link{margin-inline-start:0;padding-block-start:0;text-align:start}}
 
 /* Mobile drawer: center the complete social + mail row and give mail a proper icon footprint. */
-@media(max-width:900px){
+@media(max-width:920px){
  .main-nav .nav-social{width:100%;box-sizing:border-box;align-self:stretch;justify-content:center;align-items:center;min-width:0}
  .main-nav .nav-social>.social-row{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;width:100%;max-width:100%;margin:0 auto;padding:0;direction:ltr}
  .main-nav .nav-social .social-row>a{display:inline-flex;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;box-sizing:border-box;align-items:center;justify-content:center;padding:0;margin:0;line-height:1}

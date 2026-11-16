@@ -38,3 +38,27 @@
 .intro .hero-orbit .orbit-tile.o6{inset-block-start:61%;inset-inline-end:25%}
 @media(max-width:1100px){.intro .hero-orbit{inset:38px 6vw}.intro .hero-orbit .orbit-tile{max-width:clamp(74px,10vw,116px);max-height:clamp(74px,10vw,116px)}}
 @media(max-width:820px){.intro .hero-orbit .orbit-tile{display:none}}
+
+/* Editorial hero: a dedicated central reading lane. Album art stays in the
+   outer gutters, never underneath the heading or description. */
+.intro .hero-orbit{inset:0;overflow:visible;z-index:0}
+.intro .intro-copy{position:relative;z-index:4;max-width:min(680px,58vw);margin-inline:auto}
+.intro .hero-orbit .orbit-tile{width:clamp(74px,9vw,112px);height:auto;aspect-ratio:1;max-width:none;max-height:none}
+.intro .hero-orbit .orbit-tile.o1{inset:16% auto auto 5%}
+.intro .hero-orbit .orbit-tile.o2{inset:65% auto auto 7%}
+.intro .hero-orbit .orbit-tile.o3{display:none}
+.intro .hero-orbit .orbit-tile.o4{inset:17% 5% auto auto}
+.intro .hero-orbit .orbit-tile.o5{inset:65% 7% auto auto}
+.intro .hero-orbit .orbit-tile.o6{display:none}
+@media(max-width:1200px){
+  .intro .intro-copy{max-width:min(680px,62vw)}
+  .intro .hero-orbit .orbit-tile{width:clamp(68px,8vw,94px)}
+  .intro .hero-orbit .orbit-tile.o1{left:3%}
+  .intro .hero-orbit .orbit-tile.o2{left:4%}
+  .intro .hero-orbit .orbit-tile.o4{right:3%}
+  .intro .hero-orbit .orbit-tile.o5{right:4%}
+}
+@media(max-width:900px){
+  .intro .intro-copy{max-width:min(690px,88vw)}
+  .intro .hero-orbit .orbit-tile{display:none!important}
+}

@@ -3077,3 +3077,56 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .video-card .thumb.playing::after{display:none}
 .video-card .thumb.playing img{opacity:0}
 
+
+/* Mobile footer social icons: center within the FULL footer grid track.
+   This belongs in style.css, not style.min.css: the production build
+   regenerates the minified stylesheet from this source every deployment. */
+@media (max-width:760px) {
+  .site-footer .footer-grid > div:first-child {
+    grid-column:1 / -1;
+    width:100%;
+    min-width:0;
+    justify-self:stretch;
+    text-align:center;
+  }
+  .site-footer .footer-grid > div:first-child .social-row {
+    display:flex;
+    width:100%;
+    max-width:none;
+    box-sizing:border-box;
+    margin:20px auto 0;
+    padding:0;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    direction:ltr;
+  }
+  .site-footer .footer-grid > div:first-child .social-row > a {
+    display:inline-flex;
+    flex:0 0 44px;
+    width:44px;
+    height:44px;
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    align-items:center;
+    justify-content:center;
+  }
+  .site-footer .footer-grid > div:first-child .social-row > a svg {
+    display:block;
+    width:22px;
+    height:22px;
+    flex:none;
+  }
+}
+
+/* Mobile drawer icons: also persist the earlier mail legibility fix. */
+@media (max-width:920px) {
+  .main-nav .nav-social {width:100%;min-width:0;align-self:stretch;justify-content:center;align-items:center;box-sizing:border-box}
+  .main-nav .nav-social > .social-row {display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;width:100%;max-width:100%;margin:0 auto;padding:0;direction:ltr}
+  .main-nav .nav-social .social-row > a {display:inline-flex;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;box-sizing:border-box;align-items:center;justify-content:center;padding:0;margin:0;line-height:1}
+  .main-nav .nav-social .social-row > a svg {display:block;flex:none;width:21px;height:21px;max-width:none;max-height:none}
+  .main-nav .nav-social .social-row > a[href^="mailto:"] svg {width:23px;height:23px;stroke-width:1.9}
+}

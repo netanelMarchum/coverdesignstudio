@@ -7,6 +7,7 @@ const output = 'dist';
 // Standalone runtime enhancements referenced directly by production HTML.
 const runtimeExtras = new Set([
   'assets/css/studio-opening.css',
+  'assets/css/site-palette-lime.css',
   'assets/js/studio-opening.js',
   'assets/css/prism-portfolio.css',
   'assets/css/floating-objects.css',

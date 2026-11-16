@@ -67,3 +67,60 @@
  #work .insta-item .cap{font-size:.76rem}
 }
 @media(prefers-reduced-motion:reduce){.editorial-hero__actions a{transition:none}}
+
+
+/* Material & Texture refinement — quiet surfaces, artwork first */
+.editorial-hero{
+  background:radial-gradient(ellipse 58% 65% at 78% 35%,rgba(255,255,255,.8),transparent 78%),#f5f4f1;
+  color:#242421;
+}
+.editorial-hero__title{color:#242421}
+.editorial-hero__title em{color:inherit}
+.editorial-hero__kicker,.editorial-hero__folio,.editorial-hero__index{color:#777670}
+.editorial-hero__description{color:#66645f}
+.editorial-hero__primary{
+  background:#292925;border-color:#292925;color:#fff;
+  border-radius:2px;transition:background .2s ease,color .2s ease;
+}
+.editorial-hero__primary:hover{background:#44443e;opacity:1}
+.editorial-hero__secondary{border-color:#aaa8a0}
+.editorial-hero__gallery:before{
+  content:"";position:absolute;inset:7% 4% 12% 0;
+  pointer-events:none;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(206,205,198,.25),transparent 70%);
+  filter:blur(28px);
+}
+.editorial-hero__art{
+  background:#e9e8e4;
+  box-shadow:0 20px 48px rgba(28,27,24,.085),0 2px 8px rgba(28,27,24,.045);
+  transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease;
+}
+.editorial-hero__art:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  border:1px solid rgba(255,255,255,.26);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
+}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+  .editorial-hero__art:hover{
+    transform:translateY(-5px);
+    box-shadow:0 27px 58px rgba(28,27,24,.12),0 3px 10px rgba(28,27,24,.05);
+  }
+}
+#work{position:relative;background:#f7f6f3}
+#work .fx{display:none!important}
+#work .section-head .eyebrow{color:#777670}
+#work .insta-item img{
+  box-shadow:0 12px 30px rgba(26,26,23,.075),0 1px 4px rgba(26,26,23,.035);
+  transition:transform .35s ease,box-shadow .35s ease;
+}
+#work .insta-item .cap{color:#686762}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+  #work .insta-item:hover img{
+    transform:translateY(-3px);
+    box-shadow:0 18px 40px rgba(26,26,23,.105);
+  }
+}
+@media(max-width:700px){
+  .editorial-hero{background:#f5f4f1}
+  .editorial-hero__art{box-shadow:0 10px 28px rgba(28,27,24,.08)}
+}

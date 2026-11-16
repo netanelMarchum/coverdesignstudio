@@ -67,9 +67,69 @@
     }
   };
 
-  function lang() {
-    return (document.documentElement.lang || 'he').toLowerCase().indexOf('en') === 0 ? 'en' : 'he';
+  // An explicit HE/EN selection always wins. Geo is only a hint for first-time
+  // visitors, and never changes the language/direction of the whole website.
+  var detectedLanguage = null;
+
+  function savedLanguage() {
+    try {
+      var value = localStorage.getItem('lang');
+      if (value === 'he' || value === 'en') return value;
+    } catch (e) {}
+    return null;
   }
+
+  function lang() {
+    return savedLanguage() || detectedLanguage ||
+      ((document.documentElement.lang || 'he').toLowerCase().indexOf('en') === 0 ? 'en' : 'he');
+  }
+
+  function guessFromBrowser() {
+    var code = (navigator.language || '').toLowerCase();
+    return code.indexOf('he') === 0 || code.indexOf('iw') === 0 ? 'he' : 'en';
+  }
+
+  // Request only the two-letter language recommendation. The server reads a
+  // Vercel-provided country header and returns no country, IP or user details.
+  // A deadline ensures a slow geo lookup never blocks the cookie notice.
+  function resolveLanguage() {
+    if (savedLanguage()) return Promise.resolve();
+    if (typeof fetch !== 'function') {
+      detectedLanguage = guessFromBrowser();
+      return Promise.resolve();
+    }
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeoutId;
+    var timeout = new Promise(function (resolve) {
+      timeoutId = setTimeout(function () {
+        if (controller) controller.abort();
+        resolve(null);
+      }, 750);
+    });
+    var options = { credentials: 'same-origin', cache: 'no-store' };
+    if (controller) options.signal = controller.signal;
+    var lookup = fetch('/api/cookie-language', options)
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (data) { return data && (data.language === 'he' || data.language === 'en') ? data.language : null; })
+      .catch(function () { return null; });
+    return Promise.race([lookup, timeout]).then(function (language) {
+      clearTimeout(timeoutId);
+      detectedLanguage = language || guessFromBrowser();
+    });
+  }
+
+  // A click on the existing language toggle must also count if the site was
+  // already displaying that language (i18n.js otherwise short-circuits).
+  function userSelectedLanguage(event) {
+    var button = event.target.closest && event.target.closest('.lang-switch [data-lang]');
+    if (!button) return;
+    var chosen = button.getAttribute('data-lang');
+    if (chosen !== 'he' && chosen !== 'en') return;
+    try { localStorage.setItem('lang', chosen); } catch (e) {}
+    detectedLanguage = chosen;
+    if (el.bar) paint();
+  }
+  document.addEventListener('click', userSelectedLanguage, true);
 
   var el = {};
 
@@ -196,6 +256,9 @@
     setTimeout(drop, 600);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
-  else build();
+  function start() {
+    resolveLanguage().then(build, build);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+  else start();
 })();

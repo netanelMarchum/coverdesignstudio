@@ -209,7 +209,10 @@
   // Re-reads every string from the copy table. Called on build and again every
   // time the language changes, so the banner is never a sentence behind.
   function paint() {
-    var t = COPY[lang()];
+    var displayLanguage = lang();
+    var t = COPY[displayLanguage];
+    el.bar.setAttribute('lang', displayLanguage);
+    el.bar.setAttribute('dir', displayLanguage === 'en' ? 'ltr' : 'rtl');
     el.bar.setAttribute('aria-label', t.region);
     el.eyebrow.textContent = t.label;
     el['cc-reject'].textContent = t.reject;

@@ -6,8 +6,8 @@ let seen=false;try{seen=sessionStorage.getItem('studioOpeningSeen')==='1';sessio
 if(reduced||seen){el.remove();return}
 let finished=false;const done=()=>{if(finished)return;finished=true;el.classList.add('is-complete');setTimeout(()=>el.remove(),650)};
 const start=performance.now();
-const show=()=>{const remaining=Math.max(0,1700-(performance.now()-start));setTimeout(done,remaining)};
+const show=()=>{const remaining=Math.max(0,2300-(performance.now()-start));setTimeout(done,remaining)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});else show();
-setTimeout(done,2300);
+setTimeout(done,3100);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)done()},{once:true});
 })();

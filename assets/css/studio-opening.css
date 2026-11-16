@@ -1,0 +1,14 @@
+/* Purposeful studio opening: the page renders underneath and remains responsive. */
+.studio-opening{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#17171b;color:#f5f3ed;pointer-events:none;opacity:1;visibility:visible;transition:opacity .55s cubic-bezier(.22,1,.36,1),visibility .55s}
+.studio-opening__scene{position:relative;display:grid;place-items:center;width:min(76vw,480px);aspect-ratio:1.5;isolation:isolate}
+.studio-opening__frame{position:absolute;width:clamp(100px,27vw,180px);aspect-ratio:1;border:1px solid rgba(255,255,255,.25);border-radius:5px;transform:translate3d(0,24px,0) rotate(-8deg) scale(.9);opacity:0;animation:studioFrameIn 1.15s cubic-bezier(.22,1,.36,1) .08s both}
+.studio-opening__frame::before{content:"";position:absolute;inset:12%;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 65%)}
+.studio-opening__frame::after{content:"";position:absolute;inset:-12px;border:1px solid rgba(255,255,255,.08);transform:rotate(9deg)}
+.studio-opening__mark{position:relative;z-index:1;width:clamp(56px,14vw,90px);height:auto;filter:drop-shadow(0 10px 22px rgba(0,0,0,.2));opacity:0;transform:translate3d(0,12px,0) scale(.94);animation:studioMarkIn .9s cubic-bezier(.22,1,.36,1) .52s both}
+.studio-opening__line{position:absolute;bottom:4%;height:1px;width:0;background:rgba(255,255,255,.58);animation:studioLineIn 1s cubic-bezier(.22,1,.36,1) .65s both}
+.studio-opening.is-complete{opacity:0;visibility:hidden}
+.studio-opening.is-skipped{display:none}
+@keyframes studioFrameIn{to{transform:translate3d(0,0,0) rotate(0) scale(1);opacity:1}}
+@keyframes studioMarkIn{to{transform:translate3d(0,0,0) scale(1);opacity:1}}
+@keyframes studioLineIn{to{width:min(34vw,130px)}}
+@media(prefers-reduced-motion:reduce){.studio-opening{display:none!important}.studio-opening *{animation:none!important}}

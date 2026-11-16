@@ -6,6 +6,8 @@ import { relative, sep } from 'node:path';
 const output = 'dist';
 // Standalone runtime enhancements referenced directly by production HTML.
 const runtimeExtras = new Set([
+  'assets/css/studio-opening.css',
+  'assets/js/studio-opening.js',
   'assets/css/prism-portfolio.css',
   'assets/css/floating-objects.css',
   'assets/css/studio-motion-refinement.css',

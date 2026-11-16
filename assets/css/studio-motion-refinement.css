@@ -1,0 +1,26 @@
+/* Art-directed hero and calmer intro — progressive enhancement. */
+.intro{isolation:isolate}
+.hero-orbit{perspective:1100px;pointer-events:none}
+.hero-orbit .orbit-tile{transform-style:preserve-3d;filter:drop-shadow(0 16px 24px rgba(24,15,34,.15));transition:filter .45s ease}
+.hero-orbit .orbit-tile img{display:block;backface-visibility:hidden;animation:studioCoverDrift var(--cover-cycle,8s) ease-in-out infinite alternate!important;animation-delay:var(--cover-phase,0s)!important;transform:translate3d(0,0,0) rotate(var(--cover-angle,0deg))!important;will-change:transform}
+.hero-orbit .o1{--cover-cycle:8.3s;--cover-phase:-1.6s;--cover-angle:-5deg}
+.hero-orbit .o2{--cover-cycle:9.1s;--cover-phase:-4s;--cover-angle:4deg}
+.hero-orbit .o3{--cover-cycle:7.7s;--cover-phase:-2.9s;--cover-angle:-3deg}
+.hero-orbit .o4{--cover-cycle:8.8s;--cover-phase:-5s;--cover-angle:5deg}
+.hero-orbit .o5{--cover-cycle:9.6s;--cover-phase:-3.5s;--cover-angle:-4deg}
+.hero-orbit .o6{--cover-cycle:8.1s;--cover-phase:-6s;--cover-angle:3deg}
+@keyframes studioCoverDrift{from{transform:translate3d(0,8px,0) rotate(var(--cover-angle))!important}to{transform:translate3d(0,-11px,0) rotate(calc(var(--cover-angle) + 1.5deg))!important}}
+/* Intro: reveal hierarchy rather than twelve objects flying across the screen. */
+#loader-wrapper .loader-objects .lo{animation-duration:1.35s!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}
+#loader-wrapper .loader-mark{animation-duration:1.2s!important}
+#loader-wrapper{transition:opacity .65s cubic-bezier(.22,1,.36,1),visibility .65s!important}
+.intro-copy{position:relative;z-index:3}
+@media(max-width:720px){
+.hero-orbit .orbit-tile:nth-child(n+4){display:none!important}
+.hero-orbit .orbit-tile{filter:drop-shadow(0 9px 14px rgba(24,15,34,.12))}
+.hero-orbit .orbit-tile img{animation-duration:10s!important}
+}
+@media(prefers-reduced-motion:reduce){
+.hero-orbit .orbit-tile img{animation:none!important;transform:none!important;will-change:auto}
+#loader-wrapper,#loader-wrapper *{animation:none!important;transition:none!important}
+}

@@ -1,0 +1,17 @@
+/* Studio motion-graphic opening: original playful artwork, restrained choreography. */
+.studio-opening{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;background:#f7f7f5;pointer-events:none;opacity:1;visibility:visible;transition:opacity .72s cubic-bezier(.22,1,.36,1),visibility .72s}
+.studio-opening__scene{position:relative;width:min(100%,1100px);height:min(100dvh,740px);display:grid;place-items:center;isolation:isolate}
+.studio-opening__object{position:absolute;display:block;opacity:0;will-change:transform,opacity;animation:studioObjectEnter 1.45s cubic-bezier(.2,.8,.2,1) var(--delay,0s) both}
+.studio-opening__object img{display:block;width:100%;height:auto;filter:drop-shadow(0 16px 24px rgba(35,25,45,.09))}
+.studio-opening__object--wave{width:clamp(140px,25vw,330px);top:12%;left:5%;--tx:-32px;--ty:-42px;--rot:-11deg;--delay:.08s}
+.studio-opening__object--ring{width:clamp(100px,17vw,220px);top:13%;right:10%;--tx:30px;--ty:-36px;--rot:14deg;--delay:.2s}
+.studio-opening__object--ribbon{width:clamp(150px,29vw,350px);bottom:15%;right:3%;--tx:36px;--ty:42px;--rot:12deg;--delay:.32s}
+.studio-opening__object--blob{width:clamp(110px,20vw,260px);bottom:12%;left:8%;--tx:-26px;--ty:40px;--rot:-13deg;--delay:.42s}
+.studio-opening__mark{position:relative;z-index:2;width:clamp(110px,21vw,205px);height:auto;opacity:0;transform:translate3d(0,22px,0) scale(.88);animation:studioMarkEnter 1.15s cubic-bezier(.22,1,.36,1) .55s both;filter:drop-shadow(0 12px 22px rgba(0,0,0,.08))}
+.studio-opening__line{position:absolute;z-index:2;top:calc(50% + clamp(68px,12vw,120px));width:0;height:2px;background:#111;opacity:.65;animation:studioLineEnter .95s cubic-bezier(.22,1,.36,1) 1.05s both}
+.studio-opening.is-complete{opacity:0;visibility:hidden}
+@keyframes studioObjectEnter{from{opacity:0;transform:translate3d(var(--tx),var(--ty),0) rotate(var(--rot)) scale(.86)}to{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}}
+@keyframes studioMarkEnter{to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes studioLineEnter{to{width:clamp(60px,9vw,120px)}}
+@media(max-width:600px){.studio-opening__scene{height:100dvh}.studio-opening__object--wave{top:18%;left:-6%}.studio-opening__object--ring{top:21%;right:-5%}.studio-opening__object--ribbon{bottom:21%;right:-9%}.studio-opening__object--blob{bottom:18%;left:-8%}}
+@media(prefers-reduced-motion:reduce){.studio-opening{display:none!important}.studio-opening *{animation:none!important}}

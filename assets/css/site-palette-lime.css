@@ -1,0 +1,28 @@
+/* Website-only palette experiment — reference: lime / pale citron / deep teal.
+   Does not recolor uploaded artwork, 3D objects, or image assets.
+   Revert this file/link to restore the previous lavender palette. */
+:root{
+  --color-bg:#F4F8E7;
+  --color-text:#073C43;
+  --color-muted:#34565A;
+  --color-lavender:#C5F337;
+  --color-lavender-soft:#E9F8BB;
+  --color-accent:#D6FB00;
+  --color-surface:#FFFFFF;
+  --color-border:#C7D7C7;
+  --color-ink-soft:rgba(0,84,95,.08);
+  --bg-deep:#00545F;
+  --off:#EAF2D9;
+  --hairline-2:rgba(0,84,95,.2);
+  --color-lavender-deep:#235E47;
+  --color-lavender-ink:#174D44;
+  --color-accent-deep:#376000;
+  --color-accent-ink:#315700;
+  --ticker-ink:#174D44;
+  --color-focus:#00545F;
+  --glow-top:radial-gradient(58% 44% at 78% 6%,rgba(214,251,0,.30),transparent 68%);
+  --glow-brown:radial-gradient(64% 50% at 12% 96%,rgba(0,84,95,.13),transparent 72%);
+}
+/* Maintain legibility on the brighter palette; never use neon for body text. */
+::selection{background:#D6FB00;color:#073C43}
+:focus-visible{outline-color:#00545F}

@@ -1,0 +1,20 @@
+/* Fluted-glass inspired portfolio hover. Lightweight, CSS-only fallback. */
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .insta-grid .insta-item{isolation:isolate;overflow:hidden}
+  .insta-grid .insta-item::after{
+    content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:
+      repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0px,rgba(255,255,255,.03) 3px,rgba(18,19,29,.11) 6px,rgba(255,255,255,.13) 9px,transparent 13px),
+      linear-gradient(100deg,transparent 20%,rgba(250,240,255,.19) 48%,transparent 75%);
+    opacity:0;clip-path:circle(0 at var(--prism-x,50%) var(--prism-y,50%));
+    transition:opacity .32s ease,clip-path .42s cubic-bezier(.2,.75,.25,1);
+    mix-blend-mode:screen;
+  }
+  .insta-grid .insta-item:hover::after,.insta-grid .insta-item:focus-visible::after{
+    opacity:.9;clip-path:circle(48% at var(--prism-x,50%) var(--prism-y,50%));
+  }
+  .insta-grid .insta-item img{transition:transform .5s cubic-bezier(.2,.75,.25,1),filter .4s ease}
+  .insta-grid .insta-item:hover img{transform:scale(1.025);filter:saturate(1.06)}
+  .insta-grid .insta-item .cap{z-index:3}
+}
+@media(prefers-reduced-motion:reduce){.insta-grid .insta-item::after{display:none!important}}

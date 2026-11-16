@@ -23,3 +23,11 @@
  .site-footer .footer-grid .social-row>a{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;box-sizing:border-box;margin:0;padding:0}
  .site-footer .footer-grid .social-row>a svg{display:block;width:22px;height:22px;flex:none}
 }
+
+/* Footer mobile alignment: center the entire first grid cell, not just its icons.
+   A grid item can shrink to content width in RTL; give it the full grid track. */
+@media(max-width:760px){
+ .site-footer .footer-grid>div:first-child{grid-column:1/-1;width:100%;min-width:0;justify-self:stretch;text-align:center}
+ .site-footer .footer-grid>div:first-child .footer-logo{margin-inline:auto}
+ .site-footer .footer-grid>div:first-child .social-row{display:flex!important;justify-content:center!important;align-items:center;align-content:center;width:100%!important;max-width:none!important;min-width:0;box-sizing:border-box;margin:20px auto 0!important;gap:12px;direction:ltr}
+}

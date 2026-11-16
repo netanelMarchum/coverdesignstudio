@@ -15,3 +15,11 @@
  .main-nav .nav-social .social-row>a svg{display:block;flex:none;width:21px;height:21px;max-width:none;max-height:none}
  .main-nav .nav-social .social-row>a[href^="mailto:"] svg{width:23px;height:23px;stroke-width:1.9}
 }
+
+/* Mobile footer: center the social icons relative to the viewport/content column,
+   not to the RTL start edge. Keep drawer icons scoped separately. */
+@media(max-width:920px){
+ .site-footer .footer-grid .social-row{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;width:100%;max-width:100%;margin:20px auto 0;padding:0;direction:ltr}
+ .site-footer .footer-grid .social-row>a{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;box-sizing:border-box;margin:0;padding:0}
+ .site-footer .footer-grid .social-row>a svg{display:block;width:22px;height:22px;flex:none}
+}

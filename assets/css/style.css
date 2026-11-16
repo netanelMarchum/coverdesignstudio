@@ -3130,3 +3130,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   .main-nav .nav-social .social-row > a svg {display:block;flex:none;width:21px;height:21px;max-width:none;max-height:none}
   .main-nav .nav-social .social-row > a[href^="mailto:"] svg {width:23px;height:23px;stroke-width:1.9}
 }
+
+/* Graphics portfolio on phones: show the artwork itself, without the artist/song
+   caption obscuring it. Descriptive img alt text and full desktop captions remain. */
+@media (max-width:767px) {
+  body.graphics-page .insta-grid .insta-item .cap,
+  body.graphics-page .insta-grid .insta-item:hover .cap,
+  body.graphics-page .insta-grid .insta-item:focus-visible .cap {
+    display:none;
+    opacity:0;
+    background:none;
+  }
+}

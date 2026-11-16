@@ -73,21 +73,10 @@
 
   var SPEED = 46;        // px per second — a drift, not a slide
   var tween = null;
-  var userPaused = false, hovered = false, focused = false, visible = false;
-  var pause = document.createElement('button');
-  pause.type = 'button';
-  pause.className = 'btn btn-ghost vel-pause';
-  pause.textContent = document.documentElement.lang.indexOf('en') === 0 ? 'Pause covers' : 'השהיית עטיפות';
-  pause.setAttribute('aria-pressed', 'false');
-  viewport.parentNode.insertBefore(pause, viewport);
+  var hovered = false, focused = false, visible = false;
   function syncPlayback() {
-    if (tween) tween.timeScale(userPaused || hovered || focused || !visible || document.hidden ? 0 : 1);
+    if (tween) tween.timeScale(hovered || focused || !visible || document.hidden ? 0 : 1);
   }
-  pause.addEventListener('click', function () {
-    userPaused = !userPaused;
-    pause.setAttribute('aria-pressed', String(userPaused));
-    syncPlayback();
-  });
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;

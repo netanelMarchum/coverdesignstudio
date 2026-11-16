@@ -8,7 +8,6 @@
 .studio-opening__object--ribbon{width:clamp(150px,29vw,350px);bottom:15%;right:3%;--tx:36px;--ty:42px;--rot:12deg;--delay:.32s}
 .studio-opening__object--blob{width:clamp(110px,20vw,260px);bottom:12%;left:8%;--tx:-26px;--ty:40px;--rot:-13deg;--delay:.42s}
 .studio-opening__mark{position:relative;z-index:2;width:clamp(110px,21vw,205px);height:auto;opacity:0;transform:translate3d(0,22px,0) scale(.88);animation:studioMarkEnter 1.15s cubic-bezier(.22,1,.36,1) .55s both;filter:drop-shadow(0 12px 22px rgba(0,0,0,.08))}
-.studio-opening__line{position:absolute;z-index:2;top:calc(50% + clamp(68px,12vw,120px));width:0;height:2px;background:#111;opacity:.65;animation:studioLineEnter .95s cubic-bezier(.22,1,.36,1) 1.05s both}
 .studio-opening.is-complete{opacity:0;visibility:hidden}
 @keyframes studioObjectEnter{from{opacity:0;transform:translate3d(var(--tx),var(--ty),0) rotate(var(--rot)) scale(.86)}to{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}}
 @keyframes studioMarkEnter{to{opacity:1;transform:translate3d(0,0,0) scale(1)}}

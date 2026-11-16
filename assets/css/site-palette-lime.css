@@ -1,28 +1,36 @@
-/* Website-only palette experiment — reference: lime / pale citron / deep teal.
-   Does not recolor uploaded artwork, 3D objects, or image assets.
-   Revert this file/link to restore the previous lavender palette. */
+/* Website-only COLOR DROP palette. Reference: #11121c / #d9ff3a.
+   Album artwork, logos, decorative images and 3D assets remain unchanged.
+   Reversible: remove this stylesheet to restore the original site colors. */
 :root{
-  --color-bg:#F4F8E7;
-  --color-text:#073C43;
-  --color-muted:#34565A;
-  --color-lavender:#C5F337;
-  --color-lavender-soft:#E9F8BB;
-  --color-accent:#D6FB00;
-  --color-surface:#FFFFFF;
-  --color-border:#C7D7C7;
-  --color-ink-soft:rgba(0,84,95,.08);
-  --bg-deep:#00545F;
-  --off:#EAF2D9;
-  --hairline-2:rgba(0,84,95,.2);
-  --color-lavender-deep:#235E47;
-  --color-lavender-ink:#174D44;
-  --color-accent-deep:#376000;
-  --color-accent-ink:#315700;
-  --ticker-ink:#174D44;
-  --color-focus:#00545F;
-  --glow-top:radial-gradient(58% 44% at 78% 6%,rgba(214,251,0,.30),transparent 68%);
-  --glow-brown:radial-gradient(64% 50% at 12% 96%,rgba(0,84,95,.13),transparent 72%);
+  color-scheme:dark;
+  --color-bg:#11121C;
+  --color-text:#F8F9F5;
+  --color-muted:#C3C8D0;
+  --color-lavender:#D9FF3A;
+  --color-lavender-soft:#2A3320;
+  --color-accent:#D9FF3A;
+  --color-surface:#1B1D29;
+  --color-border:#454958;
+  --color-ink-soft:rgba(217,255,58,.09);
+  --bg-deep:#0C0D15;
+  --off:#222532;
+  --hairline-2:rgba(255,255,255,.22);
+  --color-lavender-deep:#D9FF3A;
+  --color-lavender-ink:#D9FF3A;
+  --color-accent-deep:#D9FF3A;
+  --color-accent-ink:#D9FF3A;
+  --ticker-ink:#D9FF3A;
+  --color-focus:#D9FF3A;
+  --glow-top:radial-gradient(58% 44% at 78% 6%,rgba(217,255,58,.13),transparent 68%);
+  --glow-brown:radial-gradient(64% 50% at 12% 96%,rgba(217,255,58,.07),transparent 72%);
+  --sh-2:0 3px 16px -5px rgba(0,0,0,.32);
+  --sh-3:0 18px 36px -18px rgba(0,0,0,.5);
+  --sh-overlay:0 24px 60px -18px rgba(0,0,0,.55);
 }
-/* Maintain legibility on the brighter palette; never use neon for body text. */
-::selection{background:#D6FB00;color:#073C43}
-:focus-visible{outline-color:#00545F}
+/* Dark surfaces: strong contrast without changing artwork or image pixels. */
+html,body{background-color:var(--color-bg);color:var(--color-text)}
+::selection{background:#D9FF3A;color:#11121C}
+:focus-visible{outline-color:#D9FF3A}
+:is(.btn-primary,.btn-accent,.button-primary)[style*="background"]{color:#11121C}
+:is(input,textarea,select){color:var(--color-text);background-color:var(--color-surface);border-color:var(--color-border)}
+:is(input,textarea)::placeholder{color:var(--color-muted);opacity:1}

@@ -15,23 +15,16 @@
       "artists precise, professional visual branding, from cover design to " +
       "animation and lyric videos. Creative, crafted and made to fit, at prices " +
       "that work. Because your music deserves a cover that tells its story.",
-    // ---- work summary lead ----
-    "הבית לעיצוב עטיפות בתעשיית המוזיקה סטודיו המתמחה בעיצוב עטיפות אלבומים, סינגלים ועטיפות מוזיקה לאמנים וזמרים.":
-      "The home for cover art in the music industry. A studio specialising in album covers, single covers and music artwork for artists and singers.",
-    "אנחנו יוצרים מיתוג ויזואלי מקצועי ומדויק שמחבר בין הסגנון המוזיקלי, האמן והסיפור שמאחורי היצירה.":
-      "We build precise, professional visual branding that connects the musical style, the artist and the story behind the work.",
-    "מעיצוב עטיפות אלבום וסינגל ועד אנימציות, קליפים למילים, ויזואליזרים ותוכן ויזואלי למוזיקה.":
-      "From album and single covers through to animation, lyric videos, visualisers and visual content for music.",
-    "כל עיצוב נבנה בהתאמה אישית כדי ליצור נראות ייחודית, בולטת וזכירה בכל פלטפורמה.":
-      "Every design is built to fit, so it reads as distinctive, striking and memorable on every platform.",
-    "אנחנו מתאימים את העיצובים להפצה דיגיטלית ולשימוש בפלטפורמות המוזיקה והרשתות החברתיות.":
-      "We prepare each design for digital distribution and for use across the music platforms and social networks.",
-    "המטרה שלנו היא לתת לכל שיר, סינגל ואלבום זהות ויזואלית שמרגישה מקצועית ומספרת את הסיפור שלו.":
-      "Our aim is to give every song, single and album a visual identity that feels professional and tells its story.",
-    "יצירתיות, איכות, דיוק והתאמה אישית במחירים נגישים לאמנים בכל שלב בקריירה.":
-      "Creativity, quality, precision and a personal fit, at prices that work for artists at any stage of their career.",
-    "כי המוזיקה שלך ראויה לעטיפה שלא רק נראית טוב, אלא הופכת לחלק מהחוויה של המוזיקה.":
-      "Because your music deserves a cover that does not just look good, but becomes part of the experience of the music.",
+    // ---- work summary ----
+    "תקציר עבודות": "Showreel",
+    "בואו נכיר": "Meet the studio",
+    "מידע נוסף": "Learn more",
+    "אנחנו מעצבים עטיפות לאלבומים ולסינגלים ובונים זהות ויזואלית שמספרת את הסיפור של המוזיקה שלכם.":
+      "We design <mark>album and single covers</mark> and build visual identities that tell the story of your music.",
+    "מקליפי מילים, אנימציות וויזואליזרים ועד תוכן לרשתות, כל פרויקט מותאם לאמן ולסגנון שלו.":
+      "From lyric videos, animation and visualisers to social content, every project reflects the artist and their style.",
+    "אנחנו מכינים את העיצובים להפצה דיגיטלית בפלטפורמות המוזיקה וברשתות החברתיות.":
+      "We prepare the artwork for <mark>digital distribution</mark> across music platforms and social media.",
     // ---- nav ----
     "ראשי": "Main",
     "מחלקת גרפיקה": "Graphics",

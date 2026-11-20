@@ -1988,23 +1988,7 @@ body.loaded > footer{
   font-size:var(--t-lg); font-weight:var(--fw-semibold);
 }
 
-/* ══ Work summary ══════════════════════════════════════════════════════
-   Not two columns of equal weight. The video is the mass the composition is
-   built around: it takes the larger track, runs past the container to the
-   physical right edge of the viewport, and is taller than the copy beside it.
-   The copy is set as a narrow editorial column that hangs LOW against that
-   mass rather than centring itself in it — the offset is what stops the pair
-   reading as a media box with a paragraph next to it.
-
-   Under both of them the index continues the composition: the same grid, the
-   same rules, the three departments as a ruled list. It is the second half of
-   one idea, not a second section.
-
-   DIRECTION. The page is dir="rtl", which would mirror all of this and put the
-   video on the left. The art direction is physical, so the grid runs ltr and
-   each text block sets rtl back on itself — the same device the tickers, the
-   carousel and the hero already use.
-   ══════════════════════════════════════════════════════════════════════════ */
+/* Work summary: keep the video on the right on desktop in both languages. */
 .worksum-section{padding-block:clamp(72px,10vw,var(--s-10))}
 
 .worksum{
@@ -2012,63 +1996,26 @@ body.loaded > footer{
   grid-template-columns:minmax(0,.78fr) minmax(0,1.32fr);
   column-gap:clamp(28px,4vw,var(--s-7));
   row-gap:var(--s-6);
-  /* stretch, so the two columns are exactly the same height: whichever is
-     taller sets the row and the other fills it. `start` (and `end` before it)
-     sized each column to its own content, which is what left one side short
-     against the other.
-
-     This also keeps the top alignment asked for earlier, for free. .worksum-copy
-     is a column flexbox, so when its box is stretched taller than its text the
-     text still sits at the top — the box grows downward, the content does not
-     move. Stretch is strictly better than start here: identical where the copy
-     is shorter, correct where it is taller. */
-  align-items:stretch;
+  align-items:center;
 }
-.worksum-media{grid-column:2; grid-row:1; margin:0}
 .worksum-copy{
   grid-column:1; grid-row:1;
-  direction:rtl; text-align:right;
+  text-align:start;
   display:flex; flex-direction:column; align-items:flex-start;
-  /* No block padding. The eyebrow is a pill with line-height:1, so its box top
-     is also its visual top — with the grid starting both columns together, the
-     first thing in the copy lines up with the first pixel of the video and
-     needs no optical correction. */
 }
 .worksum-index{grid-column:1 / -1; grid-row:2}
 
-/* ── the video ─────────────────────────────────────────────────────────
-   Breaks the container on the right only. Left edge stays on the grid, so the
-   asymmetry is deliberate rather than a centred element that happens to be
-   wide. Height is set by the composition, not by the file's aspect ratio. */
 .worksum-media{
+  grid-column:2; grid-row:1;
   position:relative; overflow:hidden;
-  min-height:clamp(460px,64vh,720px);
-  margin-inline-end:calc(-1 * ((100vw - min(100vw, var(--maxw))) / 2 + var(--s-5)));
+  aspect-ratio:16/9; justify-self:stretch;
+  margin:0;
+  margin-inline-end:calc(-1 * min(220px, (100vw - min(100vw, var(--maxw))) / 2 + var(--s-5)));
 
-  /* THE INNER EDGE IS A FADE, NOT A BORDER.
-     The panel dissolves into the page on the side that faces the copy, so
-     there is no line for the eye to catch between the two halves of the
-     composition. Three consequences, all deliberate:
-
-     · no border-radius. A rounded corner and a fade cannot occupy the same
-       edge — the fade eats the corner before it is ever drawn. The radius
-       comes back at the breakpoint below, where the panel has real edges.
-     · no background. --bg-deep was the letterbox plate; behind a fade it
-       would read as a dark bar bleeding out of the video instead of the page
-       showing through. The poster covers the load window.
-     · no box-shadow here for the same reason a border would not work: a
-       shadow is an edge, and the whole point of this edge is that there
-       isn't one.
-
-     Five stops rather than two. A straight linear ramp in alpha has a visible
-     shoulder where it meets full opacity — the eye reads it as a band. These
-     approximate an ease curve, so the blend has no detectable start or end. */
-  -webkit-mask:linear-gradient(to right,
-    rgba(0,0,0,0) 0%, rgba(0,0,0,.14) 6%, rgba(0,0,0,.48) 13%,
-    rgba(0,0,0,.85) 21%, rgba(0,0,0,1) 30%);
-          mask:linear-gradient(to right,
-    rgba(0,0,0,0) 0%, rgba(0,0,0,.14) 6%, rgba(0,0,0,.48) 13%,
-    rgba(0,0,0,.85) 21%, rgba(0,0,0,1) 30%);
+  /* Fade the edge facing the copy. */
+  --worksum-fade:linear-gradient(to right, transparent, rgba(0,0,0,.35) 7%, #000 18%);
+  -webkit-mask:var(--worksum-fade);
+          mask:var(--worksum-fade);
 }
 .worksum-video{
   position:absolute; inset:0;
@@ -2114,18 +2061,16 @@ body.loaded > footer{
 .worksum-lead{
   margin:0; color:var(--color-muted);
   font-size:var(--t-md); line-height:var(--lh-normal);
-  /* Was 30ch, set when this was a single sentence. The copy is eight
-     paragraphs now and 30ch would have stacked it into a column roughly twice
-     the height of the video beside it. 44ch is still a measure — comfortably
-     inside the grid track, and short enough that the eye finds the next line
-     without hunting. */
   max-width:44ch;
 }
-/* Paragraph rhythm, not <br>. Each line is its own claim, so each is its own
-   block — which is also what lets the i18n dictionary key them one at a time
-   instead of as one 700-character string. */
 .worksum-lead p{margin:0 0 .75em}
 .worksum-lead p:last-child{margin-bottom:0}
+.worksum-lead mark{
+  background:var(--color-accent); color:var(--bg-deep);
+  padding-inline:.14em;
+  -webkit-box-decoration-break:clone;
+          box-decoration-break:clone;
+}
 .worksum-cta{margin-top:var(--s-6)}
 
 /* ── the index: the second half of the same idea ───────────────────────── */
@@ -2155,18 +2100,11 @@ body.loaded > footer{
 }
 .wi-note{font-size:.86rem; color:var(--color-muted); line-height:1.45; max-width:32ch}
 
-/* ── Tablet: the relationship survives, the proportions change ──────────
-   The video keeps its bleed and its dominance; the copy moves beneath it as a
-   full-width editorial block rather than being squeezed into a narrow track. */
 @media (max-width:1024px){
   .worksum{grid-template-columns:minmax(0,1fr); row-gap:var(--s-5)}
-  /* One column: nothing sits beside the video any more, so there is no inner
-     edge to dissolve into. The fade would just be a pale strip down one side of
-     a full-width panel. Off it goes, and the panel gets the edge treatment that
-     suits a real edge instead — corner radius, plate, and a soft shadow to lift
-     it off the ground. */
   .worksum-media{
-    grid-column:1; grid-row:1; min-height:clamp(380px,48vh,520px);
+    grid-column:1; grid-row:1;
+    margin-inline:0;
     -webkit-mask:none; mask:none;
     border-radius:var(--r-md);
     background:var(--bg-deep);
@@ -2184,15 +2122,9 @@ body.loaded > footer{
   .worksum-index a{padding:var(--s-4) 0}
   .wi-note{max-width:none}
 }
-/* ── Mobile: the video stays the dominant object ────────────────────────
-   Full bleed on both edges and a portrait-leaning ratio, so it reads as the
-   subject of the screen rather than as a strip above some text. */
 @media (max-width:560px){
   .worksum-media{
-    min-height:0; aspect-ratio:4/5;
     border-radius:0;
-    /* Edge to edge: there is no corner left to round and no ground left beside
-       the panel for a shadow to fall on. */
     box-shadow:none;
     margin-inline:calc(-1 * var(--s-5));
   }

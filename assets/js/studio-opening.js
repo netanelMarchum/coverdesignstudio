@@ -1,16 +1,16 @@
-/* Opening is an art-directed transition, never a network preloader.
-   One brief opening per tab session; no blocking on images or fonts. */
+/* Play the opening on the first visit in a tab and when the homepage is reloaded. */
 (()=>{
-const homeOpening=document.getElementById('home-opening');
-if(homeOpening){
-  if(!matchMedia('(min-width:901px) and (prefers-reduced-motion:no-preference)').matches)return;
-  try{if(sessionStorage.getItem('studioOpeningSeen')==='1')return}catch(_){}
-  homeOpening.replaceWith(homeOpening.content.cloneNode(true));
+const template=document.getElementById('home-opening');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const navigation=template && performance.getEntriesByType('navigation')[0];
+const reloading=navigation && navigation.type==='reload';
+let seen=false;
+try{seen=sessionStorage.getItem('studioOpeningSeen')==='1';sessionStorage.setItem('studioOpeningSeen','1')}catch(_){}
+if(template && !reduced && (!seen || reloading)){
+  template.replaceWith(template.content.cloneNode(true));
 }
 const el=document.querySelector('.studio-opening');if(!el)return;
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let seen=false;try{seen=sessionStorage.getItem('studioOpeningSeen')==='1';sessionStorage.setItem('studioOpeningSeen','1')}catch(_){}
-if(reduced||seen){el.remove();return}
+if(reduced || (seen && !reloading)){el.remove();return}
 let finished=false;const done=()=>{if(finished)return;finished=true;el.classList.add('is-complete');setTimeout(()=>el.remove(),650)};
 const start=performance.now();
 const show=()=>{const remaining=Math.max(0,2300-(performance.now()-start));setTimeout(done,remaining)};

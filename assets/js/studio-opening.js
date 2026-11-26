@@ -1,6 +1,13 @@
 /* Opening is an art-directed transition, never a network preloader.
    One brief opening per tab session; no blocking on images or fonts. */
-(()=>{const el=document.querySelector('.studio-opening');if(!el)return;
+(()=>{
+const homeOpening=document.getElementById('home-opening');
+if(homeOpening){
+  if(!matchMedia('(min-width:901px) and (prefers-reduced-motion:no-preference)').matches)return;
+  try{if(sessionStorage.getItem('studioOpeningSeen')==='1')return}catch(_){}
+  homeOpening.replaceWith(homeOpening.content.cloneNode(true));
+}
+const el=document.querySelector('.studio-opening');if(!el)return;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let seen=false;try{seen=sessionStorage.getItem('studioOpeningSeen')==='1';sessionStorage.setItem('studioOpeningSeen','1')}catch(_){}
 if(reduced||seen){el.remove();return}

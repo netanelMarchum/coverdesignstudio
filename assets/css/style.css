@@ -1599,9 +1599,7 @@ body.loaded > footer{
   position:relative; isolation:isolate;
   min-height:clamp(360px,68vh,680px);
   display:grid; align-content:center; justify-items:center; gap:clamp(24px,4vh,44px);
-  background:
-    linear-gradient(180deg, rgba(242,239,233,.62), rgba(242,239,233,.86)),
-    url('../img/bg1-1.jpg') center/cover no-repeat;
+  background:linear-gradient(180deg, rgba(242,239,233,.62), rgba(242,239,233,.86));
   /* Slide up under the sticky header so the plate is full-bleed; the padding
      puts the wordmark back below it. --header-h is measured in script.js. */
   margin-top:calc(var(--header-h, 66px) * -1);

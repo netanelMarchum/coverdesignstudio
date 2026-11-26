@@ -4,13 +4,6 @@
   var hero=document.querySelector('.hero-orbit');
   if(!hero)return;
   var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  var tiles=[].slice.call(hero.querySelectorAll('.orbit-tile'));
-  tiles.forEach(function(tile,i){
-    var img=tile.querySelector('img');
-    if(!img)return;
-    img.loading=i<3?'eager':'lazy';
-    img.decoding='async';
-  });
   if(reduced.matches)return;
   // Suspend perpetual decorative motion when not visible to save battery.
   var observer=new IntersectionObserver(function(entries){

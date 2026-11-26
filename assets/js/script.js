@@ -150,15 +150,22 @@ if (burger && nav) {
   var root = document.documentElement;
   var band = document.querySelector('.intro');
   var ticking = false;
+  var height;
 
-  function measure() {
-    root.style.setProperty('--header-h', header.offsetHeight + 'px');
-  }
   function sync() {
     ticking = false;
-    if (band) root.classList.toggle('hdr-over', band.getBoundingClientRect().bottom > header.offsetHeight);
+    if (band) root.classList.toggle('hdr-over', band.getBoundingClientRect().bottom > height);
   }
-  function onResize() { measure(); sync(); }
+
+  function onResize() {
+    var nextHeight = header.offsetHeight;
+    var overBand = band && band.getBoundingClientRect().bottom > nextHeight;
+    if (nextHeight !== height) {
+      height = nextHeight;
+      root.style.setProperty('--header-h', height + 'px');
+    }
+    if (band) root.classList.toggle('hdr-over', overBand);
+  }
 
   addEventListener('scroll', function () {
     if (!ticking) { ticking = true; requestAnimationFrame(sync); }
@@ -304,8 +311,6 @@ window.pageTransition = (function () {
     if (!v) return fallback;
     return v.slice(-2) === 'ms' ? parseFloat(v) : parseFloat(v) * 1000;
   }
-  var OUT = reduce ? 0 : ms('--d-veil-out', 240);
-  var IN = reduce ? 0 : ms('--d-veil-in', 320);
 
   // Settle the veil once the entry animation finishes.
   //
@@ -319,7 +324,8 @@ window.pageTransition = (function () {
   }
   if (veil) {
     if (reduce) settle();
-    else {
+    else if (!veil.classList.contains('is-idle')) {
+      var IN = ms('--d-veil-in', 320);
       veil.addEventListener('animationend', settle, { once: true });
       var failsafe = setTimeout(settle, IN + 400);
       document.addEventListener('visibilitychange', function () {
@@ -348,6 +354,8 @@ window.pageTransition = (function () {
     if (!veil || reduce) { work(); return Promise.resolve(); }
     if (busy) return Promise.resolve();
     busy = true;
+    var outDuration = ms('--d-veil-out', 240);
+    var inDuration = ms('--d-veil-in', 320);
     settle();                        // retire the entry animation so transitions apply
     // force a style flush so the class change transitions instead of snapping
     void veil.offsetWidth;
@@ -362,10 +370,10 @@ window.pageTransition = (function () {
             setTimeout(function () {
               busy = false;
               resolve();
-            }, IN);
+            }, inDuration);
           });
         }
-      }, OUT);
+      }, outDuration);
     });
   }
 
@@ -374,10 +382,11 @@ window.pageTransition = (function () {
     if (busy) return;
     busy = true;
     if (!veil || reduce) { window.location.href = url; return; }
+    var outDuration = ms('--d-veil-out', 240);
     settle();
     void veil.offsetWidth;
     veil.classList.add('is-leaving');
-    setTimeout(function () { window.location.href = url; }, OUT);
+    setTimeout(function () { window.location.href = url; }, outDuration);
   }
 
   document.addEventListener('click', function (e) {
@@ -411,7 +420,12 @@ window.pageTransition = (function () {
     veil.classList.remove('is-leaving');
   });
 
-  return { cover: cover, leave: leave, outMs: OUT, inMs: IN };
+  return {
+    cover: cover,
+    leave: leave,
+    get outMs() { return reduce ? 0 : ms('--d-veil-out', 240); },
+    get inMs() { return reduce ? 0 : ms('--d-veil-in', 320); },
+  };
 })();
 
 
@@ -482,16 +496,7 @@ window.pageTransition = (function () {
   v.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   v.addEventListener('dragstart', function (e) { e.preventDefault(); });
 
-  /* ---- autoplay, but gated on the viewport --------------------------------
-     showreel.mp4 is 65 MB. `autoplay` in the markup is what the browser needs
-     to see to allow a muted start at all, but paired with preload="none" it
-     fetches nothing until something asks it to play — and the only thing that
-     asks is the observer below, one viewport out. A visitor who never reaches
-     this section never spends the 65 MB, and one who does has it already
-     running by the time it is on screen. Same pattern as the reel cards above.
-
-     Muted is not decoration here: an unmuted autoplay is blocked outright by
-     every current browser, so `muted` is what makes `autoplay` mean anything. */
+  // Attach the showreel URL only when the section is visible or playback is requested.
   var toggle = document.querySelector('.worksum-toggle');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   // Set by the button. Once the visitor has paused deliberately, scrolling
@@ -505,30 +510,31 @@ window.pageTransition = (function () {
     toggle.setAttribute('aria-label', playing ? 'השהיית הווידאו' : 'הפעלת הווידאו');
   }
 
+  function play() {
+    if (!v.hasAttribute('src')) v.src = v.dataset.src;
+    v.play().catch(function () { paint(!v.paused); });
+  }
+
+  v.addEventListener('play', function () { paint(true); });
+  v.addEventListener('pause', function () { paint(false); });
+
   if (toggle) {
     toggle.addEventListener('click', function () {
       held = !v.paused;
-      if (held) { v.pause(); } else { v.play().catch(function () {}); }
-      paint(!held);
+      if (held) v.pause();
+      else play();
     });
   }
 
-  /* Reduced motion: the poster frame stays and nothing ever starts on its own.
-     The button still works, so the video is available — it is just never
-     something that begins moving without being asked. */
-  if (reduce) { v.removeAttribute('autoplay'); held = true; paint(false); return; }
+  if (reduce || !('IntersectionObserver' in window)) return;
 
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting && !document.hidden) {
-          if (held) return;
-          if (v.preload === 'none') v.preload = 'auto';
-          v.play().then(function () { paint(true); }).catch(function () {});
-        } else if (!v.paused) {
-          v.pause();                       // off screen is not worth a decode
-        }
-      });
-    }, { threshold: 0.25 }).observe(v);
-  }
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio >= 0.25 && !document.hidden) {
+        if (!held) play();
+      } else if (!v.paused) {
+        v.pause();
+      }
+    });
+  }, { threshold: 0.25 }).observe(v);
 })();

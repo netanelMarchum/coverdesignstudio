@@ -40,6 +40,7 @@
 
   var intro = document.querySelector('.intro');
   if (!intro || !window.gsap) return;
+  if (document.body.id === 'home' && matchMedia('(max-width: 900px)').matches) return;
 
   /* Reduced motion: the stylesheet leaves every one of these visible on its
      own, so returning here is the whole implementation. Nothing to undo. */

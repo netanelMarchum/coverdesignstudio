@@ -11,6 +11,8 @@ import esbuild from 'esbuild';
 import process from 'node:process';
 import { targets } from './lib/build-targets.mjs';
 
+await import('./build-responsive-images.mjs');
+
 const portArg = process.argv.indexOf('--port');
 const PORT = portArg > -1 ? Number(process.argv[portArg + 1]) : 4173;
 
@@ -32,6 +34,7 @@ const contexts = await Promise.all(
     esbuild.context({
       entryPoints: [t.in],
       outfile: t.out,
+      ...t.options,
       minify: true,
       allowOverwrite: true,
       charset: 'utf8',           // keep Hebrew literals as UTF-8, not \uXXXX

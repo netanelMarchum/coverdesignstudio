@@ -1,19 +1,39 @@
-// Preserve originals; emit two high-quality sizes for square portfolio cards.
+// Emit responsive WebP assets during the build and preserve the original artwork.
 import sharp from 'sharp';
-import { readdir, mkdir, stat } from 'node:fs/promises';
-const dir = 'assets/img/insta';
-await mkdir(`${dir}/responsive`, { recursive: true });
-let originalBytes = 0, smallBytes = 0, largeBytes = 0;
-for (const file of await readdir(dir)) {
-  if (!/^i\d+\.jpg$/.test(file)) continue;
-  const source = `${dir}/${file}`;
-  originalBytes += (await stat(source)).size;
-  for (const width of [400, 800]) {
-    const output = `${dir}/responsive/${file.replace('.jpg', '')}-${width}.webp`;
-    await sharp(source).resize({ width, withoutEnlargement: true })
-      .webp({ quality: 85, effort: 6 }).toFile(output);
-    if (width === 400) smallBytes += (await stat(output)).size;
-    else largeBytes += (await stat(output)).size;
+import { mkdir, readdir } from 'node:fs/promises';
+
+const groups = [
+  {
+    dir: 'assets/img/insta',
+    pattern: /^i\d+\.jpg$/,
+    widths: [240, 320, 400, 640, 800],
+    quality: 82,
+  },
+  {
+    dir: 'assets/img/portfolio',
+    pattern: /^hq[1-8]\.jpg$/,
+    widths: [640, 960, 1600],
+    quality: 82,
+  },
+  {
+    dir: 'assets/img/fx',
+    pattern: /^wave\.webp$/,
+    widths: [480],
+    quality: 80,
+  },
+];
+
+for (const { dir, pattern, widths, quality } of groups) {
+  await mkdir(`${dir}/responsive`, { recursive: true });
+  const files = (await readdir(dir)).filter((file) => pattern.test(file));
+  for (const file of files) {
+    const source = `${dir}/${file}`;
+    const basename = file.slice(0, file.lastIndexOf('.'));
+    await Promise.all(widths.map((width) =>
+      sharp(source).resize({ width, withoutEnlargement: true })
+        .webp({ quality, effort: 5 })
+        .toFile(`${dir}/responsive/${basename}-${width}.webp`),
+    ));
   }
+  console.log(`Generated ${files.length * widths.length} WebP variants for ${dir}`);
 }
-console.log(JSON.stringify({ originalBytes, smallBytes, largeBytes }));

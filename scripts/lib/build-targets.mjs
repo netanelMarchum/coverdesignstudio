@@ -6,8 +6,13 @@
 // Every asset the pages actually load is listed here. Previously only style.css
 // and script.js were minified while six other scripts shipped as raw source.
 
-/** @type {{in: string, out: string}[]} */
+/** @type {{in: string, out: string, options?: import("esbuild").BuildOptions}[]} */
 export const targets = [
+  {
+    in: 'assets/css/home.css',
+    out: 'assets/css/home.min.css',
+    options: { bundle: true, external: ['../fonts/*', '../img/*'] },
+  },
   { in: 'assets/css/fonts.css', out: 'assets/css/fonts.min.css' },
   { in: 'assets/css/style.css', out: 'assets/css/style.min.css' },
   { in: 'assets/css/studio-v2.css', out: 'assets/css/studio-v2.min.css' },

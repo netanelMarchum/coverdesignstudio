@@ -20,6 +20,7 @@ for (const t of targets) {
     await esbuild.build({
       entryPoints: [t.in],
       outfile: t.out,
+      ...t.options,
       minify: true,
       allowOverwrite: true,
       legalComments: 'none',

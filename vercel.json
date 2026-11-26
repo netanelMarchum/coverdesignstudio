@@ -80,10 +80,15 @@
         {
           "key": "Cross-Origin-Resource-Policy",
           "value": "same-origin"
-        },
+        }
+      ]
+    },
+    {
+      "source": "/assets/img/(fx/.*|intro/.*|hero-orange\\.webp)",
+      "headers": [
         {
           "key": "X-Robots-Tag",
-          "value": "noimageindex"
+          "value": "noindex"
         }
       ]
     },
